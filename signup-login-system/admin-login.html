@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - YOURS.vn</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .login-header {
+      background: linear-gradient(135deg, #7B3FF2 0%, #9C27B0 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    .login-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    }
+
+    .login-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-header p {
+      font-size: 16px;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+
+    .admin-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-form {
+      padding: 40px 30px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid #e1e5e9;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #7B3FF2;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(123, 63, 242, 0.1);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #7B3FF2 0%, #9C27B0 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(123, 63, 242, 0.3);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-message {
+      background: #fee;
+      color: #c53030;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      border-left: 4px solid #c53030;
+      display: none;
+    }
+
+    .success-message {
+      background: #f0fff4;
+      color: #38a169;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      border-left: 4px solid #38a169;
+      display: none;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .back-link a {
+      color: #7B3FF2;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .back-link a:hover {
+      color: #9C27B0;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .security-notice {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #856404;
+    }
+
+    .security-notice strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-header">
+      <div class="admin-icon">👨‍💼</div>
+      <h1>Admin Panel</h1>
+      <p>YOURS Fashion Design</p>
+    </div>
+    
+    <div class="login-form">
+      <div class="security-notice">
+        <strong>🔒 Bảo mật</strong>
+        Chỉ quản trị viên được phép truy cập vào hệ thống này.
+      </div>
+      
+      <div class="error-message" id="errorMessage"></div>
+      <div class="success-message" id="successMessage"></div>
+      
+      <form id="adminLoginForm">
+        <div class="form-group">
+          <label for="username">Tên đăng nhập</label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            placeholder="Nhập tên đăng nhập"
+            required
+            autocomplete="username"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Mật khẩu</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="Nhập mật khẩu"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+        
+        <button type="submit" class="login-btn" id="loginBtn">
+          <span class="btn-text">Đăng nhập</span>
+          <span class="loading" style="display: none;"></span>
+        </button>
+      </form>
+      
+      <div class="back-link">
+        <a href="choose-login.html">← Quay lại trang chủ</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const loginBtn = document.getElementById('loginBtn');
+      const btnText = loginBtn.querySelector('.btn-text');
+      const loading = loginBtn.querySelector('.loading');
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+      
+      // Hide previous messages
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+      
+      // Show loading state
+      loginBtn.disabled = true;
+      btnText.textContent = 'Đang đăng nhập...';
+      loading.style.display = 'inline-block';
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/admin/signin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Store admin token
+          localStorage.setItem('adminToken', data.token);
+          localStorage.setItem('adminInfo', JSON.stringify(data.admin));
+          
+          // Show success message
+          successMessage.textContent = 'Đăng nhập thành công! Đang chuyển hướng...';
+          successMessage.style.display = 'block';
+          
+          // Redirect to admin dashboard
+          setTimeout(() => {
+            window.location.href = 'admin-dashboard.html';
+          }, 1000);
+          
+        } else {
+          // Show error message
+          errorMessage.textContent = data.message || 'Đăng nhập thất bại';
+          errorMessage.style.display = 'block';
+        }
+        
+      } catch (error) {
+        console.error('Login error:', error);
+        errorMessage.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+        errorMessage.style.display = 'block';
+      } finally {
+        // Reset button state
+        loginBtn.disabled = false;
+        btnText.textContent = 'Đăng nhập';
+        loading.style.display = 'none';
+      }
+    });
+    
+    // Auto-focus username field
+    document.getElementById('username').focus();
+    
+    // Handle Enter key
+    document.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        document.getElementById('adminLoginForm').dispatchEvent(new Event('submit'));
+      }
+    });
+  </script>
+</body>
+</html> 

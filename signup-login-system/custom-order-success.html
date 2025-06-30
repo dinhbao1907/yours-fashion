@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đặt In Thành Công - YOURS.vn</title>
+  <link rel="stylesheet" href="css/design.css">
+  <style>
+    body { background: #fafaff; font-family: 'Montserrat', Arial, sans-serif; }
+    .success-container { max-width: 480px; margin: 48px auto; background: #fff; border-radius: 18px; box-shadow: 0 2px 16px #e9e9f3; padding: 32px 28px; text-align: center; }
+    .success-title { color: #7c3aed; font-size: 2rem; font-weight: 700; margin-bottom: 18px; }
+    .success-img { max-width: 220px; max-height: 220px; border-radius: 12px; box-shadow: 0 1px 8px #eee; margin-bottom: 18px; }
+    .success-details { text-align: left; margin: 0 auto 18px auto; max-width: 320px; }
+    .success-details div { margin-bottom: 8px; font-size: 1.08rem; }
+    .success-price { color: #7c3aed; font-weight: 700; font-size: 1.2rem; margin-bottom: 12px; }
+    .success-btn { background: #7c3aed; color: #fff; border: none; padding: 12px 32px; border-radius: 24px; font-weight: 600; font-size: 1.1rem; cursor: pointer; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <div class="success-container">
+    <div class="success-title">Đặt In Thành Công!</div>
+    <img id="customDesignImg" class="success-img" src="" alt="Thiết kế của bạn">
+    <div class="success-details">
+      <div><b>Chất liệu:</b> <span id="customMaterial"></span></div>
+      <div><b>Size:</b> <span id="customSize"></span></div>
+      <div><b>Ghi chú:</b> <span id="customNotes"></span></div>
+      <div class="success-price">150,000 VND</div>
+    </div>
+    <div style="color:#4caf50;font-weight:600;margin-bottom:12px;">Cảm ơn bạn đã đặt in tại YOURS.vn!</div>
+    <button class="success-btn" onclick="window.location.href='homepage.html'">Về trang chủ</button>
+  </div>
+  <script>
+    // Load order details from localStorage
+    var order = JSON.parse(localStorage.getItem('customOrderSuccess') || '{}');
+    document.getElementById('customDesignImg').src = order.designImage || '';
+    document.getElementById('customMaterial').textContent = order.material || '';
+    document.getElementById('customSize').textContent = order.size || '';
+    document.getElementById('customNotes').textContent = order.notes || '';
+    // Optionally: remove the temp key after showing
+    localStorage.removeItem('customOrderSuccess');
+  </script>
+</body>
+</html> 

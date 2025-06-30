@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tất cả sản phẩm - YOURS.vn</title>
+  <link rel="stylesheet" href="css/homepage.css">
+  <link rel="stylesheet" href="css/product.css">
+  <style>
+    .all-products-container {
+      display: flex;
+      max-width: 1400px;
+      margin: 40px auto 60px auto;
+      gap: 32px;
+      min-height: 70vh;
+    }
+    .sidebar {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(90,34,212,0.07);
+      min-width: 220px;
+      padding: 30px 0 30px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      height: fit-content;
+    }
+    .sidebar-title {
+      font-weight: bold;
+      color: #5B22D4;
+      font-size: 1.2rem;
+      margin-left: 32px;
+      margin-bottom: 18px;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0 0 0 0;
+      margin: 0;
+      width: 100%;
+    }
+    .sidebar li {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .sidebar button {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 12px 30px;
+      color: #5B22D4;
+      background: none;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      outline: none;
+      gap: 8px;
+    }
+    .sidebar button.active, .sidebar button:hover {
+      background: #f3f6ff;
+      color: #8A4AF3;
+    }
+    .sort-bar {
+      background: #f6f2ff;
+      border-radius: 18px;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .sort-bar label {
+      font-weight: 600;
+      color: #8A4AF3;
+      margin-right: 10px;
+    }
+    .sort-btn {
+      background: #fff;
+      border: 2px solid #8A4AF3;
+      color: #8A4AF3;
+      border-radius: 12px;
+      padding: 8px 22px;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-right: 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .sort-btn.active, .sort-btn:hover {
+      background: #8A4AF3;
+      color: #fff;
+    }
+    .sort-select {
+      border: 2px solid #8A4AF3;
+      border-radius: 12px;
+      padding: 8px 18px;
+      font-size: 1rem;
+      color: #5B22D4;
+      font-weight: 600;
+      background: #fff;
+      outline: none;
+    }
+    .products-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 30px;
+      width: 100%;
+    }
+    .product-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 18px rgba(90,34,212,0.10);
+      padding: 20px 12px 24px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: box-shadow 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(40px);
+      margin: 14px 8px 24px 8px;
+      min-width: 220px;
+      max-width: 260px;
+    }
+    .product-card.animated {
+      animation: fadeSlideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    }
+    @keyframes fadeSlideIn {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .product-card:hover {
+      box-shadow: 0 8px 32px rgba(90,34,212,0.18);
+      transform: scale(1.04);
+      z-index: 2;
+    }
+    .product-card img {
+      width: auto;
+      height: auto;
+      max-width: 160px;
+      max-height: 120px;
+      display: block;
+      margin: 0 auto 18px auto;
+      border-radius: 10px;
+      object-fit: contain;
+      background: #fff;
+    }
+    .new-label {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      background: #C5ED51;
+      color: #333;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 6px 16px;
+      border-radius: 10px;
+      z-index: 1;
+      box-shadow: 0 2px 8px rgba(90,34,212,0.07);
+    }
+    .product-card h3 {
+      color: #8A4AF3;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin: 10px 0 5px 0;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .product-card p {
+      color: #666;
+      font-size: 0.95rem;
+      margin: 5px 0;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .product-card .designer {
+      color: #666;
+      font-size: 1rem;
+      margin-bottom: 0;
+    }
+    .product-card .designer b {
+      color: #222;
+      font-weight: bold;
+    }
+    .product-card .price {
+      color: #8A4AF3;
+      font-weight: bold;
+      font-size: 1.05rem;
+      margin-top: 8px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn.btn-secondary {
+      background-color: #8A4AF3;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      padding: 10px 22px;
+      font-size: 1rem;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(90,34,212,0.10);
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .btn.btn-secondary:hover {
+      background-color: #6D2EC5;
+      box-shadow: 0 4px 16px rgba(90,34,212,0.18);
+    }
+    @media (max-width: 1100px) {
+      .all-products-container {
+        flex-direction: column;
+        gap: 0;
+      }
+      .sidebar {
+        flex-direction: row;
+        min-width: 0;
+        width: 100%;
+        border-radius: 20px 20px 0 0;
+        padding: 20px 0;
+        margin-bottom: 20px;
+      }
+      .sidebar ul {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-around;
+      }
+      .sidebar li {
+        margin-bottom: 0;
+      }
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 700px) {
+      .sidebar-title { margin-left: 12px; }
+      .sort-bar { padding: 10px 5px; gap: 8px; }
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .avatar-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 8px;
+      vertical-align: middle;
+      background: #f3eaff;
+      border: 1.5px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header (same as homepage) -->
+  <header class="header">
+    <div class="logo">
+      <img src="resources/logo.png" alt="YOURS Logo" class="logo">
+    </div>
+    <nav class="nav">
+      <ul>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('homepage.html')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('design.html')">Thiết kế</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('blog.html')">Blog</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('about.html')">Về chúng tôi</button></li>
+      </ul>
+    </nav>
+    <div class="user-menu">
+      <button class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
+      <div id="userDropdown" class="dropdown">
+        <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
+        <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
+        <a href="cart.html" class="dropdown-item">Giỏ hàng</a>
+        <a href="choose-login.html" class="dropdown-item">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+  <div class="all-products-container">
+    <aside class="sidebar">
+      <div style="width:100%;padding:0 18px 18px 18px;box-sizing:border-box;">
+        <input type="text" id="productSearchInput" placeholder="Tìm kiếm sản phẩm..." style="width:100%;padding:10px 16px;border:2px solid #8A4AF3;border-radius:12px;font-size:1rem;outline:none;box-sizing:border-box;display:block;margin:0;">
+      </div>
+      <div style="width:100%;padding:0 18px 18px 18px;box-sizing:border-box;">
+        <div style="font-weight:600;color:#5B22D4;margin-bottom:8px;">Lọc theo màu sắc</div>
+        <div id="colorFilterGroup" style="display:flex;flex-direction:column;gap:6px;">
+          <label><input type="checkbox" class="color-filter" value="white"> Trắng</label>
+          <label><input type="checkbox" class="color-filter" value="black"> Đen</label>
+          <label><input type="checkbox" class="color-filter" value="blue"> Xanh dương</label>
+          <label><input type="checkbox" class="color-filter" value="green"> Xanh lá</label>
+          <label><input type="checkbox" class="color-filter" value="yellow"> Vàng</label>
+          <label><input type="checkbox" class="color-filter" value="pink"> Hồng</label>
+        </div>
+      </div>
+      <div class="sidebar-title">Mục sản phẩm</div>
+      <ul>
+        <li><button class="active">Áo thun <span style="margin-left:auto;">&#9660;</span></button></li>
+      </ul>
+    </aside>
+    <main class="products-main">
+      <div class="sort-bar">
+        <label>Sắp xếp theo</label>
+        <button class="sort-btn active">Phổ biến</button>
+        <button class="sort-btn">Mới nhất</button>
+        <button class="sort-btn">Yêu Thích Nhất</button>
+        <select class="sort-select">
+          <option>Giá cả</option>
+          <option>Thấp đến cao</option>
+          <option>Cao đến thấp</option>
+        </select>
+      </div>
+      <div class="product-grid" id="allProductsGrid">
+        <!-- Product cards will be rendered here -->
+      </div>
+    </main>
+  </div>
+  <!-- Footer (same as homepage) -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <img src="resources/logo-footer.png" alt="Footer Logo" class="footer-logo">
+        <p class="tagline">Nơi sáng tạo những gì bạn muốn</p>
+        <p class="support"><strong>Chăm sóc khách hàng</strong><br>official.yours.fashiondesign@gmail.com</p>
+        <div class="social-icons">
+          <a href="https://www.facebook.com/profile.php?id=61576837198946" target="_blank" rel="noopener noreferrer">
+            <img src="resources/facebook-footer.png" alt="Facebook">
+          </a>
+          <a href="https://www.instagram.com/yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+            <img src="resources/instagram-footer.png" alt="Instagram">
+          </a>
+          <a href="https://www.tiktok.com/@yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+            <img src="resources/tiktok-footer.png" alt="TikTok">
+          </a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>YOURS.vn</h4>
+        <ul>
+          <li><a href="#">Về chúng tôi</a></li>
+          <li><a href="#">Lời chứng thực</a></li>
+          <li><a href="#">Câu hỏi thường gặp</a></li>
+          <li><a href="#">Hướng dẫn thiết kế</a></li>
+          <li><a href="#">Sản phẩm</a></li>
+          <li><a href="#">Tuyển dụng</a></li>
+          <li><a href="#">Tư vấn</a></li>
+          <li><a href="#">Chính sách hỗ trợ</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Chính sách & hỗ trợ</h4>
+        <ul>
+          <li><a href="#">Chính sách bảo mật và quyền riêng tư</a></li>
+          <li><a href="#">Điều khoản và điều kiện</a></li>
+          <li><a href="#">Chính sách vận chuyển và giao nhận</a></li>
+          <li><a href="#">Quy định và hình thức thanh toán</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Phương thức thanh toán</h4>
+        <div class="payment-methods">
+          <img src="resources/momo.png" alt="Momo">
+          <img src="resources/zalopay.png" alt="Zalopay">
+          <img src="resources/visa.png" alt="Visa">
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
+    </div>
+  </footer>
+  <script>
+    let allDesigns = []; // Store all designs globally
+    let filteredDesigns = [];
+    let selectedColors = [];
+    let currentSort = 'popular'; // Default sort
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+    document.addEventListener('click', function(event) {
+      const userBtn = document.querySelector('.user-btn[onclick*="toggleDropdown"]');
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown && userBtn && !userBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    // Product rendering logic
+    function renderProductCard(design) {
+      // Use the actual design image if available, otherwise fallback
+      let imageSrc = '';
+      if (design.designImage && design.designImage.startsWith('data:image/')) {
+        imageSrc = design.designImage;
+      } else if (design.productType && design.productType.toLowerCase().includes('hoodie')) {
+        imageSrc = 'resources/hoodie-demo.png';
+      } else {
+        imageSrc = 'resources/tshirt-model.png';
+      }
+
+      // Check if product was uploaded in the last 24 hours
+      const isNew = (() => {
+        const uploadDate = new Date(design.createdAt || design.uploadDate || 0);
+        const now = new Date();
+        const timeDifference = now - uploadDate;
+        const hoursDifference = timeDifference / (1000 * 60 * 60); // Convert to hours
+        return hoursDifference <= 24;
+      })();
+
+      return `
+        <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
+          <img src="${imageSrc}" alt="${design.productType || 'Product'}">
+          ${isNew ? '<span class="new-label">New</span>' : ''}
+          <h3>${design.name || 'Tên thiết kế'}</h3>
+          <p class="designer">by <b>${design.username || 'Designer'}</b></p>
+          <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
+          <button class="btn btn-secondary" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'; event.stopPropagation();">Xem sản phẩm</button>
+        </div>
+      `;
+    }
+
+    // Sorting functions
+    function sortByPopularity(designs) {
+      return designs.sort((a, b) => {
+        const ratingA = a.rating || 0;
+        const ratingB = b.rating || 0;
+        return ratingB - ratingA; // Highest rating first
+      });
+    }
+
+    function sortByNewest(designs) {
+      return designs.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.uploadDate || 0);
+        const dateB = new Date(b.createdAt || b.uploadDate || 0);
+        return dateB - dateA; // Newest first
+      });
+    }
+
+    function sortByMostLoved(designs) {
+      return designs.sort((a, b) => {
+        const likesA = a.likes || a.favorites || a.loveCount || 0;
+        const likesB = b.likes || b.favorites || b.loveCount || 0;
+        return likesB - likesA; // Most loved first
+      });
+    }
+
+    function sortByPrice(designs, order = 'low-to-high') {
+      return designs.sort((a, b) => {
+        const priceA = a.price || 0;
+        const priceB = b.price || 0;
+        if (order === 'low-to-high') {
+          return priceA - priceB;
+        } else {
+          return priceB - priceA;
+        }
+      });
+    }
+
+    // Function to apply current sort and render products
+    function applySortAndRender() {
+      const container = document.getElementById('allProductsGrid');
+      if (!container) return;
+      let designsToShow = filteredDesigns.length ? filteredDesigns : allDesigns;
+      // Filter by color if any color is selected
+      if (selectedColors.length > 0) {
+        designsToShow = designsToShow.filter(d => {
+          const color = (d.color || '').toLowerCase();
+          return selectedColors.some(sel => color === sel);
+        });
+      }
+      if (!designsToShow.length) {
+        container.innerHTML = '<p>Không tìm thấy sản phẩm nào.</p>';
+        return;
+      }
+      let sortedDesigns = [...designsToShow];
+
+      switch (currentSort) {
+        case 'popular':
+          sortedDesigns = sortByPopularity(sortedDesigns);
+          break;
+        case 'newest':
+          sortedDesigns = sortByNewest(sortedDesigns);
+          break;
+        case 'most-loved':
+          sortedDesigns = sortByMostLoved(sortedDesigns);
+          break;
+        case 'price-low-high':
+          sortedDesigns = sortByPrice(sortedDesigns, 'low-to-high');
+          break;
+        case 'price-high-low':
+          sortedDesigns = sortByPrice(sortedDesigns, 'high-to-low');
+          break;
+        default:
+          sortedDesigns = sortByPopularity(sortedDesigns);
+      }
+
+      container.innerHTML = sortedDesigns.map(renderProductCard).join('');
+
+      // Animate product cards with staggered delay
+      const cards = container.querySelectorAll('.product-card');
+      cards.forEach((card, idx) => {
+        setTimeout(() => {
+          card.classList.add('animated');
+        }, idx * 100); // 100ms stagger
+      });
+    }
+
+    // Event listeners for sorting
+    function setupSortingListeners() {
+      // Sort buttons
+      const sortButtons = document.querySelectorAll('.sort-btn');
+      sortButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all buttons
+          sortButtons.forEach(btn => btn.classList.remove('active'));
+          // Add active class to clicked button
+          this.classList.add('active');
+
+          // Determine sort type based on button text
+          const buttonText = this.textContent.trim();
+          if (buttonText === 'Phổ biến') {
+            currentSort = 'popular';
+          } else if (buttonText === 'Mới nhất') {
+            currentSort = 'newest';
+          } else if (buttonText === 'Yêu Thích Nhất') {
+            currentSort = 'most-loved';
+          }
+
+          applySortAndRender();
+        });
+      });
+
+      // Price select
+      const priceSelect = document.querySelector('.sort-select');
+      priceSelect.addEventListener('change', function() {
+        const selectedValue = this.value;
+        if (selectedValue === 'Thấp đến cao') {
+          currentSort = 'price-low-high';
+        } else if (selectedValue === 'Cao đến thấp') {
+          currentSort = 'price-high-low';
+        }
+        applySortAndRender();
+      });
+    }
+
+    function loadAllProducts() {
+      const container = document.getElementById('allProductsGrid');
+      if (!container) return;
+      container.innerHTML = '<p>Đang tải sản phẩm...</p>';
+      
+      fetch('http://localhost:5000/api/designs')
+        .then(response => response.json())
+        .then(designs => {
+          if (Array.isArray(designs) && designs.length > 0) {
+            allDesigns = designs; // Store designs globally
+            filteredDesigns = [];
+            applySortAndRender(); // Apply default sort (popular)
+          } else {
+            container.innerHTML = '<p>Chưa có thiết kế nào được đăng tải.</p>';
+          }
+        })
+        .catch(error => {
+          console.error('Error loading products:', error);
+          container.innerHTML = '<p>Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check for ?sort=popular, ?sort=most-loved, or ?sort=newest in URL
+      const params = new URLSearchParams(window.location.search);
+      const sortParam = params.get('sort');
+      if (sortParam === 'popular' || sortParam === 'most-loved' || sortParam === 'newest') {
+        currentSort = sortParam;
+        // Activate the correct button visually
+        const sortButtons = document.querySelectorAll('.sort-btn');
+        sortButtons.forEach(btn => {
+          if (
+            (sortParam === 'popular' && btn.textContent.trim() === 'Phổ biến') ||
+            (sortParam === 'most-loved' && btn.textContent.trim() === 'Yêu Thích Nhất') ||
+            (sortParam === 'newest' && btn.textContent.trim() === 'Mới nhất')
+          ) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+      }
+      loadAllProducts();
+      setupSortingListeners();
+      // If sort was set by param, render immediately after load
+      if (sortParam === 'popular' || sortParam === 'most-loved' || sortParam === 'newest') {
+        applySortAndRender();
+      }
+
+      // Search box event
+      const searchInput = document.getElementById('productSearchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          const value = this.value.trim().toLowerCase();
+          if (value) {
+            filteredDesigns = allDesigns.filter(d => (d.name || '').toLowerCase().includes(value));
+          } else {
+            filteredDesigns = [];
+          }
+          applySortAndRender();
+        });
+      }
+
+      // Color filter event
+      document.querySelectorAll('.color-filter').forEach(cb => {
+        cb.addEventListener('change', function() {
+          selectedColors = Array.from(document.querySelectorAll('.color-filter:checked')).map(cb => cb.value);
+          applySortAndRender();
+        });
+      });
+    });
+
+    (function() {
+      var avatarUrl = localStorage.getItem('userAvatarUrl');
+      var avatarImg = document.getElementById('userAvatarBtn');
+      if (avatarImg) {
+        if (avatarUrl && avatarUrl.length > 5) {
+          avatarImg.src = avatarUrl;
+        } else {
+          avatarImg.src = 'resources/user-circle.png';
+        }
+      }
+    })();
+
+    // Hide 'Cửa hàng của tôi' for non-designers
+    (function() {
+      function getRoleFromToken() {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.role;
+        } catch (e) { return null; }
+      }
+      if (getRoleFromToken() !== 'designer') {
+        var storeMenu = document.getElementById('designerStoreMenu');
+        if (storeMenu) storeMenu.style.display = 'none';
+      }
+    })();
+  </script>
+</body>
+</html> 

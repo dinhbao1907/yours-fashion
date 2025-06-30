@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - YOURS.vn</title>
+  <link rel="stylesheet" href="css/homepage.css">
+  <style>
+    body { background: #f8f8fc; }
+    .dashboard-container { max-width: 1200px; margin: 40px auto; padding: 24px; background: #fff; border-radius: 24px; box-shadow: 0 2px 16px rgba(90,34,212,0.07);}
+    .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .dashboard-title { font-size: 2rem; font-weight: 700; color: #7B3FF2; }
+    .dashboard-cards { display: flex; gap: 24px; margin-bottom: 32px; }
+    .dashboard-card { flex: 1; background: #f6f6fa; border-radius: 18px; padding: 24px; text-align: center; }
+    .dashboard-card-title { color: #8A4AF3; font-size: 1.1rem; margin-bottom: 8px; }
+    .dashboard-card-value { font-size: 2rem; font-weight: 700; color: #23222a; }
+    .dashboard-main { display: flex; gap: 32px; }
+    .dashboard-left { flex: 2; }
+    .dashboard-right { flex: 1; }
+    .dashboard-section { background: #fff; border-radius: 18px; box-shadow: 0 2px 12px rgba(90,34,212,0.07); padding: 24px; margin-bottom: 24px; }
+    .dashboard-section-title { font-size: 1.2rem; font-weight: 700; color: #7B3FF2; margin-bottom: 18px; }
+    .orders-table, .designs-table { width: 100%; border-collapse: collapse; }
+    .orders-table th, .orders-table td, .designs-table th, .designs-table td { padding: 8px 12px; border-bottom: 1px solid #eee; text-align: left; }
+    .orders-table th, .designs-table th { color: #8A4AF3; }
+    .order-status { font-weight: bold; }
+    .order-status.in-progress { color: #FFA500; }
+    .order-status.completed { color: #4CAF50; }
+    .order-status.canceled { color: #e74c3c; }
+    .action-btn { padding: 6px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; margin-right: 6px; }
+    .action-btn.approve { background: #C5ED51; color: #23222a; }
+    .action-btn.reject { background: #e74c3c; color: #fff; }
+    .product-list { display: flex; flex-direction: column; gap: 16px; }
+    .product-item { display: flex; align-items: center; gap: 12px; }
+    .product-img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; }
+    .product-info { flex: 1; }
+    .product-name { font-weight: 600; }
+    .product-price { color: #8A4AF3; font-weight: 700; }
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 200px; background: #fff; border-right: 1px solid #eee; padding: 32px 0; }
+    .sidebar ul { list-style: none; padding: 0; }
+    .sidebar li { margin-bottom: 18px; }
+    .sidebar a { color: #7B3FF2; font-weight: 600; text-decoration: none; padding: 8px 24px; display: block; border-radius: 8px; }
+    .sidebar a.active, .sidebar a:hover { background: #f0eafd; }
+    .main-content { margin-left: 220px; }
+    
+    /* Designer table styling */
+    .designers-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    .designers-table th, .designers-table td { 
+      padding: 12px 8px; 
+      border-bottom: 1px solid #eee; 
+      text-align: left; 
+      vertical-align: middle;
+    }
+    .designers-table th { 
+      color: #7B3FF2; 
+      font-weight: 600; 
+      background: #f8f9fa; 
+      position: sticky; 
+      top: 0; 
+      z-index: 10;
+    }
+    .designers-table tr.status-active, .customers-table tr.status-active {
+      background: #e6f9ed !important;
+      color: #23222a !important;
+    }
+    .designers-table tr.status-active td, .customers-table tr.status-active td {
+      color: #23222a !important;
+    }
+    .designers-table tr:hover, .customers-table tr:hover {
+      background: none !important;
+    }
+    .designers-table tr.banned { background: #fff5f5; }
+    .designers-table tr.deleted { background: #f5f5f5; opacity: 0.7; }
+    .designer-avatar { 
+      width: 40px; 
+      height: 40px; 
+      border-radius: 50%; 
+      object-fit: cover; 
+      border: 2px solid #eee;
+    }
+    .designer-status { 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px; 
+      font-weight: 600; 
+      text-transform: uppercase;
+    }
+    .status-active { background: #4CAF50; color: #fff; }
+    .status-banned { background: #e74c3c; color: #fff; }
+    .status-unverified { background: #ffa500; color: #fff; }
+    .status-deleted { background: #666; color: #fff; }
+    
+    /* Customer table styling */
+    .customers-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    .customers-table th, .customers-table td { 
+      padding: 12px 8px; 
+      border-bottom: 1px solid #eee; 
+      text-align: left; 
+      vertical-align: middle;
+    }
+    .customers-table th { 
+      color: #7B3FF2; 
+      font-weight: 600; 
+      background: #f8f9fa; 
+      position: sticky; 
+      top: 0; 
+      z-index: 10;
+    }
+    .customers-table tr.banned { background: #fff5f5; }
+    .customers-table tr.deleted { background: #f5f5f5; opacity: 0.7; }
+    .customer-avatar { 
+      width: 40px; 
+      height: 40px; 
+      border-radius: 50%; 
+      object-fit: cover; 
+      border: 2px solid #eee;
+    }
+    .customer-status { 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px; 
+      font-weight: 600; 
+      text-transform: uppercase;
+    }
+    
+    /* Payout table styling */
+    .payout-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    .payout-table th, .payout-table td { 
+      padding: 12px 8px; 
+      border-bottom: 1px solid #eee; 
+      text-align: left; 
+      vertical-align: middle;
+    }
+    .payout-table th { 
+      color: #7B3FF2; 
+      font-weight: 600; 
+      background: #f8f9fa; 
+      position: sticky; 
+      top: 0; 
+      z-index: 10;
+    }
+    .payout-table tr:hover { background: #f8f9fa; }
+    .payout-table tr.has-unpaid { background: #fff3e0; }
+    .payout-avatar { 
+      width: 40px; 
+      height: 40px; 
+      border-radius: 50%; 
+      object-fit: cover; 
+      border: 2px solid #eee;
+    }
+    .payout-status { 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px; 
+      font-weight: 600; 
+      text-transform: uppercase;
+    }
+    .payout-status.unpaid { background: #ff9800; color: #fff; }
+    .payout-status.paid { background: #4CAF50; color: #fff; }
+    .payout-amount {
+      font-weight: 600;
+      color: #7B3FF2;
+    }
+    .payout-yours {
+      font-weight: 600;
+      color: #e74c3c;
+    }
+    .payout-designer {
+      font-weight: 600;
+      color: #4CAF50;
+    }
+    
+    /* Notifications styling */
+    .notification-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid #ece8fa;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(124,58,237,0.06);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .notification-item:hover {
+      box-shadow: 0 8px 32px rgba(124,58,237,0.12);
+      border-color: #d1c4e9;
+      transform: translateY(-2px);
+    }
+    .notification-item.unread {
+      background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
+      border-left: 4px solid #ffc107;
+      box-shadow: 0 4px 20px rgba(255,193,7,0.15);
+    }
+    .notification-item.unread:hover {
+      background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
+      box-shadow: 0 8px 32px rgba(255,193,7,0.25);
+    }
+    .notification-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .notification-icon.new-design { 
+      background: linear-gradient(135deg, #7B3FF2 0%, #9C27B0 100%);
+    }
+    .notification-icon.new-customer { 
+      background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+    }
+    .notification-icon.new-order { 
+      background: linear-gradient(135deg, #ffa500 0%, #FF6B35 100%);
+    }
+    .notification-icon.payment { 
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+    .notification-icon.system { 
+      background: linear-gradient(135deg, #666 0%, #444 100%);
+    }
+    .notification-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .notification-title {
+      font-weight: 700;
+      color: #23222a;
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+    .notification-message {
+      color: #666;
+      margin-bottom: 8px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .notification-time {
+      color: #999;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .notification-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .notification-actions button {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+    .notification-actions button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .notification-actions button.primary {
+      background: linear-gradient(135deg, #7B3FF2 0%, #9C27B0 100%);
+      color: #fff;
+    }
+    .notification-actions button.primary:hover {
+      background: linear-gradient(135deg, #9C27B0 0%, #7B3FF2 100%);
+    }
+    .empty-notifications {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+      font-style: italic;
+    }
+    
+    /* Settings Styles */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+      background-color: #7B3FF2;
+    }
+    
+    input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+    
+    .font-size-btn {
+      padding: 6px 12px;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .font-size-btn:hover {
+      background: #f5f5f5;
+    }
+    
+    .font-size-btn.active {
+      background: #7B3FF2;
+      color: white;
+      border-color: #7B3FF2;
+    }
+    
+    .color-theme-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .color-theme-btn:hover {
+      transform: scale(1.1);
+    }
+    
+    .color-theme-btn.active {
+      border-color: #333;
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px #333;
+    }
+    
+    /* Dark Mode Styles */
+    body.dark-mode {
+      background: #1a1a1a;
+      color: #fff;
+    }
+    
+    body.dark-mode .sidebar {
+      background: #2d2d2d;
+      border-right: 1px solid #444;
+    }
+    
+    body.dark-mode .sidebar-link {
+      color: #fff;
+    }
+    
+    body.dark-mode .sidebar-link:hover {
+      background: #444;
+    }
+    
+    body.dark-mode .sidebar-link.active {
+      background: #7B3FF2;
+    }
+    
+    body.dark-mode .dashboard-section {
+      background: #2d2d2d;
+      border: 1px solid #444;
+    }
+    
+    body.dark-mode .setting-item {
+      background: #2d2d2d !important;
+      border-color: #444 !important;
+      color: #fff;
+    }
+    
+    body.dark-mode .setting-item h3 {
+      color: #fff !important;
+    }
+    
+    body.dark-mode .setting-item p {
+      color: #ccc !important;
+    }
+    
+    body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+      background: #444;
+      color: #fff;
+      border-color: #666;
+    }
+    
+    /* Compact Mode Styles */
+    body.compact-mode .dashboard-section {
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    
+    body.compact-mode .setting-item {
+      padding: 16px !important;
+    }
+    
+    body.compact-mode .dashboard-cards {
+      gap: 12px;
+    }
+    
+    body.compact-mode .dashboard-card {
+      padding: 16px;
+    }
+    
+    /* Font Size Classes */
+    body.font-small {
+      font-size: 14px;
+    }
+    
+    body.font-large {
+      font-size: 18px;
+    }
+    
+    body.font-small .dashboard-title {
+      font-size: 20px;
+    }
+    
+    body.font-large .dashboard-title {
+      font-size: 28px;
+    }
+    
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 0;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid #eee;
+      background: linear-gradient(135deg, #7B3FF2 0%, #9C27B0 100%);
+      color: white;
+      border-radius: 12px 12px 0 0;
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .close {
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+    }
+    
+    .close:hover {
+      opacity: 0.7;
+    }
+    
+    .modal-body {
+      padding: 24px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    .modal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .modal-body::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    
+    .modal-body::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+    
+    .modal-body::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+    
+    /* --- Animations --- */
+    @keyframes slideInLeft {
+      from { transform: translateX(-60px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(60px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeScaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideInUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.05); }
+      70% { transform: scale(0.9); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: calc(200px + 100%) 0; }
+    }
+    
+    /* Tab Content Animations */
+    .tab-content {
+      animation: slideInUp 0.5s ease-out;
+    }
+    
+    .tab-content.fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    .tab-content.slide-in-left {
+      animation: slideInLeft 0.5s ease-out;
+    }
+    
+    .tab-content.slide-in-right {
+      animation: slideInRight 0.5s ease-out;
+    }
+    
+    .tab-content.fade-scale-in {
+      animation: fadeScaleIn 0.5s ease-out;
+    }
+    
+    /* Dashboard Cards Animation */
+    .dashboard-card {
+      animation: bounceIn 0.6s ease-out;
+      transition: all 0.3s ease;
+    }
+    
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(123, 63, 242, 0.15);
+    }
+    
+    /* Table Row Animations */
+    .orders-table tbody tr,
+    .designs-table tbody tr,
+    .designers-table tbody tr,
+    .customers-table tbody tr {
+      animation: slideInUp 0.4s ease-out;
+      animation-fill-mode: both;
+    }
+    
+    .orders-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .orders-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    .orders-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    .orders-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    .orders-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+    
+    .designs-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .designs-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    .designs-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    .designs-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    .designs-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+    
+    .designers-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .designers-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    .designers-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    .designers-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    .designers-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+    
+    .customers-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .customers-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    .customers-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    .customers-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    .customers-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+    
+    /* Notification Item Animations */
+    .notification-item {
+      animation: slideInRight 0.4s ease-out;
+      animation-fill-mode: both;
+    }
+    
+    .notification-item:nth-child(1) { animation-delay: 0.1s; }
+    .notification-item:nth-child(2) { animation-delay: 0.2s; }
+    .notification-item:nth-child(3) { animation-delay: 0.3s; }
+    .notification-item:nth-child(4) { animation-delay: 0.4s; }
+    .notification-item:nth-child(5) { animation-delay: 0.5s; }
+    
+    /* Settings Item Animations */
+    .setting-item {
+      animation: fadeScaleIn 0.5s ease-out;
+      animation-fill-mode: both;
+    }
+    
+    .setting-item:nth-child(1) { animation-delay: 0.1s; }
+    .setting-item:nth-child(2) { animation-delay: 0.2s; }
+    .setting-item:nth-child(3) { animation-delay: 0.3s; }
+    .setting-item:nth-child(4) { animation-delay: 0.4s; }
+    .setting-item:nth-child(5) { animation-delay: 0.5s; }
+    .setting-item:nth-child(6) { animation-delay: 0.6s; }
+    
+    /* Badge Animations */
+    #pendingDesignsBadge,
+    #designersCountBadge,
+    #customersCountBadge,
+    #notificationsCountBadge {
+      animation: pulse 2s infinite;
+    }
+    
+    /* Loading Animation */
+    .loading {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200px 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    
+    /* Button Hover Animations */
+    .action-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .action-btn:active {
+      transform: translateY(0);
+    }
+    
+    /* Sidebar Link Animations */
+    .sidebar-link {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sidebar-link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(123, 63, 242, 0.1), transparent);
+      transition: left 0.5s;
+    }
+    
+    .sidebar-link:hover::before {
+      left: 100%;
+    }
+    
+    .sidebar-link.active {
+      animation: pulse 0.6s ease-out;
+    }
+    
+    /* Chart Animations */
+    .dashboard-section canvas {
+      animation: fadeScaleIn 0.8s ease-out;
+    }
+    
+    /* Search Box Animations */
+    input[type="text"], select {
+      transition: all 0.3s ease;
+    }
+    
+    input[type="text"]:focus, select:focus {
+      transform: scale(1.02);
+      box-shadow: 0 0 0 3px rgba(123, 63, 242, 0.1);
+    }
+    
+    /* Modal Animations */
+    .modal-content {
+      animation: fadeScaleIn 0.3s ease-out;
+    }
+    
+    /* Existing animations */
+    .sidebar.animated {
+      animation: slideInLeft 0.7s cubic-bezier(.6,.2,.2,1) 0.1s both;
+    }
+    .main-content.animated {
+      animation: slideInRight 0.7s cubic-bezier(.6,.2,.2,1) 0.2s both;
+    }
+    .modal .modal-animate {
+      animation: fadeScaleIn 0.4s cubic-bezier(.6,.2,.2,1) both;
+    }
+    
+    /* Order Type Badge */
+    .order-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      background: #f3e5f5;
+      color: #7b1fa2;
+      box-shadow: 0 2px 8px rgba(123,63,242,0.07);
+      border: none;
+      white-space: nowrap;
+      transition: background 0.2s, color 0.2s;
+    }
+    .order-type-badge.product {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+    .order-type-badge.custom {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    .order-type-badge .badge-icon {
+      font-size: 1.1em;
+      margin-right: 4px;
+      display: flex;
+      align-items: center;
+    }
+    
+    /* Order Actions Flex Row */
+    .order-actions {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+    .order-actions .action-btn {
+      min-width: 90px;
+      padding: 8px 12px;
+      font-size: 14px;
+      white-space: nowrap;
+      box-sizing: border-box;
+      margin: 0;
+    }
+    @media (max-width: 700px) {
+      .orders-table th:last-child,
+      .orders-table td:last-child {
+        min-width: 120px;
+        width: 120px;
+        max-width: 180px;
+      }
+      .order-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .order-actions .action-btn {
+        width: 100%;
+      }
+    }
+    
+    /* Responsive Table Wrapper */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      background: transparent;
+      border-radius: 12px;
+    }
+    .orders-table {
+      min-width: 1100px;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    /* Dashboard Table Responsive Fix */
+    .dashboard-table-responsive {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      background: transparent;
+      border-radius: 12px;
+    }
+    .dashboard-section {
+      box-sizing: border-box;
+      max-width: 100%;
+      overflow: visible;
+    }
+    .orders-table {
+      max-width: 100%;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    /* Withdrawal table styling */
+    .withdrawal-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    .withdrawal-table th, .withdrawal-table td { 
+      padding: 12px 8px; 
+      border-bottom: 1px solid #eee; 
+      text-align: left; 
+      vertical-align: middle;
+    }
+    .withdrawal-table th { 
+      color: #7B3FF2; 
+      font-weight: 600; 
+      background: #f8f9fa; 
+      position: sticky; 
+      top: 0; 
+      z-index: 10;
+    }
+    .withdrawal-table tr:hover { background: #f8f9fa; }
+    .withdrawal-table tr.pending { background: #fff3e0; }
+    .withdrawal-table tr.completed { background: #e8f5e8; }
+    .withdrawal-table tr.failed { background: #ffebee; }
+    .withdrawal-table tr.cancelled { background: #f5f5f5; }
+    .withdrawal-status { 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px; 
+      font-weight: 600; 
+      text-transform: uppercase;
+    }
+    .withdrawal-status.pending { background: #ff9800; color: #fff; }
+    .withdrawal-status.completed { background: #4CAF50; color: #fff; }
+    .withdrawal-status.failed { background: #e74c3c; color: #fff; }
+    .withdrawal-status.cancelled { background: #666; color: #fff; }
+    .withdrawal-amount {
+      font-weight: 600;
+      color: #7B3FF2;
+    }
+    .withdrawal-method {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+    .withdrawal-method.momo { color: #e91e63; }
+    .withdrawal-method.zalopay { color: #2196f3; }
+    .withdrawal-method.bank { color: #4caf50; }
+    
+    .designer-payout-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f5e6fa;
+      color: #8A4AF3;
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 4px 18px 4px 12px;
+      font-size: 15px;
+      box-shadow: none;
+      border: none;
+      transition: background 0.2s;
+    }
+
+    #sidebarContent-thong-bao .dashboard-section {
+      background: #f9f9fc;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(90,34,212,0.08);
+      border: none;
+      padding: 32px 32px 28px 32px;
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+    #sidebarContent-thong-bao .dashboard-section > div:first-child {
+      display: flex;
+      align-items: center;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #7B3FF2;
+      margin-bottom: 18px;
+      background: none;
+      border-left: 6px solid #7B3FF2;
+      padding-left: 16px;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    #sidebarContent-thong-bao .dashboard-section > div:nth-child(2) {
+      margin-bottom: 18px;
+    }
+    #notificationsContainer {
+      padding: 0;
+      margin-top: 18px;
+      width: 100%;
+    }
+    .notification-item {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #ece8fa;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 8px rgba(124,58,237,0.04);
+      transition: box-shadow 0.18s, border-color 0.18s;
+      padding: 18px 20px 14px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .notification-item:hover {
+      box-shadow: 0 6px 24px rgba(124,58,237,0.10);
+      border-color: #d1c4e9;
+    }
+    .notification-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .designers-table tr.status-active:hover, .customers-table tr.status-active:hover {
+      background: #e6f9ed !important;
+      color: #23222a !important;
+    }
+    .designers-table tr.status-active:hover td, .customers-table tr.status-active:hover td {
+      color: #23222a !important;
+    }
+
+    .designers-table tr.status-banned, .customers-table tr.status-banned {
+      background: #fff5f5 !important;
+      color: #e74c3c !important;
+    }
+    .designers-table tr.status-banned td, .customers-table tr.status-banned td {
+      color: #e74c3c !important;
+    }
+    .designers-table tr.status-banned:hover, .customers-table tr.status-banned:hover {
+      background: #fff5f5 !important;
+      color: #e74c3c !important;
+    }
+    .designers-table tr.status-banned:hover td, .customers-table tr.status-banned:hover td {
+      color: #e74c3c !important;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header" style="padding: 20px; text-align: center; border-bottom: 1px solid #eee;">
+      <img src="resources/logo.png" alt="YOURS Logo" style="width: 120px; height: auto; margin-bottom: 10px;">
+      <div style="font-size: 14px; color: #666; font-weight: 500;">Quản trị viên YOURS</div>
+    </div>
+    <ul>
+      <li><a href="#" id="sidebar-dashboard" class="sidebar-link active" onclick="showSidebarTab('dashboard')">Dashboard</a></li>
+      <li><a href="#" id="sidebar-don-hang" class="sidebar-link" onclick="showSidebarTab('don-hang')">Đơn hàng</a></li>
+      <li><a href="#" id="sidebar-thiet-ke" class="sidebar-link" onclick="showSidebarTab('thiet-ke')">Thiết kế</a></li>
+      <li><a href="#" id="sidebar-khach-hang" class="sidebar-link" onclick="showSidebarTab('khach-hang')">Khách hàng</a></li>
+      <li><a href="#" id="sidebar-designer" class="sidebar-link" onclick="showSidebarTab('designer')">Designer</a></li>
+      <li><a href="#" id="sidebar-thanh-toan-designer" class="sidebar-link" onclick="showSidebarTab('thanh-toan-designer')">Thanh toán Designer</a></li>
+      <li><a href="#" id="sidebar-thong-bao" class="sidebar-link" onclick="showSidebarTab('thong-bao')">Thông báo</a></li>
+      <li><a href="#" id="sidebar-cai-dat" class="sidebar-link" onclick="showSidebarTab('cai-dat')">Cài đặt</a></li>
+    </ul>
+  </div>
+  <div class="main-content">
+    <div class="dashboard-container">
+      <div id="sidebarContent-dashboard" class="tab-content">
+        <div class="dashboard-header">
+          <div class="dashboard-title">Admin Dashboard</div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <select id="dashboardFilter" style="padding:6px 12px;border-radius:6px;border:1px solid #ddd;font-weight:600;">
+              <option value="day">Theo ngày</option>
+              <option value="month" selected>Theo tháng</option>
+              <option value="year">Theo năm</option>
+            </select>
+            <input type="text" placeholder="Tìm kiếm..." style="padding: 8px 16px; border-radius: 8px; border: 1px solid #eee;">
+          </div>
+        </div>
+        <div class="dashboard-cards">
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">Doanh thu (PayOS)</div>
+            <div class="dashboard-card-value" id="revenue">0₫</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">Đơn hàng</div>
+            <div class="dashboard-card-value" id="ordersCount">0</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">Khách hàng</div>
+            <div class="dashboard-card-value" id="customersCount">0</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">Designer</div>
+            <div class="dashboard-card-value" id="designersCount">0</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">Sản phẩm</div>
+            <div class="dashboard-card-value" id="productsCount">0</div>
+          </div>
+        </div>
+        <div class="dashboard-main">
+          <div class="dashboard-left" style="flex: 1 1 100%;">
+            <div class="dashboard-section" style="max-width:600px;margin:0 auto 24px auto;">
+              <div class="dashboard-section-title">Báo cáo đơn hàng</div>
+              <div id="orderStatsCards" style="display:flex;gap:18px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;"></div>
+              <div style="width:100%;max-width:520px;margin:0 auto;">
+                <canvas id="orderStatsChart" height="160"></canvas>
+              </div>
+            </div>
+            <div class="dashboard-section">
+              <div class="dashboard-section-title">Đơn hàng gần đây</div>
+              <div class="table-responsive dashboard-table-responsive">
+                <table class="orders-table" id="ordersTable" style="max-width:100%;width:100%;">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Sản phẩm</th>
+                      <th>Khách hàng</th>
+                      <th>Trạng thái</th>
+                      <th>Giá trị</th>
+                      <th>Ngày</th>
+                      <th>Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Orders will be dynamically inserted here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="sidebarContent-don-hang" class="tab-content" style="display:none;">
+          <div class="dashboard-section">
+            <div style="font-weight:600; color:#7B3FF2; margin:24px 0 8px 0;">Quản lý đơn hàng</div>
+            
+            <!-- Order Type Filter -->
+            <div style="margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+              <label style="font-weight: 500; color: #333;">Lọc theo loại:</label>
+              <select id="orderTypeFilter" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;">
+                <option value="all">Tất cả đơn hàng</option>
+                <option value="product_purchase">Mua sản phẩm</option>
+                <option value="custom_design">Thiết kế tùy chỉnh</option>
+              </select>
+              <select id="orderStatusFilter" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;">
+                <option value="all">Tất cả trạng thái</option>
+                <option value="PENDING">Chờ thanh toán</option>
+                <option value="PAID">Đã thanh toán</option>
+                <option value="DESIGN_IN_PROGRESS">Đang thiết kế</option>
+                <option value="DESIGN_APPROVED">Thiết kế đã duyệt</option>
+                <option value="COMPLETED">Hoàn thành</option>
+                <option value="DELIVERED">Đã giao</option>
+                <option value="CANCELED">Đã hủy</option>
+              </select>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="orders-table" id="allOrdersTable">
+                <thead>
+                  <tr>
+                    <th>Mã đơn</th>
+                    <th>Loại đơn</th>
+                    <th>Ảnh sản phẩm</th>
+                    <th>Thông tin sản phẩm</th>
+                    <th>Khách hàng</th>
+                    <th>Designer</th>
+                    <th style="min-width:160px;">Trạng thái</th>
+                    <th>Giá trị</th>
+                    <th>Ngày tạo</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- All orders will be dynamically inserted here -->
+                </tbody>
+              </table>
+            </div>
+        </div>
+      </div>
+      <div id="sidebarContent-thiet-ke" class="tab-content" style="display:none;">
+        <div class="dashboard-section">
+          <div style="font-weight:600; color:#7B3FF2; margin-bottom:8px; font-size:18px; background:#fffbe6; border-left:5px solid #ffb300; padding:8px 12px; display:flex; align-items:center; gap:10px;">
+            <span>Phê duyệt thiết kế chờ duyệt</span>
+            <span id="pendingDesignsBadge" style="background:#e74c3c; color:#fff; border-radius:8px; padding:2px 8px; font-size:14px; margin-left:8px;">0</span>
+          </div>
+          <input type="text" id="designSearchBox" placeholder="Tìm kiếm tên thiết kế..." style="margin-bottom:12px;padding:8px 16px;border-radius:8px;border:1px solid #eee;width:100%;max-width:320px;">
+          <table class="designs-table" id="designsTable">
+            <thead>
+              <tr>
+                <th>Ảnh áo</th>
+                <th>Tên thiết kế</th>
+                <th>Mô tả</th>
+                <th>Giá</th>
+                <th>Designer</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Designs will be dynamically inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Designer Management Section -->
+      <div id="sidebarContent-designer" class="tab-content" style="display:none;">
+        <div class="dashboard-section">
+          <div style="font-weight:600; color:#7B3FF2; margin-bottom:8px; font-size:18px; background:#e8f4fd; border-left:5px solid #7B3FF2; padding:8px 12px; display:flex; align-items:center; gap:10px;">
+            <span>Quản lý Designer</span>
+            <span id="designersCountBadge" style="background:#7B3FF2; color:#fff; border-radius:8px; padding:2px 8px; font-size:14px; margin-left:8px;">0</span>
+          </div>
+          <input type="text" id="designerSearchBox" placeholder="Tìm kiếm designer..." style="margin-bottom:12px;padding:8px 16px;border-radius:8px;border:1px solid #eee;width:100%;max-width:320px;">
+          <table class="designers-table" id="designersTable" style="width:100%; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th>Avatar</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Tên</th>
+                <th>Số thiết kế</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Designers will be dynamically inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Designer Payout Section -->
+      <div id="sidebarContent-thanh-toan-designer" class="tab-content" style="display:none;">
+          <!-- Withdrawal Management Section -->
+          <div class="dashboard-section" style="margin-top: 24px;">
+            <div style="font-weight:600; color:#7B3FF2; margin-bottom:8px; font-size:18px; background:#e8f5e8; border-left:5px solid #4CAF50; padding:8px 12px; display:flex; align-items:center; gap:10px;">
+              <span>💳 Yêu cầu rút tiền từ Designer</span>
+              <span id="pendingWithdrawalsBadge" style="background:#4CAF50; color:#fff; border-radius:8px; padding:2px 8px; font-size:14px; margin-left:8px;">0</span>
+            </div>
+            <div style="background:#e8f5e8; padding:16px; border-radius:8px; margin-bottom:16px; border-left:4px solid #4CAF50;">
+              <p style="margin:0; color:#2e7d32; font-weight:600;">📋 Quản lý các yêu cầu rút tiền do designer gửi lên</p>
+              <p style="margin:4px 0 0 0; color:#2e7d32; font-size:14px;">Duyệt, hoàn thành hoặc từ chối các yêu cầu rút tiền</p>
+            </div>
+            
+            <!-- Withdrawal Filter -->
+            <div style="display:flex; gap:12px; margin-bottom:16px; align-items:center; flex-wrap:wrap;">
+              <select id="withdrawalStatusFilter" style="padding:8px 12px; border-radius:6px; border:1px solid #ddd;">
+                <option value="all">Tất cả trạng thái</option>
+                <option value="pending" selected>Đang chờ xử lý</option>
+                <option value="completed">Đã hoàn thành</option>
+                <option value="failed">Thất bại</option>
+                <option value="cancelled">Đã hủy</option>
+              </select>
+              <input type="text" id="withdrawalSearchBox" placeholder="Tìm kiếm designer..." style="padding:8px 16px; border-radius:8px; border:1px solid #eee; min-width:200px;">
+              <button id="refreshWithdrawalsBtn" class="action-btn" style="background:#4CAF50; color:#fff;">
+                <i class="fas fa-sync-alt"></i> Làm mới
+              </button>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="withdrawal-table" id="withdrawalTable" style="width:100%; border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th>Mã GD</th>
+                    <th>Designer</th>
+                    <th>Phương thức</th>
+                    <th>Tài khoản</th>
+                    <th>Số tiền</th>
+                    <th>Ngày yêu cầu</th>
+                    <th style="min-width:160px;">Trạng thái</th>
+                    <th>Ghi chú</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Withdrawal requests will be dynamically inserted here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Customer Management Section -->
+      <div id="sidebarContent-khach-hang" class="tab-content" style="display:none;">
+        <div class="dashboard-section">
+          <div style="font-weight:600; color:#7B3FF2; margin-bottom:8px; font-size:18px; background:#e8f4fd; border-left:5px solid #7B3FF2; padding:8px 12px; display:flex; align-items:center; gap:10px;">
+            <span>Quản lý Khách hàng</span>
+            <span id="customersCountBadge" style="background:#7B3FF2; color:#fff; border-radius:8px; padding:2px 8px; font-size:14px; margin-left:8px;">0</span>
+          </div>
+          <input type="text" id="customerSearchBox" placeholder="Tìm kiếm khách hàng..." style="margin-bottom:12px;padding:8px 16px;border-radius:8px;border:1px solid #eee;width:100%;max-width:320px;">
+          <table class="customers-table" id="customersTable" style="width:100%; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th>Avatar</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Tên</th>
+                <th>Số đơn hàng</th>
+                <th>Tổng chi tiêu</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Customers will be dynamically inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Notifications Section -->
+      <div id="sidebarContent-thong-bao" class="tab-content" style="display:none;">
+        <div class="dashboard-section">
+          <div style="font-weight:600; color:#7B3FF2; margin-bottom:8px; font-size:18px; background:#e8f4fd; border-left:5px solid #7B3FF2; padding:8px 12px; display:flex; align-items:center; gap:10px;">
+            <span>Thông báo</span>
+            <span id="notificationsCountBadge" style="background:#e74c3c; color:#fff; border-radius:8px; padding:2px 8px; font-size:14px; margin-left:8px;">0</span>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:16px;">
+            <button id="markAllReadBtn" class="action-btn" style="background:#4CAF50;color:#fff;">Đánh dấu tất cả đã đọc</button>
+            <button id="clearAllBtn" class="action-btn" style="background:#e74c3c;color:#fff;">Xóa tất cả</button>
+          </div>
+          <div id="notificationsContainer" style="max-height:600px;overflow-y:auto;">
+            <!-- Notifications will be dynamically inserted here -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Settings Section -->
+      <div id="sidebarContent-cai-dat" class="tab-content" style="display:none;">
+        <div class="dashboard-section">
+          <div style="font-weight:600; color:#7B3FF2; margin-bottom:24px; font-size:18px; background:#e8f4fd; border-left:5px solid #7B3FF2; padding:8px 12px; display:flex; align-items:center; gap:10px;">
+            <span>⚙️ Cài đặt Dashboard</span>
+          </div>
+          
+          <div style="display:grid; gap:24px; max-width:600px;">
+            <!-- Dark Mode Setting -->
+            <div class="setting-item" style="background:#fff; padding:20px; border-radius:12px; border:1px solid #eee; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h3 style="margin:0; color:#333; font-size:16px;">🌙 Chế độ tối</h3>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="darkModeToggle">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <p style="margin:0; color:#666; font-size:14px;">Chuyển đổi giữa giao diện sáng và tối</p>
+            </div>
+            
+            <!-- Font Size Setting -->
+            <div class="setting-item" style="background:#fff; padding:20px; border-radius:12px; border:1px solid #eee; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+              <h3 style="margin:0 0 12px 0; color:#333; font-size:16px;">📝 Cỡ chữ</h3>
+              <div style="display:flex; gap:12px; align-items:center;">
+                <button id="fontSmall" class="font-size-btn" data-size="small">Nhỏ</button>
+                <button id="fontMedium" class="font-size-btn active" data-size="medium">Vừa</button>
+                <button id="fontLarge" class="font-size-btn" data-size="large">Lớn</button>
+              </div>
+              <p style="margin:8px 0 0 0; color:#666; font-size:14px;">Điều chỉnh kích thước chữ trong dashboard</p>
+            </div>
+            
+            <!-- Color Theme Setting -->
+            <div class="setting-item" style="background:#fff; padding:20px; border-radius:12px; border:1px solid #eee; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+              <h3 style="margin:0 0 12px 0; color:#333; font-size:16px;">🎨 Màu sắc chủ đạo</h3>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="color-theme-btn active" data-color="#7B3FF2" style="background:#7B3FF2; border:2px solid #7B3FF2;"></button>
+                <button class="color-theme-btn" data-color="#4CAF50" style="background:#4CAF50; border:2px solid #4CAF50;"></button>
+                <button class="color-theme-btn" data-color="#FF6B35" style="background:#FF6B35; border:2px solid #FF6B35;"></button>
+                <button class="color-theme-btn" data-color="#9C27B0" style="background:#9C27B0; border:2px solid #9C27B0;"></button>
+                <button class="color-theme-btn" data-color="#2196F3" style="background:#2196F3; border:2px solid #2196F3;"></button>
+                <button class="color-theme-btn" data-color="#FF9800" style="background:#FF9800; border:2px solid #FF9800;"></button>
+              </div>
+              <p style="margin:8px 0 0 0; color:#666; font-size:14px;">Thay đổi màu sắc chủ đạo của giao diện</p>
+            </div>
+            
+            <!-- Auto Refresh Setting -->
+            <div class="setting-item" style="background:#fff; padding:20px; border-radius:12px; border:1px solid #eee; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h3 style="margin:0; color:#333; font-size:16px;">🔄 Tự động làm mới</h3>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="autoRefreshToggle" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div style="display:flex; gap:12px; align-items:center; margin-top:8px;">
+                <span style="color:#666; font-size:14px;">Tần suất:</span>
+                <select id="refreshInterval" style="padding:4px 8px; border-radius:6px; border:1px solid #ddd;">
+                  <option value="30">30 giây</option>
+                  <option value="60" selected>1 phút</option>
+                  <option value="300">5 phút</option>
+                  <option value="600">10 phút</option>
+                </select>
+              </div>
+              <p style="margin:8px 0 0 0; color:#666; font-size:14px;">Tự động cập nhật dữ liệu dashboard</p>
+            </div>
+            
+            <!-- Compact Mode Setting -->
+            <div class="setting-item" style="background:#fff; padding:20px; border-radius:12px; border:1px solid #eee; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h3 style="margin:0; color:#333; font-size:16px;">📱 Chế độ compact</h3>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="compactModeToggle">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <p style="margin:0; color:#666; font-size:14px;">Giảm khoảng cách giữa các phần tử</p>
+            </div>
+            
+            <!-- Reset Settings -->
+            <div class="setting-item" style="background:#fff; padding:20px; border-radius:12px; border:1px solid #eee; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+              <h3 style="margin:0 0 12px 0; color:#333; font-size:16px;">🔄 Khôi phục mặc định</h3>
+              <button id="resetSettingsBtn" class="action-btn" style="background:#e74c3c; color:#fff;">Khôi phục cài đặt mặc định</button>
+              <p style="margin:8px 0 0 0; color:#666; font-size:14px;">Đặt lại tất cả cài đặt về giá trị ban đầu</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="rejectReasonModal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+        <form id="rejectReasonForm" style="background:#fff;padding:32px 32px;border-radius:16px;width:420px;box-shadow:0 4px 32px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:24px;position:relative;align-items:center;box-sizing:border-box;">
+          <span id="closeRejectModal" style="position:absolute;top:12px;right:20px;font-size:32px;color:#e74c3c;cursor:pointer;font-weight:bold;">&times;</span>
+          <h2 style="margin:0 0 8px 0;color:#e74c3c;align-self:flex-start;">Lý do từ chối</h2>
+          <label style="font-weight:600;color:#e74c3c;width:100%;">Vui lòng nhập lý do từ chối:
+            <textarea id="rejectReasonInput" required style="width:100%;max-width:100%;padding:12px 18px;margin-top:8px;border-radius:16px;border:2px solid #e74c3c;font-size:1.1rem;outline:none;box-sizing:border-box;min-height:80px;"></textarea>
+          </label>
+          <div style="display:flex;gap:12px;justify-content:flex-end;width:100%;">
+            <button type="button" id="cancelRejectBtn" style="padding:8px 20px;border-radius:8px;border:none;background:#eee;color:#23222a;cursor:pointer;">Hủy</button>
+            <button type="submit" style="padding:8px 20px;border-radius:8px;border:none;background:#e74c3c;color:#fff;cursor:pointer;">Từ chối</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="imageModal" style="display:none;position:fixed;z-index:10000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;">
+    <span id="closeModal" style="position:absolute;top:40px;right:60px;font-size:48px;color:#fff;cursor:pointer;font-weight:bold;">&times;</span>
+    <img id="modalImg" src="" alt="Full Shirt" style="max-width:80vw;max-height:80vh;border-radius:16px;box-shadow:0 4px 32px rgba(0,0,0,0.3);">
+    <button id="zoomInBtn" style="position:absolute;bottom:60px;left:calc(50% - 60px);z-index:10001;font-size:32px;width:48px;height:48px;border-radius:50%;border:none;background:#fff;color:#7B3FF2;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);">+</button>
+    <button id="zoomOutBtn" style="position:absolute;bottom:60px;left:calc(50% + 12px);z-index:10001;font-size:32px;width:48px;height:48px;border-radius:50%;border:none;background:#fff;color:#7B3FF2;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);">-</button>
+  </div>
+  <!-- Edit Design Modal -->
+  <div id="editDesignModal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+    <form id="editDesignForm" style="background:#fff;padding:32px 32px;border-radius:16px;width:420px;box-shadow:0 4px 32px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:24px;position:relative;align-items:center;box-sizing:border-box;">
+      <span id="closeEditModal" style="position:absolute;top:12px;right:20px;font-size:32px;color:#7B3FF2;cursor:pointer;font-weight:bold;">&times;</span>
+      <h2 style="margin:0 0 8px 0;color:#7B3FF2;align-self:flex-start;">Sửa thiết kế</h2>
+      <label style="font-weight:600;color:#7B3FF2;width:100%;">Tên thiết kế:
+        <input id="editDesignName" type="text" required style="width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #7B3FF2;font-size:1.1rem;outline:none;box-sizing:border-box;">
+      </label>
+      <label style="font-weight:600;color:#7B3FF2;width:100%;">Mô tả:
+        <textarea id="editDesignDesc" style="width:100%;max-width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #7B3FF2;font-size:1.1rem;outline:none;box-sizing:border-box;min-height:60px;"></textarea>
+      </label>
+      <label style="font-weight:600;color:#7B3FF2;width:100%;">Giá:
+        <input id="editDesignPrice" type="number" min="0" required style="width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #7B3FF2;font-size:1.1rem;outline:none;box-sizing:border-box;">
+      </label>
+      <div style="display:flex;gap:12px;justify-content:flex-end;width:100%;">
+        <button type="button" id="cancelEditBtn" style="padding:8px 20px;border-radius:8px;border:none;background:#eee;color:#23222a;cursor:pointer;">Hủy</button>
+        <button type="submit" style="padding:8px 20px;border-radius:8px;border:none;background:#7B3FF2;color:#fff;cursor:pointer;">Lưu</button>
+      </div>
+    </form>
+  </div>
+  <!-- Ban Designer Modal -->
+  <div id="banDesignerModal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+    <form id="banDesignerForm" style="background:#fff;padding:32px 32px;border-radius:16px;width:420px;box-shadow:0 4px 32px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:24px;position:relative;align-items:center;box-sizing:border-box;">
+      <span id="closeBanModal" style="position:absolute;top:12px;right:20px;font-size:32px;color:#e74c3c;cursor:pointer;font-weight:bold;">&times;</span>
+      <h2 style="margin:0 0 8px 0;color:#e74c3c;align-self:flex-start;">Cấm Designer</h2>
+      <div id="banDesignerInfo" style="width:100%;padding:12px;background:#f8f9fa;border-radius:8px;margin-bottom:8px;">
+        <!-- Designer info will be inserted here -->
+      </div>
+      <label style="font-weight:600;color:#e74c3c;width:100%;">Lý do cấm:
+        <textarea id="banReasonInput" required style="width:100%;max-width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #e74c3c;font-size:1.1rem;outline:none;box-sizing:border-box;min-height:80px;"></textarea>
+      </label>
+      <label style="font-weight:600;color:#e74c3c;width:100%;">Thời gian cấm (ngày):
+        <select id="banDurationInput" style="width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #e74c3c;font-size:1.1rem;outline:none;box-sizing:border-box;">
+          <option value="1">1 ngày</option>
+          <option value="3">3 ngày</option>
+          <option value="7">1 tuần</option>
+          <option value="30">1 tháng</option>
+          <option value="90">3 tháng</option>
+          <option value="365">1 năm</option>
+          <option value="0">Vĩnh viễn</option>
+        </select>
+      </label>
+      <div style="display:flex;gap:12px;justify-content:flex-end;width:100%;">
+        <button type="button" id="cancelBanBtn" style="padding:8px 20px;border-radius:8px;border:none;background:#eee;color:#23222a;cursor:pointer;">Hủy</button>
+        <button type="submit" style="padding:8px 20px;border-radius:8px;border:none;background:#e74c3c;color:#fff;cursor:pointer;">Cấm</button>
+      </div>
+    </form>
+  </div>
+  <!-- Delete Designer Modal -->
+  <div id="deleteDesignerModal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+    <form id="deleteDesignerForm" style="background:#fff;padding:32px 32px;border-radius:16px;width:420px;box-shadow:0 4px 32px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:24px;position:relative;align-items:center;box-sizing:border-box;">
+      <span id="closeDeleteModal" style="position:absolute;top:12px;right:20px;font-size:32px;color:#e74c3c;cursor:pointer;font-weight:bold;">&times;</span>
+      <h2 style="margin:0 0 8px 0;color:#e74c3c;align-self:flex-start;">Xóa Tài Khoản Designer</h2>
+      <div style="background:#fff3cd;padding:16px;border-radius:8px;border-left:4px solid #ffc107;margin-bottom:8px;">
+        <p style="margin:0;color:#856404;font-weight:600;">⚠️ Cảnh báo: Hành động này không thể hoàn tác!</p>
+        <p style="margin:8px 0 0 0;color:#856404;">Tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục.</p>
+      </div>
+      <div id="deleteDesignerInfo" style="width:100%;padding:12px;background:#f8f9fa;border-radius:8px;margin-bottom:8px;">
+        <!-- Designer info will be inserted here -->
+      </div>
+      <label style="font-weight:600;color:#e74c3c;width:100%;">Lý do xóa:
+        <textarea id="deleteReasonInput" required style="width:100%;max-width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #e74c3c;font-size:1.1rem;outline:none;box-sizing:border-box;min-height:80px;"></textarea>
+      </label>
+      <div style="display:flex;gap:12px;justify-content:flex-end;width:100%;">
+        <button type="button" id="cancelDeleteBtn" style="padding:8px 20px;border-radius:8px;border:none;background:#eee;color:#23222a;cursor:pointer;">Hủy</button>
+        <button type="submit" style="padding:8px 20px;border-radius:8px;border:none;background:#e74c3c;color:#fff;cursor:pointer;">Xóa Vĩnh Viễn</button>
+      </div>
+    </form>
+  </div>
+  <!-- Designer Details Modal -->
+  <div id="designerDetailsModal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+    <div style="background:#fff;padding:32px;border-radius:16px;width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 4px 32px rgba(0,0,0,0.2);position:relative;box-sizing:border-box;">
+      <span id="closeDetailsModal" style="position:absolute;top:12px;right:20px;font-size:32px;color:#7B3FF2;cursor:pointer;font-weight:bold;">&times;</span>
+      <h2 style="margin:0 0 24px 0;color:#7B3FF2;text-align:center;">Chi Tiết Designer</h2>
+      
+      <div id="designerDetailsContent">
+        <!-- Designer details will be inserted here -->
+      </div>
+      
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;">
+        <button type="button" id="closeDetailsBtn" style="padding:8px 20px;border-radius:8px;border:none;background:#7B3FF2;color:#fff;cursor:pointer;">Đóng</button>
+      </div>
+    </div>
+  </div>
+  <!-- Ban Customer Modal -->
+  <div id="banCustomerModal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+    <form id="banCustomerForm" style="background:#fff;padding:32px 32px;border-radius:16px;width:420px;box-shadow:0 4px 32px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:24px;position:relative;align-items:center;box-sizing:border-box;">
+      <span id="closeBanCustomerModal" style="position:absolute;top:12px;right:20px;font-size:32px;color:#e74c3c;cursor:pointer;font-weight:bold;">&times;</span>
+      <h2 style="margin:0 0 8px 0;color:#e74c3c;align-self:flex-start;">Cấm Khách hàng</h2>
+      <div id="banCustomerInfo" style="width:100%;padding:12px;background:#f8f9fa;border-radius:8px;margin-bottom:8px;">
+        <!-- Customer info will be inserted here -->
+      </div>
+      <label style="font-weight:600;color:#e74c3c;width:100%;">Lý do cấm:
+        <textarea id="banCustomerReasonInput" required style="width:100%;max-width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #e74c3c;font-size:1.1rem;outline:none;box-sizing:border-box;min-height:80px;"></textarea>
+      </label>
+      <label style="font-weight:600;color:#e74c3c;width:100%;">Thời gian cấm (ngày):
+        <select id="banCustomerDurationInput" style="width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #e74c3c;font-size:1.1rem;outline:none;box-sizing:border-box;">
+          <option value="1">1 ngày</option>
+          <option value="3">3 ngày</option>
+          <option value="7">1 tuần</option>
+          <option value="30">1 tháng</option>
+          <option value="90">3 tháng</option>
+          <option value="365">1 năm</option>
+          <option value="0">Vĩnh viễn</option>
+        </select>
+      </label>
+      <div style="display:flex;gap:12px;justify-content:flex-end;width:100%;">
+        <button type="button" id="cancelBanCustomerBtn" style="padding:8px 20px;border-radius:8px;border:none;background:#eee;color:#23222a;cursor:pointer;">Hủy</button>
+        <button type="submit" style="padding:8px 20px;border-radius:8px;border:none;background:#e74c3c;color:#fff;cursor:pointer;">Cấm</button>
+      </div>
+    </form>
+  </div>
+  <!-- Delete Customer Modal -->
+  <div id="deleteCustomerModal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+    <form id="deleteCustomerForm" style="background:#fff;padding:32px 32px;border-radius:16px;width:420px;box-shadow:0 4px 32px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:24px;position:relative;align-items:center;box-sizing:border-box;">
+      <span id="closeDeleteCustomerModal" style="position:absolute;top:12px;right:20px;font-size:32px;color:#e74c3c;cursor:pointer;font-weight:bold;">&times;</span>
+      <h2 style="margin:0 0 8px 0;color:#e74c3c;align-self:flex-start;">Xóa Tài Khoản Khách hàng</h2>
+      <div style="background:#fff3cd;padding:16px;border-radius:8px;border-left:4px solid #ffc107;margin-bottom:8px;">
+        <p style="margin:0;color:#856404;font-weight:600;">⚠️ Cảnh báo: Hành động này không thể hoàn tác!</p>
+        <p style="margin:8px 0 0 0;color:#856404;">Tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục.</p>
+      </div>
+      <div id="deleteCustomerInfo" style="width:100%;padding:12px;background:#f8f9fa;border-radius:8px;margin-bottom:8px;">
+        <!-- Customer info will be inserted here -->
+      </div>
+      <label style="font-weight:600;color:#e74c3c;width:100%;">Lý do xóa:
+        <textarea id="deleteCustomerReasonInput" required style="width:100%;max-width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #e74c3c;font-size:1.1rem;outline:none;box-sizing:border-box;min-height:80px;"></textarea>
+      </label>
+      <div style="display:flex;gap:12px;justify-content:flex-end;width:100%;">
+        <button type="button" id="cancelDeleteCustomerBtn" style="padding:8px 20px;border-radius:8px;border:none;background:#eee;color:#23222a;cursor:pointer;">Hủy</button>
+        <button type="submit" style="padding:8px 20px;border-radius:8px;border:none;background:#e74c3c;color:#fff;cursor:pointer;">Xóa Vĩnh Viễn</button>
+      </div>
+    </form>
+  </div>
+  <!-- Customer Details Modal -->
+  <div id="customerDetailsModal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+    <div style="background:#fff;padding:32px;border-radius:16px;width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 4px 32px rgba(0,0,0,0.2);position:relative;box-sizing:border-box;">
+      <span id="closeCustomerDetailsModal" style="position:absolute;top:12px;right:20px;font-size:32px;color:#7B3FF2;cursor:pointer;font-weight:bold;">&times;</span>
+      <h2 style="margin:0 0 24px 0;color:#7B3FF2;text-align:center;">Chi Tiết Khách hàng</h2>
+      
+      <div id="customerDetailsContent">
+        <!-- Customer details will be inserted here -->
+      </div>
+      
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;">
+        <button type="button" id="closeCustomerDetailsBtn" style="padding:8px 20px;border-radius:8px;border:none;background:#7B3FF2;color:#fff;cursor:pointer;">Đóng</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Custom Design Modal -->
+  <div id="customDesignModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 1000px; max-height: 80vh; overflow-y: auto; border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #7B3FF2; margin: 0;">Chi tiết đơn hàng thiết kế tùy chỉnh</h2>
+        <span class="close" onclick="closeCustomDesignModal()" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+      </div>
+      <div id="customDesignModalBody">
+        <!-- Modal content will be dynamically inserted here -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Image Modal -->
+  <div id="imageModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9);">
+    <div style="position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+      <img id="modalImg" src="" alt="Design Image" style="max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; transition: transform 0.3s ease;">
+      <button id="zoomInBtn" style="position: absolute; top: 20px; right: 80px; background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px; border-radius: 50%; cursor: pointer; font-size: 18px;">+</button>
+      <button id="zoomOutBtn" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px; border-radius: 50%; cursor: pointer; font-size: 18px;">-</button>
+      <span id="closeModal" style="position: absolute; top: 20px; right: 140px; color: white; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+    </div>
+  </div>
+  
+  <!-- Edit Design Modal -->
+  <div id="editDesignModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #7B3FF2; margin: 0;">Chỉnh sửa thiết kế</h2>
+        <span id="closeEditModal" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+      </div>
+      <form id="editDesignForm">
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; margin-bottom: 5px; font-weight: 500;">Tên thiết kế:</label>
+          <input type="text" id="editDesignName" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mô tả:</label>
+          <textarea id="editDesignDesc" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; min-height: 80px; resize: vertical;"></textarea>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 5px; font-weight: 500;">Giá:</label>
+          <input type="number" id="editDesignPrice" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button type="submit" style="background: #7B3FF2; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Lưu thay đổi</button>
+          <button type="button" onclick="document.getElementById('editDesignModal').style.display='none'" style="background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Reject Reason Modal -->
+  <div id="rejectReasonModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #e74c3c; margin: 0;">Từ chối thiết kế</h2>
+        <span onclick="document.getElementById('rejectReasonModal').style.display='none'" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+      </div>
+      <form id="rejectReasonForm">
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; margin-bottom: 5px; font-weight: 500;">Lý do từ chối:</label>
+          <textarea id="rejectReasonInput" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; min-height: 100px; resize: vertical;" placeholder="Nhập lý do từ chối thiết kế..."></textarea>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button type="submit" style="background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Từ chối</button>
+          <button type="button" onclick="document.getElementById('rejectReasonModal').style.display='none'" style="background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add a modal for viewing product details -->
+  <div id="orderProductDetailsModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); align-items:center; justify-content:center; z-index:9999;">
+    <div id="orderProductDetailsModalContent" style="background:#fff; border-radius:16px; max-width:480px; width:95vw; padding:32px 24px; position:relative; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(123,63,242,0.10);">
+      <button id="closeOrderProductDetailsModal" style="position:absolute; top:12px; right:12px; background:none; border:none; font-size:22px; color:#888; cursor:pointer;">&times;</button>
+      <div id="orderProductDetailsContent"></div>
+    </div>
+  </div>
+
+  <!-- Process Withdrawal Modal -->
+  <div id="processWithdrawalModal" style="display:none;position:fixed;z-index:10001;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+    <form id="processWithdrawalForm" style="background:#fff;padding:32px 32px;border-radius:16px;width:420px;box-shadow:0 4px 32px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:24px;position:relative;align-items:center;box-sizing:border-box;">
+      <span id="closeProcessWithdrawalModal" style="position:absolute;top:12px;right:20px;font-size:32px;color:#4CAF50;cursor:pointer;font-weight:bold;">&times;</span>
+      <h2 style="margin:0 0 8px 0;color:#4CAF50;align-self:flex-start;">Xử lý yêu cầu rút tiền</h2>
+      <div id="withdrawalDetails" style="width:100%;"></div>
+      <label style="font-weight:600;color:#4CAF50;width:100%;">Ghi chú:
+        <textarea id="processNotes" style="width:100%;max-width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #4CAF50;font-size:1.1rem;outline:none;box-sizing:border-box;min-height:60px;"></textarea>
+      </label>
+      <label style="font-weight:600;color:#4CAF50;width:100%;">Trạng thái:
+        <select id="processStatus" required style="width:100%;padding:12px 18px;margin-top:8px;border-radius:12px;border:2px solid #4CAF50;font-size:1.1rem;outline:none;box-sizing:border-box;">
+          <option value="completed">Hoàn thành</option>
+          <option value="failed">Thất bại</option>
+          <option value="cancelled">Đã hủy</option>
+        </select>
+      </label>
+      <div style="display:flex;gap:12px;justify-content:flex-end;width:100%;">
+        <button type="button" id="cancelProcessBtn" style="padding:8px 20px;border-radius:8px;border:none;background:#eee;color:#23222a;cursor:pointer;">Hủy</button>
+        <button type="submit" style="padding:8px 20px;border-radius:8px;border:none;background:#4CAF50;color:#fff;cursor:pointer;">Xác nhận</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Utility to trigger main-content animation
+    function animateMainContent() {
+      var mainContent = document.querySelector('.main-content');
+      if (mainContent) {
+        mainContent.classList.remove('animated');
+        // Force reflow to restart animation
+        void mainContent.offsetWidth;
+        mainContent.classList.add('animated');
+      }
+    }
+
+    // Update showSidebarTab to animate main-content on every tab switch
+    function showSidebarTab(tab) {
+      // Hide all sidebar content
+      document.querySelectorAll('[id^="sidebarContent-"]').forEach(function(el) {
+        el.style.display = 'none';
+      });
+      // Remove active class from all sidebar links
+      document.querySelectorAll('.sidebar-link').forEach(function(link) {
+        link.classList.remove('active');
+      });
+      // Show selected tab
+      var content = document.getElementById('sidebarContent-' + tab);
+      if (content) content.style.display = '';
+      var link = document.getElementById('sidebar-' + tab);
+      if (link) link.classList.add('active');
+      // Animate main content
+      animateMainContent();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Animate sidebar and main content on first load
+      var sidebar = document.querySelector('.sidebar');
+      var mainContent = document.querySelector('.main-content');
+      if (sidebar) sidebar.classList.add('animated');
+      if (mainContent) mainContent.classList.add('animated');
+      // Animate modal when shown
+      var modal = document.getElementById('orderProductDetailsModal');
+      var modalContent = document.getElementById('orderProductDetailsModalContent');
+      if (modal && modalContent) {
+        const observer = new MutationObserver(() => {
+          if (modal.style.display === 'flex') {
+            modalContent.classList.add('modal-animate');
+          } else {
+            modalContent.classList.remove('modal-animate');
+          }
+        });
+        observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+      }
+    });
+  </script>
+  <script src="javascript/admin-dashboard.js"></script>
+</body>
+</html> 

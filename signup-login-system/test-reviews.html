@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Reviews</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Review System Test</h1>
+    
+    <div class="test-section">
+        <h3>1. Test Review Creation</h3>
+        <button onclick="testCreateReview()">Create Test Review</button>
+        <div id="createResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. Test Review Retrieval</h3>
+        <input type="text" id="designIdInput" placeholder="Enter designId" value="0afa8a76-c7be-4419-8942-0e4c9d8f9d3e">
+        <button onclick="testGetReviews()">Get Reviews</button>
+        <div id="getResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. Test Product Page Review Loading</h3>
+        <button onclick="testProductPageReviews()">Test Product Page Reviews</button>
+        <div id="productResult" class="result"></div>
+    </div>
+
+    <script>
+        async function testCreateReview() {
+            const resultDiv = document.getElementById('createResult');
+            resultDiv.innerHTML = 'Creating review...';
+            resultDiv.className = 'result';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        designId: '0afa8a76-c7be-4419-8942-0e4c9d8f9d3e',
+                        username: 'testuser_' + Date.now(),
+                        rating: 5,
+                        feedback: 'Test review created at ' + new Date().toLocaleString(),
+                        color: 'Red',
+                        size: 'M',
+                        descriptionMatch: 'Đúng',
+                        material: 'Cotton'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<strong>SUCCESS!</strong><br>Status: ${response.status}<br>Response: ${JSON.stringify(data, null, 2)}`;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.innerHTML = `<strong>ERROR!</strong><br>Status: ${response.status}<br>Response: ${JSON.stringify(data, null, 2)}`;
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>NETWORK ERROR!</strong><br>${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        async function testGetReviews() {
+            const resultDiv = document.getElementById('getResult');
+            const designId = document.getElementById('designIdInput').value;
+            
+            resultDiv.innerHTML = 'Fetching reviews...';
+            resultDiv.className = 'result';
+            
+            try {
+                const response = await fetch(`http://localhost:5000/api/reviews?designId=${encodeURIComponent(designId)}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<strong>SUCCESS!</strong><br>Status: ${response.status}<br>Found ${data.length} reviews:<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.innerHTML = `<strong>ERROR!</strong><br>Status: ${response.status}<br>Response: ${JSON.stringify(data, null, 2)}`;
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>NETWORK ERROR!</strong><br>${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        async function testProductPageReviews() {
+            const resultDiv = document.getElementById('productResult');
+            resultDiv.innerHTML = 'Testing product page review loading...';
+            resultDiv.className = 'result';
+            
+            try {
+                // Simulate the loadReviews function from product.js
+                const designId = '0afa8a76-c7be-4419-8942-0e4c9d8f9d3e';
+                
+                console.log('Fetching reviews for designId:', designId);
+                const response = await fetch(`http://localhost:5000/api/reviews?designId=${encodeURIComponent(designId)}`);
+                console.log('Reviews API response status:', response.status);
+                const reviews = await response.json();
+                console.log('Reviews received:', reviews);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<strong>SUCCESS!</strong><br>Status: ${response.status}<br>Found ${reviews.length} reviews:<br><pre>${JSON.stringify(reviews, null, 2)}</pre>`;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.innerHTML = `<strong>ERROR!</strong><br>Status: ${response.status}<br>Response: ${JSON.stringify(reviews, null, 2)}`;
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>NETWORK ERROR!</strong><br>${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+    </script>
+</body>
+</html> 

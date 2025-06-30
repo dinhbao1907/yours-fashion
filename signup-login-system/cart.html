@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giỏ hàng của tôi - YOURS.vn</title>
+  <link rel="stylesheet" href="css/homepage.css">
+  <link rel="stylesheet" href="css/product.css">
+  <style>
+    .cart-container {
+      max-width: 1100px;
+      margin: 40px auto 60px auto;
+      background: none;
+      min-height: 70vh;
+    }
+    .cart-title {
+      text-align: center;
+      color: #7B3FF2;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      margin-top: 24px;
+    }
+    .cart-subtitle {
+      text-align: center;
+      color: #8A4AF3;
+      font-size: 1.1rem;
+      margin-bottom: 32px;
+    }
+    .cart-list {
+      background: none;
+      margin-bottom: 32px;
+    }
+    .cart-list-title {
+      color: #8A4AF3;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(90,34,212,0.07);
+      margin-bottom: 18px;
+      padding: 18px 24px;
+      gap: 18px;
+      position: relative;
+    }
+    .cart-item.selected::before {
+      content: '';
+      display: block;
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 6px;
+      background: #8A4AF3;
+      border-radius: 18px 0 0 18px;
+    }
+    .cart-checkbox {
+      margin-right: 12px;
+      accent-color: #8A4AF3;
+      width: 22px;
+      height: 22px;
+    }
+    .cart-item-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+      margin-right: 18px;
+    }
+    .cart-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .cart-item-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #23222a;
+      margin-bottom: 2px;
+    }
+    .cart-item-desc {
+      color: #888;
+      font-size: 0.98rem;
+      margin-bottom: 6px;
+    }
+    .cart-item-note {
+      color: #aaa;
+      font-size: 0.9rem;
+      margin-top: 2px;
+    }
+    .cart-qty {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 18px;
+    }
+    .cart-qty-btn {
+      background: #fff;
+      border: 2px solid #C5ED51;
+      color: #8A4AF3;
+      font-size: 1.2rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s, color 0.2s;
+    }
+    .cart-qty-btn:hover {
+      background: #C5ED51;
+      color: #23222a;
+    }
+    .cart-qty-input {
+      width: 38px;
+      text-align: center;
+      font-size: 1.1rem;
+      border: 2px solid #C5ED51;
+      border-radius: 8px;
+      color: #23222a;
+      background: #fff;
+      font-weight: 600;
+    }
+    .cart-item-price {
+      color: #8A4AF3;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin: 0 18px;
+      min-width: 110px;
+      text-align: right;
+    }
+    .cart-item-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      min-width: 90px;
+    }
+    .cart-remove {
+      color: #8A4AF3;
+      background: none;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 2px;
+      text-align: right;
+    }
+    .cart-similar {
+      color: #8A4AF3;
+      font-size: 0.98rem;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: right;
+    }
+    .cart-summary-bar {
+      background: #8A4AF3;
+      color: #fff;
+      border-radius: 0 0 18px 18px;
+      padding: 24px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 1.2rem;
+      font-weight: 600;
+      box-shadow: 0 2px 12px rgba(90,34,212,0.07);
+      margin-top: 32px;
+    }
+    .cart-summary-total {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-left: 12px;
+    }
+    .cart-checkout-btn {
+      background: #fff;
+      color: #8A4AF3;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 38px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .cart-checkout-btn:hover {
+      background: #C5ED51;
+      color: #23222a;
+    }
+    .cart-item-size {
+      margin-top: 6px;
+      font-weight: bold;
+      color: #C5ED51;
+      font-size: 1.05rem;
+      letter-spacing: 0.5px;
+    }
+    @media (max-width: 900px) {
+      .cart-container { padding: 0 8px; }
+      .cart-summary-bar { flex-direction: column; gap: 18px; padding: 18px 10px; }
+    }
+    .avatar-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 8px;
+      vertical-align: middle;
+      background: #f3eaff;
+      border: 1.5px solid #eee;
+    }
+    /* --- HEADER BUTTONS: Override to match homepage header --- */
+    .user-btn, .user-menu .user-btn {
+      background: #fff !important;
+      border: 2px solid #6a0dad !important;
+      border-radius: 25px !important;
+      padding: 8px 24px !important;
+      font-size: 18px !important;
+      font-weight: bold !important;
+      color: #6a0dad !important;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+      outline: none;
+      box-shadow: none;
+      margin: 0 8px !important;
+      letter-spacing: 0.2px;
+    }
+    .user-btn:hover, .user-menu .user-btn:hover, .user-btn:focus {
+      background: #f6f2ff !important;
+      color: #6a0dad !important;
+      box-shadow: 0 2px 8px rgba(106,13,173,0.08);
+    }
+    .user-menu .user-btn:after {
+      content: '\25BC';
+      font-size: 1em;
+      margin-left: 8px;
+      color: #6a0dad;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header (same as homepage) -->
+  <header class="header">
+    <div class="logo">
+      <img src="resources/logo.png" alt="YOURS Logo" class="logo">
+    </div>
+    <nav class="nav">
+      <ul>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('homepage.html')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('design.html')">Thiết kế</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('blog.html')">Blog</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('about.html')">Về chúng tôi</button></li>
+      </ul>
+    </nav>
+    <div class="user-menu">
+      <button class="user-btn" onclick="toggleDropdown()">Tài Khoản <span style="font-size:1.1em;">&#9660;</span></button>
+      <div id="userDropdown" class="dropdown">
+        <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
+        <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
+        <a href="cart.html" class="dropdown-item">Giỏ hàng</a>
+        <a href="choose-login.html" class="dropdown-item">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+  <div class="cart-container">
+    <div class="cart-title">Chào mừng đến với giỏ hàng của bạn</div>
+    <div class="cart-subtitle">Đặt hàng ngay hôm nay</div>
+    <div class="cart-list">
+      <div class="cart-list-title">Sản phẩm</div>
+      <div class="cart-item selected">
+        <input type="checkbox" class="cart-checkbox" checked>
+        <img src="resources/kid-model.png" alt="Áo thun trẻ em" class="cart-item-img">
+        <div class="cart-item-info">
+          <div class="cart-item-title">Áo thun trẻ em</div>
+          <div class="cart-item-desc">Có nhiều màu sắc và kiểu dáng khác nhau để phù hợp với sở thích của bạn</div>
+          <div class="cart-item-note">Sản phẩm sẽ được chỉnh sửa phù hợp</div>
+        </div>
+        <div class="cart-qty">
+          <button class="cart-qty-btn">-</button>
+          <input type="text" class="cart-qty-input" value="1" readonly>
+          <button class="cart-qty-btn">+</button>
+        </div>
+        <div class="cart-item-price">250.000 VND</div>
+        <div class="cart-item-actions">
+          <button class="cart-remove">Xóa</button>
+          <button class="cart-similar">Sản phẩm tương tự <span style="font-size:1.1em;">&#9660;</span></button>
+        </div>
+      </div>
+      <div class="cart-item">
+        <input type="checkbox" class="cart-checkbox">
+        <img src="resources/hoodie-demo.png" alt="Hoodie nữ" class="cart-item-img">
+        <div class="cart-item-info">
+          <div class="cart-item-title">Hoodie nữ</div>
+          <div class="cart-item-desc">Có nhiều màu sắc và kiểu dáng khác nhau để phù hợp với sở thích của bạn</div>
+          <div class="cart-item-note">Sản phẩm sẽ được chỉnh sửa phù hợp</div>
+        </div>
+        <div class="cart-qty">
+          <button class="cart-qty-btn">-</button>
+          <input type="text" class="cart-qty-input" value="1" readonly>
+          <button class="cart-qty-btn">+</button>
+        </div>
+        <div class="cart-item-price">250.000 VND</div>
+        <div class="cart-item-actions">
+          <button class="cart-remove">Xóa</button>
+          <button class="cart-similar">Sản phẩm tương tự <span style="font-size:1.1em;">&#9660;</span></button>
+        </div>
+      </div>
+      <div class="cart-item">
+        <input type="checkbox" class="cart-checkbox">
+        <img src="resources/polo-model.png" alt="Polo" class="cart-item-img">
+        <div class="cart-item-info">
+          <div class="cart-item-title">Polo</div>
+          <div class="cart-item-desc">Có nhiều màu sắc và kiểu dáng khác nhau để phù hợp với sở thích của bạn</div>
+          <div class="cart-item-note">Sản phẩm sẽ được chỉnh sửa phù hợp</div>
+        </div>
+        <div class="cart-qty">
+          <button class="cart-qty-btn">-</button>
+          <input type="text" class="cart-qty-input" value="1" readonly>
+          <button class="cart-qty-btn">+</button>
+        </div>
+        <div class="cart-item-price">250.000 VND</div>
+        <div class="cart-item-actions">
+          <button class="cart-remove">Xóa</button>
+          <button class="cart-similar">Sản phẩm tương tự <span style="font-size:1.1em;">&#9660;</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="cart-summary-bar">
+      <div>Tổng sản phẩm : <span class="cart-summary-total">250.000 VND</span></div>
+      <button class="cart-checkout-btn" onclick="window.location.href='checkout.html'">Mua hàng</button>
+    </div>
+  </div>
+  <!-- Footer (same as homepage) -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <img src="resources/logo-footer.png" alt="Footer Logo" class="footer-logo">
+        <p class="tagline">Nơi sáng tạo những gì bạn muốn</p>
+        <p class="support"><strong>Chăm sóc khách hàng</strong><br>official.yours.fashiondesign@gmail.com</p>
+        <div class="social-icons">
+          <a href="https://www.facebook.com/profile.php?id=61576837198946" target="_blank" rel="noopener noreferrer">
+            <img src="resources/facebook-footer.png" alt="Facebook">
+          </a>
+          <a href="https://www.instagram.com/yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+            <img src="resources/instagram-footer.png" alt="Instagram">
+          </a>
+          <a href="https://www.tiktok.com/@yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+            <img src="resources/tiktok-footer.png" alt="TikTok">
+          </a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>YOURS.vn</h4>
+        <ul>
+          <li><a href="#">Về chúng tôi</a></li>
+          <li><a href="#">Lời chứng thực</a></li>
+          <li><a href="#">Câu hỏi thường gặp</a></li>
+          <li><a href="#">Hướng dẫn thiết kế</a></li>
+          <li><a href="#">Sản phẩm</a></li>
+          <li><a href="#">Tuyển dụng</a></li>
+          <li><a href="#">Tư vấn</a></li>
+          <li><a href="#">Chính sách hỗ trợ</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Chính sách & hỗ trợ</h4>
+        <ul>
+          <li><a href="#">Chính sách bảo mật và quyền riêng tư</a></li>
+          <li><a href="#">Điều khoản và điều kiện</a></li>
+          <li><a href="#">Chính sách vận chuyển và giao nhận</a></li>
+          <li><a href="#">Quy định và hình thức thanh toán</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Phương thức thanh toán</h4>
+        <div class="payment-methods">
+          <img src="resources/momo.png" alt="Momo">
+          <img src="resources/zalopay.png" alt="Zalopay">
+          <img src="resources/visa.png" alt="Visa">
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
+    </div>
+  </footer>
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+    document.addEventListener('click', function(event) {
+      const userBtn = document.querySelector('.user-btn[onclick*="toggleDropdown"]');
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown && userBtn && !userBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    // --- CART LOGIC ---
+    function getCartKey() {
+      const username = localStorage.getItem('currentUser');
+      return username ? `cart_${username}` : 'cart_guest';
+    }
+    function renderCart() {
+      const cartList = document.querySelector('.cart-list');
+      const summaryTotal = document.querySelector('.cart-summary-total');
+      const summaryBar = document.querySelector('.cart-summary-bar');
+      const cartKey = getCartKey();
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      if (!cartList) return;
+      if (cart.length === 0) {
+        cartList.innerHTML = '<div style="text-align:center;color:#8A4AF3;font-size:1.2rem;padding:40px 0;">Giỏ hàng của bạn đang trống.</div>';
+        if (summaryBar) summaryBar.style.display = 'none';
+        return;
+      }
+      if (summaryBar) summaryBar.style.display = '';
+      let html = '<div class="cart-list-title">Sản phẩm</div>';
+      cart.forEach((item, idx) => {
+        const key = `${item.productId}__${item.size}`;
+        html += `
+        <div class="cart-item${idx === 0 ? ' selected' : ''}">
+          <input type="checkbox" class="cart-checkbox" data-key="${key}" ${item.checked !== false ? 'checked' : ''}>
+          <img src="${item.image}" alt="${item.name}" class="cart-item-img">
+          <div class="cart-item-info">
+            <div class="cart-item-title">${item.name}</div>
+            <div class="cart-item-desc">${item.description ? item.description : ''}</div>
+            <div class="cart-item-note">Sản phẩm sẽ được chỉnh sửa phù hợp</div>
+            ${item.size ? `<div class='cart-item-size'>Size: <b>${item.size}</b></div>` : ''}
+          </div>
+          <div class="cart-qty">
+            <button class="cart-qty-btn" style="width:38px;height:38px;" data-action="decrease" data-key="${key}">-</button>
+            <input type="text" class="cart-qty-input" style="width:38px;height:38px;" value="${item.quantity}" readonly>
+            <button class="cart-qty-btn" style="width:38px;height:38px;" data-action="increase" data-key="${key}">+</button>
+          </div>
+          <div class="cart-item-price">${item.price.toLocaleString()} VND</div>
+          <div class="cart-item-actions">
+            <button class="cart-remove" data-key="${key}">Xóa</button>
+            <button class="cart-similar">Sản phẩm tương tự <span style="font-size:1.1em;">&#9660;</span></button>
+          </div>
+        </div>
+        `;
+      });
+      cartList.innerHTML = html;
+      updateCartTotal();
+
+      // Add event listeners for quantity and remove
+      cartList.querySelectorAll('.cart-qty-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const key = this.getAttribute('data-key');
+          const action = this.getAttribute('data-action');
+          const cartKey = getCartKey();
+          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+          const item = cart.find(i => `${i.productId}__${i.size}` === key);
+          if (!item) return;
+          if (action === 'increase') item.quantity += 1;
+          if (action === 'decrease' && item.quantity > 1) item.quantity -= 1;
+          localStorage.setItem(cartKey, JSON.stringify(cart));
+          renderCart();
+        });
+      });
+      cartList.querySelectorAll('.cart-remove').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const key = this.getAttribute('data-key');
+          const cartKey = getCartKey();
+          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+          cart = cart.filter(i => `${i.productId}__${i.size}` !== key);
+          localStorage.setItem(cartKey, JSON.stringify(cart));
+          renderCart();
+        });
+      });
+      // Add event listeners for checkboxes
+      cartList.querySelectorAll('.cart-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          const key = this.getAttribute('data-key');
+          const cartKey = getCartKey();
+          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+          const item = cart.find(i => `${i.productId}__${i.size}` === key);
+          if (item) item.checked = this.checked;
+          localStorage.setItem(cartKey, JSON.stringify(cart));
+          updateCartTotal();
+        });
+      });
+    }
+    function updateCartTotal() {
+      const summaryTotal = document.querySelector('.cart-summary-total');
+      const cartKey = getCartKey();
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      let total = 0;
+      cart.forEach(item => {
+        if (item.checked !== false) {
+          total += item.price * item.quantity;
+        }
+      });
+      if (summaryTotal) summaryTotal.textContent = total.toLocaleString() + ' VND';
+    }
+    document.addEventListener('DOMContentLoaded', renderCart);
+
+    (function() {
+      var avatarUrl = localStorage.getItem('userAvatarUrl');
+      var avatarImg = document.getElementById('userAvatarBtn');
+      if (avatarImg) {
+        if (avatarUrl && avatarUrl.length > 5) {
+          avatarImg.src = avatarUrl;
+        } else {
+          avatarImg.src = 'resources/user-circle.png';
+        }
+      }
+    })();
+
+    // Hide 'Cửa hàng của tôi' for non-designers
+    (function() {
+      function getRoleFromToken() {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.role;
+        } catch (e) { return null; }
+      }
+      if (getRoleFromToken() !== 'designer') {
+        var storeMenu = document.getElementById('designerStoreMenu');
+        if (storeMenu) storeMenu.style.display = 'none';
+      }
+    })();
+  </script>
+</body>
+</html> 

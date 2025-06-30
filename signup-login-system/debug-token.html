@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Debug Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .debug-section h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Token Debug Tool</h1>
+    
+    <div class="debug-section">
+        <h2>📋 Current Token Status</h2>
+        <div id="tokenStatus" class="debug-info"></div>
+        <button onclick="checkToken()">🔄 Refresh Token Status</button>
+        <button onclick="clearToken()">🗑️ Clear Token</button>
+    </div>
+
+    <div class="debug-section">
+        <h2>🔐 Token Details</h2>
+        <div id="tokenDetails" class="debug-info"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>🧪 Test API Connection</h2>
+        <button onclick="testUserAPI()">👤 Test /api/user</button>
+        <button onclick="testMyDesignsAPI()">🎨 Test /api/my-designs</button>
+        <div id="apiResults"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>🔧 Quick Fixes</h2>
+        <button onclick="redirectToLogin()">🔑 Go to Login</button>
+        <button onclick="redirectToHomepage()">🏠 Go to Homepage</button>
+    </div>
+
+    <script>
+        function checkToken() {
+            const token = localStorage.getItem('token');
+            const statusDiv = document.getElementById('tokenStatus');
+            
+            if (!token) {
+                statusDiv.className = 'debug-info error';
+                statusDiv.textContent = '❌ No token found in localStorage';
+                return;
+            }
+
+            try {
+                const tokenParts = token.split('.');
+                if (tokenParts.length !== 3) {
+                    statusDiv.className = 'debug-info error';
+                    statusDiv.textContent = '❌ Invalid token format (should have 3 parts)';
+                    return;
+                }
+
+                const payload = JSON.parse(atob(tokenParts[1]));
+                const expirationDate = new Date(payload.exp * 1000);
+                const isExpired = Date.now() > payload.exp * 1000;
+
+                let status = `✅ Token found\n`;
+                status += `👤 Username: ${payload.username || 'N/A'}\n`;
+                status += `🆔 User ID: ${payload.id || 'N/A'}\n`;
+                status += `🎭 Role: ${payload.role || 'N/A'}\n`;
+                status += `⏰ Expires: ${expirationDate.toLocaleString()}\n`;
+                status += `📅 Expired: ${isExpired ? 'Yes' : 'No'}\n`;
+                status += `🔑 Token preview: ${token.substring(0, 50)}...`;
+
+                statusDiv.className = isExpired ? 'debug-info error' : 'debug-info success';
+                statusDiv.textContent = status;
+
+                // Update token details
+                document.getElementById('tokenDetails').textContent = JSON.stringify(payload, null, 2);
+
+            } catch (e) {
+                statusDiv.className = 'debug-info error';
+                statusDiv.textContent = `❌ Error parsing token: ${e.message}`;
+            }
+        }
+
+        function clearToken() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
+            alert('Token cleared!');
+            checkToken();
+        }
+
+        async function testUserAPI() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showResult('❌ No token available for testing', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ API call successful\nStatus: ${response.status}\nUser: ${result.user?.username || 'N/A'}`, 'success');
+                } else {
+                    showResult(`❌ API call failed\nStatus: ${response.status}\nError: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testMyDesignsAPI() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showResult('❌ No token available for testing', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/my-designs', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ API call successful\nStatus: ${response.status}\nDesigns found: ${Array.isArray(result) ? result.length : 'N/A'}`, 'success');
+                } else {
+                    showResult(`❌ API call failed\nStatus: ${response.status}\nError: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        function showResult(message, type) {
+            const resultsDiv = document.getElementById('apiResults');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.textContent = message;
+            resultsDiv.appendChild(resultDiv);
+            
+            // Remove old results after 5 seconds
+            setTimeout(() => {
+                resultDiv.remove();
+            }, 5000);
+        }
+
+        function redirectToLogin() {
+            window.location.href = 'choose-login.html';
+        }
+
+        function redirectToHomepage() {
+            window.location.href = 'homepage.html';
+        }
+
+        // Check token on page load
+        checkToken();
+    </script>
+</body>
+</html> 

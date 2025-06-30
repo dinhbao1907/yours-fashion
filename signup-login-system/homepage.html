@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang chủ - YOURS.vn</title>
+  <link rel="stylesheet" href="css/homepage.css">
+</head>
+<body>
+  <!-- Header moved outside .container -->
+  <header class="header">
+    <div class="logo">
+      <img src="resources/logo.png" alt="YOURS Logo" class="logo">
+    </div>
+    <nav class="nav">
+      <ul>
+        <li><button type="button" class="user-btn" onclick="activateTab('home')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
+        <li><button type="button" class="user-btn" onclick="activateTab('design')">Thiết kế</button></li>
+        <li><button type="button" class="user-btn" onclick="activateTab('blog')">Blog</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('about.html')">Về chúng tôi</button></li>
+      </ul>
+    </nav>
+    <div class="user-menu">
+      <button class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
+      <div id="userDropdown" class="dropdown">
+        <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
+        <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
+        <a href="cart.html" class="dropdown-item">Giỏ hàng</a>
+        <a href="choose-login.html" class="dropdown-item">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+  <div class="container">
+    <main class="main">
+      <div class="welcome-section">
+        <div class="welcome-content animated-slide-left">
+          <h1>Tạo và in <span class="highlight">sản phẩm của riêng bạn</span></h1>
+          <p>"Thiết kế và in sản phẩm của riêng bạn một cách dễ dàng, từ ý tưởng đến thực tế"</p>
+          <div class="cta-buttons">
+            <a href="all-products.html" class="btn-explore">
+              <span class="btn-icon">
+                <!-- Shirt SVG icon -->
+                <svg width="28" height="28" fill="none" stroke="#8A4AF3" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M4 4l4-2 4 2 4-2 4 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"/>
+                  <path d="M8 22V12h8v10"/>
+                </svg>
+              </span>
+              Khám phá
+            </a>
+            <a href="design.html" class="btn-explore">
+              <span class="btn-icon">
+                <!-- Palette SVG icon -->
+                <svg width="28" height="28" fill="none" stroke="#8A4AF3" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="7" cy="10" r="1"/>
+                  <circle cx="12" cy="7" r="1"/>
+                  <circle cx="17" cy="10" r="1"/>
+                  <circle cx="12" cy="17" r="1"/>
+                </svg>
+              </span>
+              Thiết Kế Ngay
+            </a>
+          </div>
+        </div>
+        <div class="welcome-image animated-slide-right">
+          <img src="resources/illustration.png" alt="Illustration" class="hero-image">
+        </div>
+      </div>
+   <section class="product-section animated-fade-up">
+        <h2>Best seller</h2>
+        <a href="all-products.html?sort=popular" class="see-all-best-sellers">Xem thêm</a>
+        <div id="best-seller-products" class="product-grid">
+          <!-- Best seller products will be loaded here dynamically -->
+        </div>
+      </section>
+
+      <script>
+      // Function to render a single product card (reuse from designer-products.js)
+      function renderProductCard(design) {
+        let imageSrc = '';
+        if (design.designImage && design.designImage.startsWith('data:image/')) {
+          imageSrc = design.designImage;
+        } else if (design.productType && design.productType.toLowerCase().includes('hoodie')) {
+          imageSrc = 'resources/hoodie-demo.png';
+        } else {
+          imageSrc = 'resources/tshirt-model.png';
+        }
+        // Show "New" label if uploaded in last 24h
+        const isNew = (() => {
+          const uploadDate = new Date(design.createdAt || design.uploadDate || 0);
+          const now = new Date();
+          const timeDifference = now - uploadDate;
+          const hoursDifference = timeDifference / (1000 * 60 * 60);
+          return hoursDifference <= 24;
+        })();
+        return `
+          <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
+            <img src="${imageSrc}" alt="${design.productType || 'Product'}">
+            ${isNew ? '<span class="new-label">New</span>' : ''}
+            <h3>${design.name || 'Tên thiết kế'}</h3>
+            <p>by <b>${design.username || 'Designer'}</b></p>
+            <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
+            <button class="btn btn-secondary" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'; event.stopPropagation();">Xem sản phẩm</button>
+          </div>
+        `;
+      }
+      // Load best seller products
+      function loadBestSellerProducts() {
+        const container = document.getElementById('best-seller-products');
+        if (!container) return;
+        container.innerHTML = '<p class="empty-message">Chưa có sản phẩm bán chạy nào.</p>';
+        fetch('http://localhost:5000/api/designs')
+          .then(response => response.json())
+          .then(designs => {
+            // Filter: more than 1 rating
+            const filtered = (Array.isArray(designs) ? designs : []).filter(d => (d.ratingCount || d.ratingsCount || d.numRatings || 0) > 1);
+            // Sort by rating (highest first)
+            filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            // Show up to 5 best sellers
+            const bestSellers = filtered.slice(0, 5);
+            if (bestSellers.length > 0) {
+              container.innerHTML = bestSellers.map(renderProductCard).join('');
+              // Animate product cards with staggered delay
+              const cards = container.querySelectorAll('.product-card');
+              cards.forEach((card, idx) => {
+                setTimeout(() => {
+                  card.classList.add('animated');
+                }, idx * 100);
+              });
+            } else {
+              container.innerHTML = '<p class="empty-message">Chưa có sản phẩm bán chạy nào.</p>';
+            }
+          })
+          .catch(error => {
+            console.error('Error loading best sellers:', error);
+            container.innerHTML = '<p class="empty-message">Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+          });
+      }
+      document.addEventListener('DOMContentLoaded', loadBestSellerProducts);
+      </script>
+
+      
+
+      
+        <section class="product-section animated-fade-up">
+          <h2>Sản phẩm nổi bật</h2>
+          <a href="all-products.html?sort=most-loved" class="see-all">Xem thêm</a>
+          <div id="featured-products" class="product-grid">
+            <!-- Featured products will be loaded here dynamically -->
+          </div>
+        </section>
+
+        <script>
+        // Function to render a single product card (reuse from designer-products.js)
+        function renderProductCard(design) {
+          let imageSrc = '';
+          if (design.designImage && design.designImage.startsWith('data:image/')) {
+            imageSrc = design.designImage;
+          } else if (design.productType && design.productType.toLowerCase().includes('hoodie')) {
+            imageSrc = 'resources/hoodie-demo.png';
+          } else {
+            imageSrc = 'resources/tshirt-model.png';
+          }
+          // Show "New" label if uploaded in last 24h
+          const isNew = (() => {
+            const uploadDate = new Date(design.createdAt || design.uploadDate || 0);
+            const now = new Date();
+            const timeDifference = now - uploadDate;
+            const hoursDifference = timeDifference / (1000 * 60 * 60);
+            return hoursDifference <= 24;
+          })();
+          return `
+            <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
+              <img src="${imageSrc}" alt="${design.productType || 'Product'}">
+              ${isNew ? '<span class="new-label">New</span>' : ''}
+              <h3>${design.name || 'Tên thiết kế'}</h3>
+              <p>by <b>${design.username || 'Designer'}</b></p>
+              <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
+              <button class="btn btn-secondary" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'; event.stopPropagation();">Xem sản phẩm</button>
+            </div>
+          `;
+        }
+        // Load featured products
+        function loadFeaturedProducts() {
+          const container = document.getElementById('featured-products');
+          if (!container) return;
+          container.innerHTML = '<p class="empty-message">Chưa có sản phẩm nổi bật nào.</p>';
+          fetch('http://localhost:5000/api/designs')
+            .then(response => response.json())
+            .then(designs => {
+              // Filter: at least 1 heart (likes/favorites/loveCount >= 1)
+              const filtered = (Array.isArray(designs) ? designs : []).filter(d => (d.likes || d.favorites || d.loveCount || 0) >= 1);
+              // Sort by most loved
+              filtered.sort((a, b) => ((b.likes || b.favorites || b.loveCount || 0) - (a.likes || a.favorites || a.loveCount || 0)));
+              // Show up to 5 featured products
+              const featured = filtered.slice(0, 5);
+              if (featured.length > 0) {
+                container.innerHTML = featured.map(renderProductCard).join('');
+                // Animate product cards with staggered delay
+                const cards = container.querySelectorAll('.product-card');
+                cards.forEach((card, idx) => {
+                  setTimeout(() => {
+                    card.classList.add('animated');
+                  }, idx * 100);
+                });
+              } else {
+                container.innerHTML = '<p class="empty-message">Chưa có sản phẩm nổi bật nào.</p>';
+              }
+            })
+            .catch(error => {
+              console.error('Error loading featured products:', error);
+              container.innerHTML = '<p class="empty-message">Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+            });
+        }
+        document.addEventListener('DOMContentLoaded', loadFeaturedProducts);
+        </script>
+
+        <!-- New section for designer products -->
+        <section class="product-section animated-fade-up">
+          <h2>Thiết kế mới nhất</h2>
+          <a href="all-products.html?sort=newest" class="see-all">Xem thêm</a>
+          <div id="designer-products" class="product-grid">
+            <!-- Products will be loaded here dynamically -->
+          </div>
+        </section>
+
+        <section class="banner-section">
+          <div class="banner-container">
+            <img src="resources/banner2.png" alt="In theo yêu cầu" class="banner-image">
+            <img src="resources/banner1.png" alt="Sản phẩm in ấn độc đáo" class="banner-image">
+          </div>
+        </section>
+
+        <section class="commitment-section">
+          <h2>Cam kết</h2>
+          <div class="commitment-container">
+            <div class="commitment-card">
+              <h3>Chất lượng</h3>
+              <ul>
+                <li>Cam kết sử dụng vật liệu chất lượng cao.</li>
+                <li>In chuẩn màu, đảm bảo độ bền màu.</li>
+                <li>Hình ảnh in sắc nét, chuẩn xác.</li>
+              </ul>
+            </div>
+            <div class="commitment-card">
+              <h3>Bảo hành & đổi trả</h3>
+              <ul>
+                <li>Cam kết bảo hành sản phẩm nếu lỗi do nhà sản xuất.</li>
+                <li>Chính sách đổi trả linh hoạt.</li>
+                <li>Hỗ trợ khách hàng 24/7.</li>
+              </ul>
+            </div>
+            <div class="commitment-card">
+              <h3>Minh bạch</h3>
+              <ul>
+                <li>Báo giá rõ ràng, không có phụ phí.</li>
+                <li>Cung cấp hình ảnh thực tế sản phẩm trước khi giao.</li>
+                <li>Cam kết hoàn tiền nếu không hài lòng với sản phẩm.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+    </main>
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <img src="resources/logo-footer.png" alt="Footer Logo" class="footer-logo">
+          <p class="tagline">Nơi sáng tạo những gì bạn muốn</p>
+          <p class="support"><strong>Chăm sóc khách hàng</strong><br>official.yours.fashiondesign@gmail.com</p>
+          <div class="social-icons">
+            <a href="https://www.facebook.com/profile.php?id=61576837198946" target="_blank" rel="noopener noreferrer">
+              <img src="resources/facebook-footer.png" alt="Facebook">
+            </a>
+            <a href="https://www.instagram.com/yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/instagram-footer.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/tiktok-footer.png" alt="TikTok">
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>YOURS.vn</h4>
+          <ul>
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Lời chứng thực</a></li>
+            <li><a href="#">Câu hỏi thường gặp</a></li>
+            <li><a href="#">Hướng dẫn thiết kế</a></li>
+            <li><a href="#">Sản phẩm</a></li>
+            <li><a href="#">Tuyển dụng</a></li>
+            <li><a href="#">Tư vấn</a></li>
+            <li><a href="#">Chính sách hỗ trợ</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Chính sách & hỗ trợ</h4>
+          <ul>
+            <li><a href="#">Chính sách bảo mật và quyền riêng tư</a></li>
+            <li><a href="#">Điều khoản và điều kiện</a></li>
+            <li><a href="#">Chính sách vận chuyển và giao nhận</a></li>
+            <li><a href="#">Quy định và hình thức thanh toán</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Phương thức thanh toán</h4>
+          <div class="payment-methods">
+            <img src="resources/momo.png" alt="Momo">
+            <img src="resources/zalopay.png" alt="Zalopay">
+            <img src="resources/visa.png" alt="Visa">
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
+      </div>
+    </footer>
+  </div>
+  <script>
+       // Kiểm tra token khi trang tải
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'homepage-unauthenticated.html';
+      return;
+    }
+
+    // Gọi API để lấy thông tin người dùng
+    fetch('http://localhost:5000/api/user', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => {
+      if (!response.ok) {
+        console.log('API error - Status:', response.status, 'Message:', response.statusText);
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('API response:', data);
+      if (data.user && data.user.username) {
+        document.getElementById('username').textContent = data.user.username;
+      } else {
+        console.log('Username not found in response');
+        document.getElementById('username').textContent = 'Khách hàng';
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching user:', error.message);
+      localStorage.removeItem('token');
+      window.location.href = 'homepage-unauthenticated.html';
+    });
+
+
+    // Đóng dropdown khi nhấp ra ngoài
+    document.addEventListener('click', function(event) {
+      const userBtn = document.querySelector('.user-btn');
+      const dropdown = document.getElementById('userDropdown');
+      if (!userBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+      // Handle logout
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userName');
+        alert('Đã đăng xuất thành công!');
+        window.location.href = 'homepage.html';
+      });
+  </script>
+  <script>
+    // Function to toggle dropdown
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+
+    // Function to activate tab
+    function activateTab(tabName) {
+      event.preventDefault(); // Prevent default button behavior
+      if (tabName === 'home') {
+        window.location.replace('homepage.html');
+      } else if (tabName === 'design') {
+        window.location.replace('design.html');
+      } // 'products' and 'blog' do nothing
+    }
+
+    // Đặt trạng thái active mặc định dựa trên trang hiện tại
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPage = window.location.pathname.split('/').pop();
+      if (currentPage === 'homepage.html') {
+        const homeBtn = document.querySelector('button[onclick="activateTab(\'home\')"]');
+        if (homeBtn) homeBtn.classList.add('active');
+      }
+    });
+  </script>
+  <script src="javascript/homepage.js"></script>
+  <script src="javascript/designer-products.js"></script>
+  <script>
+  // Hide 'Cửa hàng của tôi' for non-designers
+  (function() {
+    function getRoleFromToken() {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.role;
+      } catch (e) { return null; }
+    }
+    if (getRoleFromToken() !== 'designer') {
+      var storeMenu = document.getElementById('designerStoreMenu');
+      if (storeMenu) storeMenu.style.display = 'none';
+    }
+  })();
+  </script>
+</body>
+</html>

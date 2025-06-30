@@ -1,0 +1,174 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang chủ - YOURS.vn (Chưa đăng nhập)</title>
+  <link rel="stylesheet" href="css/homepage.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+     <a href="homepage-unauthenticated.html"> <img src="resources/logo.png" alt="Yours Logo" class="logo"> </a>
+      <nav class="nav">
+        <ul>
+          <li><button type="button" class="user-btn" onclick="window.location.href='homepage-unauthenticated.html'">Trang chủ</button></li>
+          <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
+          <li><button type="button" class="user-btn" onclick="window.location.href='#'">Thiết kế</button></li>
+          <li><button type="button" class="user-btn" onclick="window.location.href='#'">Blog</button></li>
+          <li><a href="about.html" class="user-btn" style="display:inline-block;vertical-align:middle;">Về chúng tôi</a></li>
+          <li><a href="choose-login.html" class="user-btn">Đăng nhập</a></li>
+        </ul>
+      </nav>
+    </header>
+     <main class="main">
+      <div class="welcome-section">
+        <div class="welcome-content">
+          <h1>Tạo và in <span class="highlight">sản phẩm của riêng bạn</span></h1>
+          <p>"Thiết kế và in sản phẩm của riêng bạn một cách dễ dàng, từ ý tưởng đến thực tế"</p>
+          <div class="cta-buttons">
+            <a href="choose-login.html" class="btn btn-primary">Đăng nhập</a>
+            <a href="choose-login.html" class="btn btn-secondary">Đăng ký</a>
+          </div>
+        </div>
+        <div class="welcome-image">
+          <img src="resources/illustration.png" alt="Illustration" class="hero-image">
+          <div class="category-tabs">
+            <a href="#" class="tab active">Nam</a>
+            <a href="#" class="tab">Nữ</a>
+            <a href="#" class="tab">Trẻ em</a>
+          </div>
+        </div>
+      </div>
+      <div class="product-section">
+        <h2>Best seller</h2>
+        <a href="#" class="see-all">See all best sellers ></a>
+        <div class="product-grid">
+          <div class="product-card">
+            <img src="resources/tanktop-demo.png" alt="Tanktop">
+            <h3>Tanktop</h3>
+            <p>Design by you</p>
+            <p class="price">150,000 VND</p>
+          </div>
+          <div class="product-card">
+            <img src="resources/sweater-demo1.png" alt="Sweater">
+            <h3>Sweater</h3>
+            <p>Design by you</p>
+            <p class="price">250,000 VND</p>
+          </div>
+          <div class="product-card">
+            <img src="resources/hoodie-demo.png" alt="Hoodie">
+            <h3>Hoodie</h3>
+            <p>Design by you</p>
+            <p class="price">300,000 VND</p>
+          </div>
+          <div class="product-card">
+            <img src="resources/sweater-demo2.png" alt="Sweater">
+            <h3>Sweater</h3>
+            <p>Design by you</p>
+            <p class="price">250,000 VND</p>
+          </div>
+          <div class="product-card">
+            <img src="resources/polo-demo.png" alt="Polo">
+            <h3>Polo</h3>
+            <p>Design by you</p>
+            <p class="price">150,000 VND</p>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <img src="resources/logo-footer.png" alt="Footer Logo" class="footer-logo">
+          <p class="tagline">Nơi sáng tạo những gì bạn muốn</p>
+          <p class="support"><strong>Chăm sóc khách hàng</strong><br>official.yours.fashiondesign@gmail.com</p>
+          <div class="social-icons">
+            <a href="https://www.facebook.com/profile.php?id=61576837198946" target="_blank" rel="noopener noreferrer">
+              <img src="resources/facebook-footer.png" alt="Facebook">
+            </a>
+            <a href="https://www.instagram.com/yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/instagram-footer.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/tiktok-footer.png" alt="TikTok">
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>YOURS.vn</h4>
+          <ul>
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Lời chứng thực</a></li>
+            <li><a href="#">Câu hỏi thường gặp</a></li>
+            <li><a href="#">Hướng dẫn thiết kế</a></li>
+            <li><a href="#">Sản phẩm</a></li>
+            <li><a href="#">Tuyển dụng</a></li>
+            <li><a href="#">Tư vấn</a></li>
+            <li><a href="#">Chính sách hỗ trợ</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Chính sách & hỗ trợ</h4>
+          <ul>
+            <li><a href="#">Chính sách bảo mật và quyền riêng tư</a></li>
+            <li><a href="#">Điều khoản và điều kiện</a></li>
+            <li><a href="#">Chính sách vận chuyển và giao nhận</a></li>
+            <li><a href="#">Quy định và hình thức thanh toán</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Phương thức thanh toán</h4>
+          <div class="payment-methods">
+            <img src="resources/momo.png" alt="Momo">
+            <img src="resources/zalopay.png" alt="Zalopay">
+            <img src="resources/visa.png" alt="Visa">
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cửa hàng nhà thiết kế</title>
+  <link rel="stylesheet" href="css/homepage.css">
+  <link rel="stylesheet" href="css/product.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <style>
+    .product-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 30px;
+    }
+    .product-card {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+      display: flex !important;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <img src="resources/logo.png" alt="YOURS Logo" class="logo">
+    </div>
+    <nav class="nav">
+      <ul>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('homepage.html')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('design.html')">Thiết kế</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('blog.html')">Blog</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('about.html')">Về chúng tôi</button></li>
+      </ul>
+    </nav>
+  </header>
+  <main style="max-width:1200px;margin:40px auto 0 auto;padding:0 16px;">
+    <a href="homepage.html" style="color:#7B3FF2;text-decoration:underline;font-weight:500;">&larr; Quay lại Trang chủ</a>
+    <section id="designerProfile" style="display:flex;align-items:center;gap:32px;margin:32px 0 24px 0;">
+      <img id="designerAvatar" src="resources/user-circle.png" alt="Avatar" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid #eee;">
+      <div>
+        <h1 id="designerName" style="margin:0 0 8px 0;font-size:2rem;color:#7B3FF2;">Nhà thiết kế</h1>
+        <div id="designerBio" style="color:#555;font-size:1.1rem;">Đang tải thông tin...</div>
+      </div>
+    </section>
+    <h2 style="color:#4caf50;margin-bottom:18px;">Sản phẩm của nhà thiết kế</h2>
+    <div id="designerProducts" class="product-grid"></div>
+  </main>
+  <script>
+    // Helper to get query param
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+    async function loadDesignerShop() {
+      const username = getQueryParam('username');
+      if (!username) {
+        document.getElementById('designerProfile').innerHTML = '<p>Không tìm thấy nhà thiết kế.</p>';
+        return;
+      }
+      // Fetch designer info
+      let designer = null;
+      try {
+        const res = await fetch(`http://localhost:5000/api/designers/${username}`);
+        if (res.ok) {
+          const data = await res.json();
+          designer = data.designer || data;
+        }
+      } catch {}
+      // Render designer info
+      if (designer) {
+        document.getElementById('designerAvatar').src = designer.avatar || 'resources/user-circle.png';
+        document.getElementById('designerName').textContent = designer.name || designer.username || 'Nhà thiết kế';
+        document.getElementById('designerBio').textContent = designer.bio || designer.email || '';
+      } else {
+        document.getElementById('designerProfile').innerHTML = '<p>Không tìm thấy nhà thiết kế.</p>';
+        return;
+      }
+      // Fetch designer's products
+      let products = [];
+      try {
+        const res = await fetch(`http://localhost:5000/api/designs?username=${encodeURIComponent(username)}`);
+        if (res.ok) {
+          products = await res.json();
+        }
+      } catch {}
+      // Render products
+      console.log('Products:', products);
+      const grid = document.getElementById('designerProducts');
+      if (!products.length) {
+        grid.innerHTML = '<p>Chưa có sản phẩm nào.</p>';
+        return;
+      }
+      grid.innerHTML = products.map(design => `
+        <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
+          <img src="${design.designImage && design.designImage.startsWith('data:image/') ? design.designImage : 'resources/tshirt-model.png'}" alt="${design.productType || 'Product'}">
+          <h3>${design.name || 'Tên thiết kế'}</h3>
+          <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
+          <button class="btn btn-secondary" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'; event.stopPropagation();">Xem sản phẩm</button>
+        </div>
+      `).join('');
+    }
+    document.addEventListener('DOMContentLoaded', loadDesignerShop);
+  </script>
+</body>
+</html> 
