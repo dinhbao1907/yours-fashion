@@ -63,10 +63,31 @@ async function createTestData() {
         }
       ],
       designImage: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSIxMDAiIHk9IjEwMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSIjMzMzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+VGVzdCBEZXNpZ248L3RleHQ+Cjwvc3ZnPgo=',
+      isCustomDesign: true, // This is a custom design
       status: 'approved'
     });
     await design.save();
     console.log('✅ Test design created');
+
+    // Create test regular design (non-custom)
+    const regularDesign = new Design({
+      userId: designer._id,
+      username: 'test_designer',
+      name: 'Regular Hoodie Design',
+      designId: 'TEST002',
+      productType: 'Áo Hoodie',
+      material: 'Vải Cotton',
+      color: 'Đen',
+      price: 200000,
+      productCode: 'HOODIE001',
+      description: 'Thiết kế hoodie thường',
+      designElements: [], // No design elements = not custom
+      designImage: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSIxMDAiIHk9IjEwMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSIjMzMzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+UmVndWxhciBEZXNpZ248L3RleHQ+Cjwvc3ZnPgo=',
+      isCustomDesign: false, // This is not a custom design
+      status: 'approved'
+    });
+    await regularDesign.save();
+    console.log('✅ Test regular design created');
 
     // Create test order
     const order = new Order({

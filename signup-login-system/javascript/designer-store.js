@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class=\"product-card\">
           <img src=\"${imageSrc}\" alt=\"${design.productType || 'Product'}\" style=\"height:220px;width:auto;display:block;margin:0 auto 18px auto;object-fit:contain;\">
           ${isNew ? '<span class=\"new-label\">New</span>' : ''}
+          ${design.isCustomDesign ? '<span class=\"custom-design-label\" style=\"position:absolute;top:10px;right:10px;background:#7B3FF2;color:white;padding:4px 8px;border-radius:12px;font-size:12px;font-weight:600;\">🎨 Thiết kế tùy chỉnh</span>' : ''}
           <h3>${design.name || 'Tên thiết kế'}</h3>
           <p>by <b>${design.username || ''}</b></p>
           <p class=\"price\">${design.price ? design.price.toLocaleString() : ''} VND</p>

@@ -141,11 +141,16 @@
       color: #8A4AF3;
       background: none;
       border: none;
-      font-size: 1rem;
+      font-size: 1.15rem;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 2px;
       text-align: right;
+      transition: color 0.2s;
+    }
+    .cart-remove:hover {
+      color: #e53935;
+      text-decoration: underline;
     }
     .cart-similar {
       color: #8A4AF3;
@@ -188,6 +193,16 @@
     .cart-checkout-btn:hover {
       background: #C5ED51;
       color: #23222a;
+    }
+    .cart-checkout-btn:disabled {
+      background: #ccc;
+      color: #666;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .cart-checkout-btn:disabled:hover {
+      background: #ccc;
+      color: #666;
     }
     .cart-item-size {
       margin-top: 6px;
@@ -285,8 +300,7 @@
         </div>
         <div class="cart-item-price">250.000 VND</div>
         <div class="cart-item-actions">
-          <button class="cart-remove">Xóa</button>
-          <button class="cart-similar">Sản phẩm tương tự <span style="font-size:1.1em;">&#9660;</span></button>
+          <button class="cart-remove" data-key="${key}">Xóa</button>
         </div>
       </div>
       <div class="cart-item">
@@ -304,8 +318,7 @@
         </div>
         <div class="cart-item-price">250.000 VND</div>
         <div class="cart-item-actions">
-          <button class="cart-remove">Xóa</button>
-          <button class="cart-similar">Sản phẩm tương tự <span style="font-size:1.1em;">&#9660;</span></button>
+          <button class="cart-remove" data-key="${key}">Xóa</button>
         </div>
       </div>
       <div class="cart-item">
@@ -323,8 +336,7 @@
         </div>
         <div class="cart-item-price">250.000 VND</div>
         <div class="cart-item-actions">
-          <button class="cart-remove">Xóa</button>
-          <button class="cart-similar">Sản phẩm tương tự <span style="font-size:1.1em;">&#9660;</span></button>
+          <button class="cart-remove" data-key="${key}">Xóa</button>
         </div>
       </div>
     </div>
@@ -413,22 +425,61 @@
       const cartList = document.querySelector('.cart-list');
       const summaryTotal = document.querySelector('.cart-summary-total');
       const summaryBar = document.querySelector('.cart-summary-bar');
+      const checkoutBtn = document.querySelector('.cart-checkout-btn');
       const cartKey = getCartKey();
       let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      
+      // Filter out old custom design items (older than 24 hours)
+      const now = Date.now();
+      const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      
+      const originalCartLength = cart.length;
+      cart = cart.filter(item => {
+        if (item.type === 'custom-design' && item.timestamp) {
+          const age = now - item.timestamp;
+          if (age > twentyFourHours) {
+            console.log('Removing old custom design item from cart:', item);
+            return false; // Remove old custom design items
+          }
+        }
+        return true;
+      });
+      
+      // Update cart in localStorage after filtering
+      if (cart.length !== originalCartLength) {
+        localStorage.setItem(cartKey, JSON.stringify(cart));
+      }
+      
       if (!cartList) return;
       if (cart.length === 0) {
         cartList.innerHTML = '<div style="text-align:center;color:#8A4AF3;font-size:1.2rem;padding:40px 0;">Giỏ hàng của bạn đang trống.</div>';
         if (summaryBar) summaryBar.style.display = 'none';
+        if (checkoutBtn) checkoutBtn.disabled = true;
         return;
       }
       if (summaryBar) summaryBar.style.display = '';
       let html = '<div class="cart-list-title">Sản phẩm</div>';
       cart.forEach((item, idx) => {
-        const key = `${item.productId}__${item.size}`;
+        // Create unique key for each item
+        let key;
+        if (item.type === 'custom-design') {
+          // For custom designs, use timestamp as unique identifier
+          key = `custom_${item.timestamp}`;
+        } else {
+          // For regular products, use productId and size
+          key = `${item.productId}__${item.size}`;
+        }
+        // Use designImage for custom products
+        let imageSrc = item.image;
+        if (item.type === 'custom-design' && item.designImage) {
+          imageSrc = item.designImage;
+        }
+        // Ensure quantity is always at least 1
+        if (!item.quantity || item.quantity < 1) item.quantity = 1;
         html += `
         <div class="cart-item${idx === 0 ? ' selected' : ''}">
           <input type="checkbox" class="cart-checkbox" data-key="${key}" ${item.checked !== false ? 'checked' : ''}>
-          <img src="${item.image}" alt="${item.name}" class="cart-item-img">
+          <img src="${imageSrc}" alt="${item.name}" class="cart-item-img">
           <div class="cart-item-info">
             <div class="cart-item-title">${item.name}</div>
             <div class="cart-item-desc">${item.description ? item.description : ''}</div>
@@ -443,13 +494,16 @@
           <div class="cart-item-price">${item.price.toLocaleString()} VND</div>
           <div class="cart-item-actions">
             <button class="cart-remove" data-key="${key}">Xóa</button>
-            <button class="cart-similar">Sản phẩm tương tự <span style="font-size:1.1em;">&#9660;</span></button>
           </div>
         </div>
         `;
       });
       cartList.innerHTML = html;
       updateCartTotal();
+
+      // Enable/disable checkout button based on checked items
+      const checkedCount = cart.filter(i => i.checked !== false).length;
+      if (checkoutBtn) checkoutBtn.disabled = checkedCount === 0;
 
       // Add event listeners for quantity and remove
       cartList.querySelectorAll('.cart-qty-btn').forEach(btn => {
@@ -458,7 +512,25 @@
           const action = this.getAttribute('data-action');
           const cartKey = getCartKey();
           let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-          const item = cart.find(i => `${i.productId}__${i.size}` === key);
+          // Filter out old custom design items before processing
+          const now = Date.now();
+          const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+          cart = cart.filter(item => {
+            if (item.type === 'custom-design' && item.timestamp) {
+              const age = now - item.timestamp;
+              if (age > twentyFourHours) {
+                return false; // Remove old custom design items
+              }
+            }
+            return true;
+          });
+          const item = cart.find(i => {
+            if (i.type === 'custom-design') {
+              return `custom_${i.timestamp}` === key;
+            } else {
+              return `${i.productId}__${i.size}` === key;
+            }
+          });
           if (!item) return;
           if (action === 'increase') item.quantity += 1;
           if (action === 'decrease' && item.quantity > 1) item.quantity -= 1;
@@ -471,7 +543,25 @@
           const key = this.getAttribute('data-key');
           const cartKey = getCartKey();
           let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-          cart = cart.filter(i => `${i.productId}__${i.size}` !== key);
+          // Filter out old custom design items before processing
+          const now = Date.now();
+          const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+          cart = cart.filter(item => {
+            if (item.type === 'custom-design' && item.timestamp) {
+              const age = now - item.timestamp;
+              if (age > twentyFourHours) {
+                return false; // Remove old custom design items
+              }
+            }
+            return true;
+          });
+          cart = cart.filter(i => {
+            if (i.type === 'custom-design') {
+              return `custom_${i.timestamp}` !== key;
+            } else {
+              return `${i.productId}__${i.size}` !== key;
+            }
+          });
           localStorage.setItem(cartKey, JSON.stringify(cart));
           renderCart();
         });
@@ -482,10 +572,32 @@
           const key = this.getAttribute('data-key');
           const cartKey = getCartKey();
           let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-          const item = cart.find(i => `${i.productId}__${i.size}` === key);
+          // Filter out old custom design items before processing
+          const now = Date.now();
+          const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+          cart = cart.filter(item => {
+            if (item.type === 'custom-design' && item.timestamp) {
+              const age = now - item.timestamp;
+              if (age > twentyFourHours) {
+                return false; // Remove old custom design items
+              }
+            }
+            return true;
+          });
+          const item = cart.find(i => {
+            if (i.type === 'custom-design') {
+              return `custom_${i.timestamp}` === key;
+            } else {
+              return `${i.productId}__${i.size}` === key;
+            }
+          });
           if (item) item.checked = this.checked;
           localStorage.setItem(cartKey, JSON.stringify(cart));
           updateCartTotal();
+          // Update checkout button state
+          const checkoutBtn = document.querySelector('.cart-checkout-btn');
+          const checkedCount = cart.filter(i => i.checked !== false).length;
+          if (checkoutBtn) checkoutBtn.disabled = checkedCount === 0;
         });
       });
     }
@@ -493,6 +605,21 @@
       const summaryTotal = document.querySelector('.cart-summary-total');
       const cartKey = getCartKey();
       let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      
+      // Filter out old custom design items (older than 24 hours)
+      const now = Date.now();
+      const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      
+      cart = cart.filter(item => {
+        if (item.type === 'custom-design' && item.timestamp) {
+          const age = now - item.timestamp;
+          if (age > twentyFourHours) {
+            return false; // Remove old custom design items
+          }
+        }
+        return true;
+      });
+      
       let total = 0;
       cart.forEach(item => {
         if (item.checked !== false) {
@@ -530,6 +657,25 @@
         if (storeMenu) storeMenu.style.display = 'none';
       }
     })();
+
+    // Add event listener for checkout button to prevent proceeding if nothing is checked
+    document.addEventListener('DOMContentLoaded', function() {
+      renderCart();
+      const checkoutBtn = document.querySelector('.cart-checkout-btn');
+      if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function(e) {
+          const cartKey = getCartKey();
+          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+          const checkedCount = cart.filter(i => i.checked !== false).length;
+          if (checkedCount === 0) {
+            e.preventDefault();
+            alert('Vui lòng chọn ít nhất một sản phẩm để mua hàng!');
+            return false;
+          }
+          // Otherwise, proceed as normal (redirect to checkout.html)
+        });
+      }
+    });
   </script>
 </body>
 </html> 

@@ -767,6 +767,14 @@
       background: #e3f2fd;
       color: #1976d2;
     }
+    .order-type-badge.mixed {
+      background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+      color: #7B3FF2;
+    }
+    .order-type-badge.unknown {
+      background: #f5f5f5;
+      color: #666;
+    }
     .order-type-badge .badge-icon {
       font-size: 1.1em;
       margin-right: 4px;
@@ -1077,6 +1085,7 @@
                 <option value="all">Tất cả đơn hàng</option>
                 <option value="product_purchase">Mua sản phẩm</option>
                 <option value="custom_design">Thiết kế tùy chỉnh</option>
+                <option value="mixed">Hỗn hợp</option>
               </select>
               <select id="orderStatusFilter" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;">
                 <option value="all">Tất cả trạng thái</option>

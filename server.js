@@ -17,7 +17,9 @@ const {
   sendOrderDeliveringEmail,
   sendOrderDeliveredEmail,
   sendBanEmail,
-  sendUnbanEmail
+  sendUnbanEmail,
+  sendCustomDesignApprovedEmail,
+  sendCustomDesignRejectedEmail
 } = require("./utils/emailService");
 const Design = require('./models/designSchema'); // Import schema
 const path = require('path');
@@ -624,48 +626,88 @@ async function createDemoDesigns() {
     // Create demo designs
     const demoDesigns = [
       {
+        userId: new mongoose.Types.ObjectId(),
         designId: 'DEMO_DESIGN_001',
         name: 'DEMO - Urban Street Style',
-        description: 'Thiết kế áo thun phong cách street art với họa tiết graffiti độc đáo',
+        productType: 'Áo T-shirt',
+        material: 'Vải Cotton',
+        color: 'Trắng',
         price: 180000,
+        productCode: 'DEMO001',
+        description: 'Thiết kế áo thun phong cách street art với họa tiết graffiti độc đáo',
         designImage: 'https://via.placeholder.com/300x300/7B3FF2/FFFFFF?text=Urban+Street+Style',
         username: 'demo_designer',
         status: 'pending',
-        category: 'tshirt',
-        tags: ['street', 'urban', 'graffiti']
+        isCustomDesign: true,
+        designElements: [
+          {
+            type: 'text',
+            content: 'URBAN STYLE',
+            x: 50,
+            y: 50,
+            width: 120,
+            height: 30,
+            color: '#7B3FF2'
+          }
+        ]
       },
       {
+        userId: new mongoose.Types.ObjectId(),
         designId: 'DEMO_DESIGN_002',
         name: 'DEMO - Classic Minimalist',
-        description: 'Thiết kế tối giản với logo đơn giản, phù hợp mọi lứa tuổi',
+        productType: 'Áo T-shirt',
+        material: 'Vải Cotton',
+        color: 'Đen',
         price: 150000,
+        productCode: 'DEMO002',
+        description: 'Thiết kế tối giản với logo đơn giản, phù hợp mọi lứa tuổi',
         designImage: 'https://via.placeholder.com/300x300/4CAF50/FFFFFF?text=Classic+Minimalist',
         username: 'demo_designer',
         status: 'approved',
-        category: 'tshirt',
-        tags: ['minimalist', 'classic', 'simple']
+        isCustomDesign: false,
+        designElements: []
       },
       {
+        userId: new mongoose.Types.ObjectId(),
         designId: 'DEMO_DESIGN_003',
         name: 'DEMO - Retro Gaming',
-        description: 'Thiết kế áo thun với chủ đề game retro, phù hợp game thủ',
+        productType: 'Áo Hoodie',
+        material: 'Vải Cotton',
+        color: 'Xanh dương',
         price: 200000,
+        productCode: 'DEMO003',
+        description: 'Thiết kế áo thun với chủ đề game retro, phù hợp game thủ',
         designImage: 'https://via.placeholder.com/300x300/FF6B35/FFFFFF?text=Retro+Gaming',
         username: 'demo_designer',
         status: 'pending',
-        category: 'tshirt',
-        tags: ['gaming', 'retro', 'pixel']
+        isCustomDesign: true,
+        designElements: [
+          {
+            type: 'text',
+            content: 'RETRO GAMING',
+            x: 40,
+            y: 60,
+            width: 140,
+            height: 25,
+            color: '#FF6B35'
+          }
+        ]
       },
       {
+        userId: new mongoose.Types.ObjectId(),
         designId: 'DEMO_DESIGN_004',
         name: 'DEMO - Nature Explorer',
-        description: 'Thiết kế áo thun với họa tiết thiên nhiên, phù hợp người yêu thiên nhiên',
+        productType: 'Áo Hoodie',
+        material: 'Vải Cotton',
+        color: 'Xanh lá',
         price: 170000,
+        productCode: 'DEMO004',
+        description: 'Thiết kế áo thun với họa tiết thiên nhiên, phù hợp người yêu thiên nhiên',
         designImage: 'https://via.placeholder.com/300x300/2196F3/FFFFFF?text=Nature+Explorer',
         username: 'demo_designer',
         status: 'rejected',
-        category: 'tshirt',
-        tags: ['nature', 'explorer', 'outdoor']
+        isCustomDesign: false,
+        designElements: []
       }
     ];
 
@@ -1086,6 +1128,7 @@ app.post('/api/submit-design', authMiddleware, async (req, res) => {
         color: element.color || '#000000',
       })),
       designImage: typeof designImage === 'string' ? designImage : '',
+      isCustomDesign: designElements && designElements.length > 0, // Set as custom design if it has design elements
       status: status === 'draft' ? 'draft' : 'pending',
     });
 
@@ -1171,6 +1214,7 @@ app.put('/api/update-draft', authMiddleware, async (req, res) => {
       color: element.color || '#000000',
     }));
     existingDesign.designImage = typeof designImage === 'string' ? designImage : existingDesign.designImage;
+    existingDesign.isCustomDesign = designElements && designElements.length > 0; // Update custom design flag
     existingDesign.status = status === 'draft' ? 'draft' : 'pending';
     existingDesign.updatedAt = new Date();
 
@@ -1197,9 +1241,17 @@ app.put('/api/update-draft', authMiddleware, async (req, res) => {
 // API lấy tất cả thiết kế đã duyệt (for homepage/products and designer shop)
 app.get('/api/designs', async (req, res) => {
   try {
-    const { username } = req.query;
+    const { username, productType } = req.query;
     let query = { status: 'approved' }; // Only approved designs
     if (username) query.username = username; // Filter by designer if provided
+    
+    // Handle custom design filter
+    if (productType === 'custom_design') {
+      query.isCustomDesign = true;
+    } else if (productType) {
+      query.productType = productType; // Filter by product type if provided
+    }
+    
     const designs = await Design.find(query);
     res.status(200).json(designs);
   } catch (error) {
@@ -1459,6 +1511,8 @@ app.post('/api/designs/:designId/unlike', async (req, res) => {
 app.post('/api/create-payos-order', async (req, res) => {
   let { amount, productTotal, shippingFee, description, returnUrl, orderCode, customer, items } = req.body;
   try {
+    // Ensure items is always an array
+    if (!Array.isArray(items)) items = [];
     // Ensure orderCode is an integer (remove non-digits and parse)
     if (typeof orderCode === 'string') {
       orderCode = parseInt(orderCode.replace(/\D/g, ''), 10);
@@ -1485,6 +1539,18 @@ app.post('/api/create-payos-order', async (req, res) => {
     const dataString = `amount=${amount}&cancelUrl=${cancelUrl}&description=${description}&orderCode=${orderCode}&returnUrl=${returnUrl}`;
     const signature = crypto.createHmac('sha256', checksumKey).update(dataString).digest('hex');
 
+    // If items is empty (custom or mixed order), add a dummy item for PayOS API only
+    let payosItems = Array.isArray(items) ? [...items] : [];
+    if (payosItems.length === 0) {
+      payosItems.push({
+        name: 'Thiết kế tùy chỉnh',
+        price: amount || 100000,
+        quantity: 1,
+        type: 'custom-design',
+        note: 'Dummy item for PayOS',
+      });
+    }
+    
     const response = await axios.post('https://api-merchant.payos.vn/v2/payment-requests', {
       amount,
       description,
@@ -1536,8 +1602,58 @@ app.post('/api/create-payos-order', async (req, res) => {
         }
       }
       
+      // Check if this order contains custom designs
+      const customDesignItems = items ? items.filter(item => item.type === 'custom-design') : [];
+      const regularItems = items ? items.filter(item => item.type !== 'custom-design') : [];
+      
+      // Determine order type
+      let orderType = 'product_purchase';
+      let customDesign = null;
+      
+      if (customDesignItems.length > 0) {
+        if (regularItems.length > 0) {
+          orderType = 'mixed'; // Both custom design and regular products
+        } else {
+          orderType = 'custom_design'; // Only custom design
+        }
+        
+        // Use the first custom design item as the main custom design
+        if (customDesignItems.length > 0) {
+          const mainCustomDesign = customDesignItems[0];
+          customDesign = {
+            designType: mainCustomDesign.designType || 'TSHIRT',
+            color: mainCustomDesign.color || 'N/A',
+            size: mainCustomDesign.size || 'N/A',
+            quantity: mainCustomDesign.quantity || 1,
+            designImage: mainCustomDesign.designImage || '',
+            designElements: Array.isArray(mainCustomDesign.designElements) ? mainCustomDesign.designElements : [],
+            specialInstructions: mainCustomDesign.notes || ''
+          };
+        }
+      }
+      
+      // Debug log for order object
+      console.log('Saving order to DB:', {
+        orderCode: String(orderCode),
+        orderType,
+        amount,
+        productTotal,
+        shippingFee,
+        status: 'PENDING',
+        username: usernameToSave,
+        customer: { ...customer, username: usernameToSave },
+        items: regularItems,
+        customDesign: customDesign,
+        designer: designerInfo,
+        payos: {
+          paymentRequestId: response.data.data.paymentRequestId,
+          checkoutUrl: response.data.data.checkoutUrl,
+          raw: response.data.data,
+        },
+      });
       await Order.create({
         orderCode: String(orderCode),
+        orderType,
         amount, // Total amount (productTotal + shippingFee) - kept for backward compatibility
         productTotal, // Product subtotal (excluding shipping fee)
         shippingFee, // Shipping fee
@@ -1547,7 +1663,8 @@ app.post('/api/create-payos-order', async (req, res) => {
           ...customer, 
           username: usernameToSave 
         },
-        items: items || [],
+        items: regularItems, // Only store regular items, custom designs go in customDesign field
+        customDesign: customDesign, // Store custom design data
         designer: designerInfo, // <-- Save designer info here
         payos: {
           paymentRequestId: response.data.data.paymentRequestId,
@@ -1568,8 +1685,8 @@ app.post('/api/create-payos-order', async (req, res) => {
       res.status(400).json({ error: 'PayOS error', details: response.data });
     }
   } catch (err) {
-    console.error('PayOS error:', err.response ? err.response.data : err.message);
-    res.status(500).json({ error: 'Failed to create PayOS order', details: err.message });
+    console.error('PayOS error:', err);
+    res.status(500).json({ error: 'Failed to create PayOS order', details: err && err.stack ? err.stack : err.message });
   }
 });
 
@@ -2043,36 +2160,44 @@ app.post('/api/custom-design-order', async (req, res) => {
 app.post('/api/admin/orders/:id/design-status', adminAuthMiddleware, async (req, res) => {
   try {
     const { status, notes } = req.body;
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { 
-        status,
-        notes: notes || order.notes
-      },
-      { new: true }
-    );
-    
+    // Fetch the order first
+    const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });
-    
+    // Update status and notes
+    order.status = status;
+    order.notes = notes || order.notes;
+    await order.save();
     // Create notification based on status
     let notificationTitle = '';
     let notificationMessage = '';
-    
-    switch (status) {
-      case 'DESIGN_IN_PROGRESS':
-        notificationTitle = 'Thiết kế đang được thực hiện';
-        notificationMessage = `Đơn hàng thiết kế tùy chỉnh (Mã: ${order.orderCode}) đang được thực hiện.`;
-        break;
-      case 'DESIGN_APPROVED':
-        notificationTitle = 'Thiết kế đã được duyệt';
-        notificationMessage = `Thiết kế cho đơn hàng (Mã: ${order.orderCode}) đã được duyệt và đang được sản xuất.`;
-        break;
-      case 'DESIGN_REJECTED':
-        notificationTitle = 'Thiết kế bị từ chối';
-        notificationMessage = `Thiết kế cho đơn hàng (Mã: ${order.orderCode}) đã bị từ chối.`;
-        break;
+    // Send email to customer if approved or rejected
+    if (status === 'DESIGN_APPROVED') {
+      if (order.customer && order.customer.email) {
+        await sendCustomDesignApprovedEmail(
+          order.customer.email,
+          order.customer.name || order.customer.username || order.username || '',
+          order.orderCode,
+          order.customDesign
+        );
+      }
+      notificationTitle = 'Thiết kế đã được duyệt';
+      notificationMessage = `Thiết kế cho đơn hàng (Mã: ${order.orderCode}) đã được duyệt và đang được sản xuất.`;
+    } else if (status === 'DESIGN_REJECTED') {
+      if (order.customer && order.customer.email) {
+        await sendCustomDesignRejectedEmail(
+          order.customer.email,
+          order.customer.name || order.customer.username || order.username || '',
+          order.orderCode,
+          order.customDesign,
+          notes || ''
+        );
+      }
+      notificationTitle = 'Thiết kế bị từ chối';
+      notificationMessage = `Thiết kế cho đơn hàng (Mã: ${order.orderCode}) đã bị từ chối.`;
+    } else if (status === 'DESIGN_IN_PROGRESS') {
+      notificationTitle = 'Thiết kế đang được thực hiện';
+      notificationMessage = `Đơn hàng thiết kế tùy chỉnh (Mã: ${order.orderCode}) đang được thực hiện.`;
     }
-    
     if (notificationTitle) {
       await createNotification(
         'system',
@@ -2082,7 +2207,6 @@ app.post('/api/admin/orders/:id/design-status', adminAuthMiddleware, async (req,
         'medium'
       );
     }
-    
     res.json({ message: 'Order status updated', order });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

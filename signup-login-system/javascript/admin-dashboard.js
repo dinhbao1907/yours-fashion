@@ -174,51 +174,76 @@ async function loadRecentOrders(filter = 'month') {
     }
     tbody.innerHTML = '';
     orders.forEach(order => {
-      // Get product images - show multiple images if multiple products
+      // Get product images - show both custom design and store products if both exist
       let productImages = '';
-      if (order.orderType === 'custom_design' && order.customDesign && order.customDesign.designImage) {
-        productImages = `<img src="${order.customDesign.designImage}" alt="Design Image" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">`;
-      } else if (order.items && order.items.length > 0) {
-        if (order.items.length === 1) {
-          // Single product
-          productImages = order.items[0].image ? 
-            `<img src="${order.items[0].image}" alt="Product Image" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">` :
-            '<span style="color:#bbb;font-size:12px;">(N/A)</span>';
-        } else {
-          // Multiple products - show first 3 images with count
-          const images = order.items.slice(0, 3).map(item => 
-            item.image ? 
-              `<img src="${item.image}" alt="Product Image" style="width:32px;height:32px;object-fit:cover;border-radius:4px;border:1px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.1);">` :
-              `<div style="width:32px;height:32px;background:#f0f0f0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#999;">N/A</div>`
-          ).join('');
-          productImages = `
-            <div style="display:flex;gap:2px;align-items:center;">
-              ${images}
-              ${order.items.length > 3 ? `<span style="font-size:11px;color:#7B3FF2;font-weight:bold;margin-left:4px;">+${order.items.length - 3}</span>` : ''}
-            </div>
-          `;
-        }
-      } else {
+      let allProducts = [];
+      
+      // Add custom design if exists
+      if (order.customDesign && order.customDesign.designImage) {
+        allProducts.push({
+          type: 'custom',
+          image: order.customDesign.designImage,
+          name: 'Thiết kế tùy chỉnh'
+        });
+      }
+      
+      // Add store products if exist
+      if (order.items && order.items.length > 0) {
+        order.items.forEach(item => {
+          allProducts.push({
+            type: 'store',
+            image: item.image,
+            name: item.name
+          });
+        });
+      }
+      
+      if (allProducts.length === 0) {
         productImages = '<span style="color:#bbb;font-size:12px;">(N/A)</span>';
+      } else if (allProducts.length === 1) {
+        // Single product
+        const product = allProducts[0];
+        productImages = product.image ? 
+          `<img src="${product.image}" alt="${product.name}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">` :
+          '<span style="color:#bbb;font-size:12px;">(N/A)</span>';
+      } else {
+        // Multiple products - show first 3 images with count
+        const images = allProducts.slice(0, 3).map(product => 
+          product.image ? 
+            `<img src="${product.image}" alt="${product.name}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;border:1px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.1);">` :
+            `<div style="width:32px;height:32px;background:#f0f0f0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#999;">N/A</div>`
+        ).join('');
+        productImages = `
+          <div style="display:flex;gap:2px;align-items:center;">
+            ${images}
+            ${allProducts.length > 3 ? `<span style="font-size:11px;color:#7B3FF2;font-weight:bold;margin-left:4px;">+${allProducts.length - 3}</span>` : ''}
+          </div>
+        `;
       }
 
-      // Get product names
+      // Get product names - show both custom design and store products
       let productNames = '';
-      if (order.orderType === 'custom_design' && order.customDesign) {
-        productNames = `${order.customDesign.designType.toUpperCase()} (${order.customDesign.quantity || 1})`;
-      } else if (order.items && order.items.length > 0) {
-        if (order.items.length === 1) {
-          productNames = `${order.items[0].name} (${order.items[0].quantity || 1})`;
+      
+      if (allProducts.length === 0) {
+        productNames = 'Không có thông tin';
+      } else if (allProducts.length === 1) {
+        const product = allProducts[0];
+        if (product.type === 'custom') {
+          productNames = `🎨 ${product.name}`;
         } else {
-          const names = order.items.slice(0, 2).map(item => 
-            `${item.name} (${item.quantity || 1})`
-          ).join(', ');
-          productNames = order.items.length > 2 ? 
-            `${names} +${order.items.length - 2} sản phẩm khác` : 
-            names;
+          productNames = product.name;
         }
       } else {
-        productNames = 'Không có thông tin';
+        const names = allProducts.slice(0, 2).map(product => {
+          if (product.type === 'custom') {
+            return `🎨 ${product.name}`;
+          } else {
+            return product.name;
+          }
+        }).join(', ');
+        productNames = allProducts.length > 2 ? 
+          `${names} +${allProducts.length - 2} sản phẩm khác` : 
+          names;
       }
 
       tbody.innerHTML += `
@@ -1923,81 +1948,131 @@ async function loadAllOrders() {
     tbody.innerHTML = '';
     
     orders.forEach((order, index) => {
-      // Modern order type badge with icon
+      // Modern order type badge with icon - handle mixed orders
       let orderTypeDisplay = '';
-      if (order.orderType === 'custom_design') {
+      const hasCustomDesign = order.customDesign && order.customDesign.designImage;
+      const hasStoreProducts = order.items && order.items.length > 0;
+      
+      // Debug logging
+      console.log('Order:', order.orderCode, 'Custom Design:', order.customDesign, 'Items:', order.items);
+      
+      // Check order type from backend or determine from content
+      if (order.orderType === 'mixed' || (hasCustomDesign && hasStoreProducts)) {
+        orderTypeDisplay = `<span class="order-type-badge mixed"><span class="badge-icon">🎨🛒</span>Hỗn hợp</span>`;
+      } else if (order.orderType === 'custom_design' || hasCustomDesign) {
         orderTypeDisplay = `<span class="order-type-badge custom"><span class="badge-icon">🎨</span>Thiết kế tùy chỉnh</span>`;
-      } else {
+      } else if (order.orderType === 'product_purchase' || hasStoreProducts) {
         orderTypeDisplay = `<span class="order-type-badge product"><span class="badge-icon">🛒</span>Mua sản phẩm</span>`;
-      }
-      
-      // Get product image - show multiple images if multiple products
-      let productImgHtml = '';
-      if (order.orderType === 'custom_design' && order.customDesign && order.customDesign.designImage) {
-        productImgHtml = `<img src="${order.customDesign.designImage}" alt="Design Image" style="width:56px;height:56px;object-fit:cover;border-radius:8px;">`;
-      } else if (order.items && order.items.length > 0) {
-        if (order.items.length === 1) {
-          // Single product - show one image
-          productImgHtml = order.items[0].image ? 
-            `<img src="${order.items[0].image}" alt="Product Image" style="width:56px;height:56px;object-fit:cover;border-radius:8px;">` :
-            '<span style="color:#bbb;">(Không có ảnh)</span>';
-        } else {
-          // Multiple products - show multiple images in a flex container
-          const images = order.items.map(item => 
-            item.image ? 
-              `<img src="${item.image}" alt="Product Image" style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.1);">` :
-              `<div style="width:40px;height:40px;background:#f0f0f0;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">N/A</div>`
-          ).join('');
-          productImgHtml = `
-            <div style="display:flex;gap:4px;flex-wrap:wrap;max-width:120px;">
-              ${images}
-              ${order.items.length > 4 ? `<div style="width:40px;height:40px;background:#7B3FF2;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;">+${order.items.length - 4}</div>` : ''}
-            </div>
-          `;
-        }
       } else {
-        productImgHtml = '<span style="color:#bbb;">(Không có ảnh)</span>';
+        orderTypeDisplay = `<span class="order-type-badge unknown"><span class="badge-icon">❓</span>Không xác định</span>`;
       }
       
-      // Get product information
-      let productInfo = '';
-      if (order.orderType === 'custom_design' && order.customDesign) {
-        productInfo = `
-          <div style="font-weight: 500;">${order.customDesign.designType.toUpperCase()}</div>
-          <div style="font-size: 12px; color: #666;">
-            Màu: ${order.customDesign.color || 'N/A'}<br>
-            Size: ${order.customDesign.size || 'N/A'}<br>
-            Số lượng: ${order.customDesign.quantity || 1}
+      // Get product images - show both custom design and store products if both exist
+      let productImgHtml = '';
+      let allProducts = [];
+      
+      // Add custom design if exists
+      if (order.customDesign && order.customDesign.designImage) {
+        allProducts.push({
+          type: 'custom',
+          image: order.customDesign.designImage,
+          name: 'Thiết kế tùy chỉnh',
+          designType: order.customDesign.designType,
+          color: order.customDesign.color,
+          size: order.customDesign.size,
+          quantity: order.customDesign.quantity || 1
+        });
+      }
+      
+      // Add store products if exist
+      if (order.items && order.items.length > 0) {
+        order.items.forEach(item => {
+          allProducts.push({
+            type: 'store',
+            image: item.image,
+            name: item.name,
+            size: item.size,
+            quantity: item.quantity || 1
+          });
+        });
+      }
+      
+      if (allProducts.length === 0) {
+        productImgHtml = '<span style="color:#bbb;">(Không có ảnh)</span>';
+      } else if (allProducts.length === 1) {
+        // Single product - show one image
+        const product = allProducts[0];
+        productImgHtml = product.image ? 
+          `<img src="${product.image}" alt="${product.name}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;">` :
+          '<span style="color:#bbb;">(Không có ảnh)</span>';
+      } else {
+        // Multiple products - show multiple images in a flex container
+        const images = allProducts.map(product => 
+          product.image ? 
+            `<img src="${product.image}" alt="${product.name}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.1);">` :
+            `<div style="width:40px;height:40px;background:#f0f0f0;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;">N/A</div>`
+        ).join('');
+        productImgHtml = `
+          <div style="display:flex;gap:4px;flex-wrap:wrap;max-width:120px;">
+            ${images}
+            ${allProducts.length > 4 ? `<div style="width:40px;height:40px;background:#7B3FF2;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;">+${allProducts.length - 4}</div>` : ''}
           </div>
         `;
-      } else if (order.items && order.items.length > 0) {
-        if (order.items.length === 1) {
-          // Single product - show detailed info
-          const item = order.items[0];
+      }
+      
+      // Get product information - show both custom design and store products
+      let productInfo = '';
+      
+      if (allProducts.length === 0) {
+        productInfo = '<span style="color: #999;">Không có thông tin</span>';
+      } else if (allProducts.length === 1) {
+        // Single product - show detailed info
+        const product = allProducts[0];
+        if (product.type === 'custom') {
           productInfo = `
-            <div style="font-weight: 500;">${item.name}</div>
+            <div style="font-weight: 500; color: #7B3FF2;">🎨 ${product.name}</div>
             <div style="font-size: 12px; color: #666;">
-              Size: ${item.size || 'N/A'}<br>
-              Số lượng: ${item.quantity || 1}
+              Loại: ${product.designType.toUpperCase()}<br>
+              Màu: ${product.color || 'N/A'}<br>
+              Size: ${product.size || 'N/A'}<br>
+              Số lượng: ${product.quantity}
             </div>
           `;
         } else {
-          // Multiple products - show list of products
-          const productList = order.items.map(item => 
-            `<div style="font-weight: 500; font-size: 13px;">${item.name}</div>
-             <div style="font-size: 11px; color: #666; margin-bottom: 4px;">
-               Size: ${item.size || 'N/A'} | SL: ${item.quantity || 1}
-             </div>`
-          ).join('');
           productInfo = `
-            <div style="max-height: 80px; overflow-y: auto;">
-              ${productList}
-              ${order.items.length > 3 ? `<div style="font-size: 11px; color: #7B3FF2; font-weight: 500;">+${order.items.length - 3} sản phẩm khác</div>` : ''}
+            <div style="font-weight: 500;">${product.name}</div>
+            <div style="font-size: 12px; color: #666;">
+              Size: ${product.size || 'N/A'}<br>
+              Số lượng: ${product.quantity}
             </div>
           `;
         }
       } else {
-        productInfo = '<span style="color: #999;">Không có thông tin</span>';
+        // Multiple products - show list of products with labels
+        const productList = allProducts.map(product => {
+          if (product.type === 'custom') {
+            return `
+              <div style="font-weight: 500; font-size: 13px; color: #7B3FF2;">🎨 ${product.name}</div>
+              <div style="font-size: 11px; color: #666; margin-bottom: 4px;">
+                Loại: ${product.designType.toUpperCase()} | Màu: ${product.color || 'N/A'} | Size: ${product.size || 'N/A'} | SL: ${product.quantity}
+              </div>
+            `;
+          } else {
+            return `
+              <div style="font-weight: 500; font-size: 13px;">${product.name}</div>
+              <div style="font-size: 11px; color: #666; margin-bottom: 4px;">
+                Size: ${product.size || 'N/A'} | SL: ${product.quantity}
+              </div>
+            `;
+          }
+        }).join('');
+        
+        productInfo = `
+          <div style="max-height: 80px; overflow-y: auto;">
+            ${productList}
+            ${allProducts.length > 3 ? `<div style="font-size: 11px; color: #7B3FF2; font-weight: 500;">+${allProducts.length - 3} sản phẩm khác</div>` : ''}
+          </div>
+        `;
       }
       
       // Get customer information
@@ -2040,10 +2115,10 @@ async function loadAllOrders() {
       
       // Action buttons based on order type
       let actionButtons = updateBtn;
-      actionButtons += ` <button class="action-btn" style="background:#eee;color:#7B3FF2;font-size:11px;padding:4px 8px;" onclick="viewOrderProductDetails('${order.id}')">Xem chi tiết</button>`;
-      if (order.orderType === 'custom_design') {
+      actionButtons += ` <button class="action-btn" onclick="viewOrderProductDetails('${order.id}')">Xem chi tiết</button>`;
+      if (hasCustomDesign) {
         actionButtons += `
-          <button class="action-btn" style="background: #2196F3; color: white; margin-left: 4px; font-size:11px; padding:4px 8px;" onclick="viewCustomDesign('${order.id}')">Xem thiết kế</button>
+          <button class="action-btn" onclick="viewCustomDesign('${order.id}')">Xem thiết kế</button>
         `;
       }
       actionButtons = `<div class='order-actions'>${actionButtons}</div>`;
@@ -2140,8 +2215,10 @@ function filterOrders() {
     // Filter by type
     if (typeFilter !== 'all') {
       const isCustomDesign = orderType.includes('Thiết kế tùy chỉnh');
-      if (typeFilter === 'custom_design' && !isCustomDesign) showRow = false;
-      if (typeFilter === 'product_purchase' && isCustomDesign) showRow = false;
+      const isMixed = orderType.includes('Hỗn hợp');
+      if (typeFilter === 'custom_design' && !isCustomDesign && !isMixed) showRow = false;
+      if (typeFilter === 'product_purchase' && isCustomDesign && !isMixed) showRow = false;
+      if (typeFilter === 'mixed' && !isMixed) showRow = false;
     }
     
     // Filter by status

@@ -430,17 +430,7 @@
       <div class="checkout-step-title"><span>3</span> Phương thức thanh toán</div>
       <div class="custom-radio-group">
         <label class="custom-radio">
-          <input type="radio" name="payment" value="Momo" checked>
-          <span class="custom-radio-indicator"></span>
-          <span class="custom-radio-label">Momo</span>
-        </label>
-        <label class="custom-radio">
-          <input type="radio" name="payment" value="ZaloPay">
-          <span class="custom-radio-indicator"></span>
-          <span class="custom-radio-label">ZaloPay</span>
-        </label>
-        <label class="custom-radio">
-          <input type="radio" name="payment" value="PayOS">
+          <input type="radio" name="payment" value="PayOS" checked>
           <span class="custom-radio-indicator"></span>
           <span class="custom-radio-label">PayOS</span>
         </label>
@@ -543,6 +533,30 @@
       const username = localStorage.getItem('currentUser');
       return username ? `cart_${username}` : 'cart_guest';
     }
+    
+    // Utility function to clean up old custom design items
+    function cleanupOldCustomDesigns(cart) {
+      const now = Date.now();
+      const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      
+      const originalLength = cart.length;
+      const filteredCart = cart.filter(item => {
+        if (item.type === 'custom-design' && item.timestamp) {
+          const age = now - item.timestamp;
+          if (age > twentyFourHours) {
+            console.log('Removing old custom design item:', item);
+            return false; // Remove old custom design items
+          }
+        }
+        return true;
+      });
+      
+      if (filteredCart.length !== originalLength) {
+        console.log(`Cleaned up ${originalLength - filteredCart.length} old custom design items`);
+      }
+      
+      return filteredCart;
+    }
     // --- DYNAMIC PRODUCT INFO FORM ---
     function renderProductInfoForm() {
       const section = document.getElementById('product-info-section');
@@ -585,6 +599,8 @@
       const urlParams = new URLSearchParams(window.location.search);
       const isBuyNow = urlParams.get('buynow') === '1';
       const container = document.getElementById('checkoutSummaryProducts');
+      const checkoutBtn = document.querySelector('.checkout-btn');
+      let backToCartBtn = document.getElementById('backToCartBtn');
       container.innerHTML = '';
       let items = [];
       if (isBuyNow && localStorage.getItem('buyNowItem')) {
@@ -593,11 +609,28 @@
       } else {
         const cartKey = getCartKey();
         let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        // Clean up old custom design items
+        cart = cleanupOldCustomDesigns(cart);
+        localStorage.setItem(cartKey, JSON.stringify(cart));
         items = cart.filter(i => i.checked !== false);
       }
       if (items.length === 0) {
-        container.innerHTML = isBuyNow ? '<p>Không có sản phẩm để thanh toán.</p>' : '<p>Vui lòng chọn sản phẩm trong giỏ hàng để thanh toán.</p>';
+        container.innerHTML = '<p style="color:#8A4AF3;font-size:1.1rem;text-align:center;margin:32px 0;">Không có sản phẩm nào được chọn để thanh toán.<br>Vui lòng chọn sản phẩm trong giỏ hàng.</p>';
+        if (checkoutBtn) checkoutBtn.disabled = true;
+        // Add back to cart button if not present
+        if (!backToCartBtn) {
+          backToCartBtn = document.createElement('button');
+          backToCartBtn.id = 'backToCartBtn';
+          backToCartBtn.textContent = 'Quay lại giỏ hàng';
+          backToCartBtn.className = 'btn btn-secondary';
+          backToCartBtn.style = 'display:block;margin:24px auto 0 auto;padding:12px 32px;font-size:1.1rem;background:#8A4AF3;color:#fff;border:none;border-radius:8px;cursor:pointer;';
+          backToCartBtn.onclick = function() { window.location.href = 'cart.html'; };
+          container.appendChild(backToCartBtn);
+        }
         return;
+      } else {
+        if (checkoutBtn) checkoutBtn.disabled = false;
+        if (backToCartBtn) backToCartBtn.remove();
       }
       for (const [idx, item] of items.entries()) {
         const id = item.productId || 'p' + idx;
@@ -609,8 +642,13 @@
               <div class="checkout-summary-title">Áo thiết kế riêng</div>
               <div class='checkout-summary-size'>Size: <b>${item.size || ''}</b></div>
               <div style='margin-top:6px;font-size:0.98rem;'><b>Ghi chú:</b> ${item.notes || ''}</div>
+              <div class="checkout-summary-qty">
+                <button class="checkout-summary-qty-btn" data-action="minus" data-id="${id}">-</button>
+                <input type="number" min="1" class="checkout-summary-qty-input" value="${item.quantity || 1}" data-id="${id}">
+                <button class="checkout-summary-qty-btn" data-action="plus" data-id="${id}">+</button>
+              </div>
             </div>
-            <div class="checkout-summary-price">150,000 VND</div>
+            <div class="checkout-summary-price">${(item.price || 0).toLocaleString()} VND</div>
           </div>`;
           container.innerHTML += html;
           continue;
@@ -632,16 +670,11 @@
           <div class="checkout-summary-info">
             <div class="checkout-summary-title">${item.name || 'Sản phẩm'}</div>
             ${designerName ? `<div class='checkout-summary-designer'>Designer: <b>${designerName}</b></div>` : ''}
-            <div class="checkout-summary-qty">`;
-        if (!isBuyNow) {
-          html += `<button class="checkout-summary-qty-btn" data-action="minus" data-id="${id}">-</button>`;
-        }
-        html += `<input type="text" class="checkout-summary-qty-input" value="${item.quantity || 1}" ${isBuyNow ? 'readonly' : ''}>
-        `;
-        if (!isBuyNow) {
-          html += `<button class="checkout-summary-qty-btn" data-action="plus" data-id="${id}">+</button>`;
-        }
-        html += `</div>
+            <div class="checkout-summary-qty">
+              <button class="checkout-summary-qty-btn" data-action="minus" data-id="${id}">-</button>
+              <input type="number" min="1" class="checkout-summary-qty-input" value="${item.quantity || 1}" data-id="${id}">
+              <button class="checkout-summary-qty-btn" data-action="plus" data-id="${id}">+</button>
+            </div>
             ${item.size ? `<div class='checkout-summary-size'>Size: <b>${item.size}</b></div>` : ''}
           </div>
           <div class="checkout-summary-price">${(item.price || 0).toLocaleString()} VND</div>
@@ -649,6 +682,7 @@
         container.innerHTML += html;
       }
     }
+
     // Quantity controls for multiple products
     function attachSummaryQtyEvents() {
       // Disable quantity controls for buyNow
@@ -657,12 +691,15 @@
       if (isBuyNow) return;
       const container = document.getElementById('checkoutSummaryProducts');
       if (!container) return;
+      // Plus/minus buttons
       container.querySelectorAll('.checkout-summary-qty-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           const id = this.getAttribute('data-id');
           const action = this.getAttribute('data-action');
           const cartKey = getCartKey();
           let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+          // Clean up old custom design items
+          cart = cleanupOldCustomDesigns(cart);
           let item = cart.find(i => (i.productId || 'p'+cart.indexOf(i)) === id);
           if (!item) return;
           if (action === 'minus' && item.quantity > 1) item.quantity--;
@@ -673,7 +710,28 @@
           updateShippingFeeAndTotal();
         });
       });
+      // Direct input
+      container.querySelectorAll('.checkout-summary-qty-input').forEach(input => {
+        input.addEventListener('change', function() {
+          const id = this.getAttribute('data-id');
+          let value = parseInt(this.value, 10);
+          if (isNaN(value) || value < 1) value = 1;
+          this.value = value;
+          const cartKey = getCartKey();
+          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+          // Clean up old custom design items
+          cart = cleanupOldCustomDesigns(cart);
+          let item = cart.find(i => (i.productId || 'p'+cart.indexOf(i)) === id);
+          if (!item) return;
+          item.quantity = value;
+          localStorage.setItem(cartKey, JSON.stringify(cart));
+          renderSummaryProducts();
+          attachSummaryQtyEvents();
+          updateShippingFeeAndTotal();
+        });
+      });
     }
+
     // Update summary totals for all checked products
     function updateSummaryTotals() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -684,6 +742,8 @@
       } else {
         const cartKey = getCartKey();
         let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        // Clean up old custom design items
+        cart = cleanupOldCustomDesigns(cart);
         items = cart.filter(i => i.checked !== false);
       }
       let total = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
@@ -705,6 +765,8 @@
       } else {
         const cartKey = getCartKey();
         let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        // Clean up old custom design items
+        cart = cleanupOldCustomDesigns(cart);
         items = cart.filter(i => i.checked !== false);
       }
       let total = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
@@ -750,6 +812,15 @@
       // --- PAYOS CHECKOUT INTEGRATION ---
       document.querySelector('.checkout-btn').addEventListener('click', async function(e) {
         e.preventDefault();
+        // Validate required fields
+        const emailInput = document.getElementById('email').value.trim();
+        const nameInput = document.getElementById('name').value.trim();
+        const addressInput = document.getElementById('address').value.trim();
+        const phoneInput = document.getElementById('phone').value.trim();
+        if (!emailInput || !nameInput || !addressInput || !phoneInput) {
+          alert('Vui lòng điền đầy đủ thông tin: Email, Họ tên, Địa chỉ, Số điện thoại.');
+          return;
+        }
         const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
         if (paymentMethod !== 'PayOS') {
           alert('Chỉ hỗ trợ thanh toán qua PayOS trong demo này.');
@@ -764,6 +835,25 @@
         } else {
           const cartKey = getCartKey();
           let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+          
+          // Filter out old custom design items (older than 24 hours)
+          const now = Date.now();
+          const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+          
+          cart = cart.filter(item => {
+            if (item.type === 'custom-design' && item.timestamp) {
+              const age = now - item.timestamp;
+              if (age > twentyFourHours) {
+                console.log('Removing old custom design item during checkout:', item);
+                return false; // Remove old custom design items
+              }
+            }
+            return true;
+          });
+          
+          // Update cart in localStorage after filtering
+          localStorage.setItem(cartKey, JSON.stringify(cart));
+          
           items = cart.filter(i => i.checked !== false);
         }
         let total = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);

@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  // Force-hide login modal on every page load
+  const loginModal = document.getElementById('loginRequiredModal');
+  if (loginModal) {
+    loginModal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
   // Gắn sự kiện cho các nút kích cỡ
   const sizeButtons = document.querySelectorAll('.size-btn');
   sizeButtons.forEach(btn => {
@@ -17,6 +24,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (addToCartBtn) {
     addToCartBtn.addEventListener('click', (e) => {
       e.preventDefault(); // Prevent default form or button behavior
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showLoginModal();
+        return; // Stop here for unauthenticated users
+      }
       // Get product info
       const productId = document.getElementById('productId')?.value || designId || '';
       const name = document.getElementById('productName').textContent;
@@ -40,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       cart = cart.filter(i => !purchased.some(p => p.designId === i.designId && p.size === i.size));
       localStorage.setItem(cartKey, JSON.stringify(cart));
       console.log('Cart after add:', cart);
-      alert('Đã thêm vào giỏ hàng!');
+      showToast('Đã thêm vào giỏ hàng!'); // Use toast instead of alert
     });
   }
 
@@ -49,6 +62,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (buyNowBtn) {
     buyNowBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showLoginModal();
+        return; // Stop here for unauthenticated users
+      }
       // Get product info
       const productId = document.getElementById('productId')?.value || designId || '';
       const name = document.getElementById('productName').textContent;
@@ -464,4 +483,74 @@ async function updateProductDetails() {
     document.querySelector('.product-details h1').textContent = 'Không tìm thấy sản phẩm.';
     console.error('Error fetching product details:', error);
   }
+}
+
+// Modal functions for login required popup
+function showLoginModal() {
+  const modal = document.getElementById('loginRequiredModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  // Prevent background scroll
+  document.body.style.overflow = 'hidden';
+  // Focus trap
+  const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  const focusableEls = modal.querySelectorAll(focusableSelectors);
+  if (focusableEls.length) focusableEls[0].focus();
+  function trapFocus(e) {
+    const firstEl = focusableEls[0];
+    const lastEl = focusableEls[focusableEls.length - 1];
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstEl) {
+          e.preventDefault();
+          lastEl.focus();
+        }
+      } else {
+        if (document.activeElement === lastEl) {
+          e.preventDefault();
+          firstEl.focus();
+        }
+      }
+    } else if (e.key === 'Escape') {
+      closeLoginModal();
+    }
+  }
+  modal._trapFocusHandler = trapFocus;
+  modal.addEventListener('keydown', trapFocus);
+}
+
+function closeLoginModal() {
+  const modal = document.getElementById('loginRequiredModal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  // Restore background scroll
+  document.body.style.overflow = '';
+  // Remove focus trap
+  if (modal._trapFocusHandler) {
+    modal.removeEventListener('keydown', modal._trapFocusHandler);
+    delete modal._trapFocusHandler;
+  }
+}
+
+function goToLogin() {
+  window.location.href = 'choose-login.html';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const modal = document.getElementById('loginRequiredModal');
+  if (event.target === modal) {
+    closeLoginModal();
+  }
+}
+
+// Add this at the end of the file
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2200);
 }

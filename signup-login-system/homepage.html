@@ -22,7 +22,7 @@
       </ul>
     </nav>
     <div class="user-menu">
-      <button class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
+      <button id="accountBtn" class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
       <div id="userDropdown" class="dropdown">
         <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
         <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
@@ -48,7 +48,7 @@
               </span>
               Khám phá
             </a>
-            <a href="design.html" class="btn-explore">
+            <a id="main-cta-btn" href="design.html" class="btn-explore">
               <span class="btn-icon">
                 <!-- Palette SVG icon -->
                 <svg width="28" height="28" fill="none" stroke="#8A4AF3" stroke-width="2" viewBox="0 0 24 24">
@@ -59,7 +59,7 @@
                   <circle cx="12" cy="17" r="1"/>
                 </svg>
               </span>
-              Thiết Kế Ngay
+              <span id="main-cta-text">Thiết Kế Ngay</span>
             </a>
           </div>
         </div>
@@ -174,6 +174,7 @@
             <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
               <img src="${imageSrc}" alt="${design.productType || 'Product'}">
               ${isNew ? '<span class="new-label">New</span>' : ''}
+              ${design.isCustomDesign ? '<span class="custom-design-label" style="position:absolute;top:10px;right:10px;background:#7B3FF2;color:white;padding:4px 8px;border-radius:12px;font-size:12px;font-weight:600;">🎨 Thiết kế tùy chỉnh</span>' : ''}
               <h3>${design.name || 'Tên thiết kế'}</h3>
               <p>by <b>${design.username || 'Designer'}</b></p>
               <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
@@ -316,6 +317,32 @@
       </div>
     </footer>
   </div>
+  
+  <!-- Login Required Popup Modal -->
+  <div id="loginRequiredModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Đăng nhập để tiếp tục</h2>
+        <span class="close" onclick="closeLoginModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="modal-icon">
+          <svg width="64" height="64" fill="none" stroke="#7B3FF2" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10,17 15,12 10,7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+        </div>
+        <p>Bạn cần đăng nhập hoặc đăng ký để sử dụng tính năng thiết kế.</p>
+        <p>Hãy tạo tài khoản để bắt đầu thiết kế sản phẩm của riêng bạn!</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="goToLogin()">Đăng nhập / Đăng ký</button>
+        <button class="btn-secondary" onclick="closeLoginModal()">Để sau</button>
+      </div>
+    </div>
+  </div>
+
   <script>
        // Kiểm tra token khi trang tải
     const token = localStorage.getItem('token');
@@ -389,8 +416,37 @@
       if (tabName === 'home') {
         window.location.replace('homepage.html');
       } else if (tabName === 'design') {
-        window.location.replace('design.html');
+        // Check if user is authenticated
+        const token = localStorage.getItem('token');
+        if (!token) {
+          showLoginModal();
+        } else {
+          window.location.replace('design.html');
+        }
       } // 'products' and 'blog' do nothing
+    }
+
+    // Modal functions
+    function showLoginModal() {
+      const modal = document.getElementById('loginRequiredModal');
+      modal.style.display = 'block';
+    }
+
+    function closeLoginModal() {
+      const modal = document.getElementById('loginRequiredModal');
+      modal.style.display = 'none';
+    }
+
+    function goToLogin() {
+      window.location.href = 'choose-login.html';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('loginRequiredModal');
+      if (event.target === modal) {
+        closeLoginModal();
+      }
     }
 
     // Đặt trạng thái active mặc định dựa trên trang hiện tại
@@ -418,6 +474,38 @@
     if (getRoleFromToken() !== 'designer') {
       var storeMenu = document.getElementById('designerStoreMenu');
       if (storeMenu) storeMenu.style.display = 'none';
+    }
+  })();
+  </script>
+  <script>
+  // Swap CTA button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const ctaBtn = document.getElementById('main-cta-btn');
+    const ctaText = document.getElementById('main-cta-text');
+    if (!token && ctaBtn && ctaText) {
+      ctaBtn.href = 'choose-login.html';
+      ctaText.textContent = 'Đăng ký ngay';
+    } else if (ctaBtn && ctaText) {
+      ctaBtn.href = 'design.html';
+      ctaText.textContent = 'Thiết Kế Ngay';
+    }
+  })();
+  </script>
+  <script>
+  // Swap account button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const accountBtn = document.getElementById('accountBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    if (!token && accountBtn) {
+      // Replace button with a link
+      const link = document.createElement('a');
+      link.href = 'choose-login.html';
+      link.className = 'user-btn';
+      link.textContent = 'Tài Khoản';
+      accountBtn.parentNode.replaceChild(link, accountBtn);
+      if (userDropdown) userDropdown.style.display = 'none';
     }
   })();
   </script>

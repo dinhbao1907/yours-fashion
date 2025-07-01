@@ -215,6 +215,7 @@ function renderOrderHistory(orders) {
   let html = '';
   for (const order of orders) {
     html += `<div class="order-block">\n        <div class="order-header">Mã đơn: <b>${order.orderCode}</b> | Ngày: ${new Date(order.createdAt).toLocaleDateString('vi-VN')} | Trạng thái: <span class="order-status">${getStatusText(order.status)}</span></div>\n        <div class="order-items" style="display: flex; flex-wrap: wrap; gap: 20px;">`;
+    // Render store products
     for (const item of order.items) {
       const canReview = order.status === 'DELIVERED_FINAL';
       const itemDesignId = item.designId || item.productId;
@@ -235,6 +236,18 @@ function renderOrderHistory(orders) {
         }
       }
       html += `</div>`;
+    }
+    // Render custom design if present
+    if (order.customDesign && order.customDesign.designImage) {
+      html += `
+        <div class="product-card" style="min-width:220px;max-width:300px;width:100%;background:#fff;border:1.5px solid #eee;border-radius:15px;padding:18px 18px 24px 18px;text-align:center;display:flex;flex-direction:column;justify-content:flex-start;position:relative;box-shadow:0 6px 16px rgba(90,34,212,0.10);overflow:hidden;margin:18px 12px 32px 12px;">
+          <img src="${order.customDesign.designImage}" alt="Thiết kế tùy chỉnh" style="width:auto;max-width:220px;max-height:180px;display:block;margin:0 auto;border-radius:10px;">
+          <h3 style="color:#5B22D4;font-size:18px;margin:10px 0 5px 0;">Thiết kế tùy chỉnh</h3>
+          <p style="color:#666;font-size:14px;margin:5px 0;">Loại: ${order.customDesign.designType || ''}</p>
+          <p style="color:#666;font-size:14px;margin:5px 0;">Size: ${order.customDesign.size || ''}</p>
+          <p style="color:#666;font-size:14px;margin:5px 0;">Số lượng: ${order.customDesign.quantity || 1}</p>
+        </div>
+      `;
     }
     html += '</div></div>';
   }

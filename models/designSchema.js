@@ -23,6 +23,7 @@ const designSchema = new mongoose.Schema({
   description: { type: String, default: '' },
   designElements: [designElementSchema],
   designImage: { type: String }, // Base64 encoded image
+  isCustomDesign: { type: Boolean, default: false }, // Flag to identify custom designs
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   likes: { type: Number, default: 0 }, // Number of likes

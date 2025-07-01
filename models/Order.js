@@ -10,7 +10,7 @@ const orderItemSchema = new mongoose.Schema({
 });
 
 const customDesignSchema = new mongoose.Schema({
-  designType: { type: String, enum: ['tshirt', 'hoodie', 'polo'], required: true },
+  designType: { type: String, enum: ['TSHIRT', 'HOODIE', 'POLO', 'tshirt', 'hoodie', 'polo'], required: true },
   designImage: String, // Base64 or URL of the design
   designElements: [{
     type: { type: String, enum: ['text', 'image', 'pattern'] },
@@ -32,7 +32,7 @@ const orderSchema = new mongoose.Schema({
   orderCode: { type: String, required: true, unique: true },
   orderType: { 
     type: String, 
-    enum: ['product_purchase', 'custom_design'], 
+    enum: ['product_purchase', 'custom_design', 'mixed'], 
     default: 'product_purchase',
     required: true 
   },
@@ -41,7 +41,7 @@ const orderSchema = new mongoose.Schema({
   shippingFee: { type: Number, default: 0 }, // Shipping fee
   status: { 
     type: String, 
-    enum: ['PENDING', 'PAID', 'CANCELED', 'COMPLETED', 'DELIVERED', 'DESIGN_IN_PROGRESS', 'DESIGN_APPROVED', 'DESIGN_REJECTED'], 
+    enum: ['PENDING', 'PAID', 'CANCELED', 'COMPLETED', 'DELIVERED', 'DELIVERED_FINAL', 'DESIGN_IN_PROGRESS', 'DESIGN_APPROVED', 'DESIGN_REJECTED'], 
     default: 'PENDING' 
   },
   username: { type: String },

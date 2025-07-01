@@ -173,6 +173,18 @@
         if (storeMenu) storeMenu.style.display = 'none';
       }
     })();
+    // Remove only checked (purchased) products from the cart in localStorage on payment success
+    (function() {
+      function getCartKey() {
+        const username = localStorage.getItem('currentUser');
+        return username ? `cart_${username}` : 'cart_guest';
+      }
+      const cartKey = getCartKey();
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      // Keep only unchecked items
+      cart = cart.filter(item => item.checked === false);
+      localStorage.setItem(cartKey, JSON.stringify(cart));
+    })();
   </script>
 </body>
 </html> 

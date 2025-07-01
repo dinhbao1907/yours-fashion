@@ -393,6 +393,7 @@
     let allDesigns = []; // Store all designs globally
     let filteredDesigns = [];
     let selectedColors = [];
+    let selectedProductTypes = [];
     let currentSort = 'popular'; // Default sort
 
     function toggleDropdown() {
@@ -436,6 +437,7 @@
         <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
           <img src="${imageSrc}" alt="${design.productType || 'Product'}">
           ${isNew ? '<span class="new-label">New</span>' : ''}
+          ${design.isCustomDesign ? '<span class="custom-design-label" style="position:absolute;top:10px;right:10px;background:#7B3FF2;color:white;padding:4px 8px;border-radius:12px;font-size:12px;font-weight:600;">🎨 Thiết kế tùy chỉnh</span>' : ''}
           <h3>${design.name || 'Tên thiết kế'}</h3>
           <p class="designer">by <b>${design.username || 'Designer'}</b></p>
           <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
@@ -486,6 +488,23 @@
       const container = document.getElementById('allProductsGrid');
       if (!container) return;
       let designsToShow = filteredDesigns.length ? filteredDesigns : allDesigns;
+      
+      // Filter by product type if any product type is selected
+      if (selectedProductTypes.length > 0) {
+        designsToShow = designsToShow.filter(d => {
+          // Handle custom design filter
+          if (selectedProductTypes.includes('custom_design')) {
+            if (d.isCustomDesign === true) {
+              return true;
+            }
+          }
+          
+          // Handle regular product type filters
+          const productType = d.productType || '';
+          return selectedProductTypes.some(sel => productType === sel);
+        });
+      }
+      
       // Filter by color if any color is selected
       if (selectedColors.length > 0) {
         designsToShow = designsToShow.filter(d => {
@@ -493,6 +512,7 @@
           return selectedColors.some(sel => color === sel);
         });
       }
+      
       if (!designsToShow.length) {
         container.innerHTML = '<p>Không tìm thấy sản phẩm nào.</p>';
         return;
@@ -635,6 +655,14 @@
       document.querySelectorAll('.color-filter').forEach(cb => {
         cb.addEventListener('change', function() {
           selectedColors = Array.from(document.querySelectorAll('.color-filter:checked')).map(cb => cb.value);
+          applySortAndRender();
+        });
+      });
+
+      // Product type filter event
+      document.querySelectorAll('.product-type-filter').forEach(cb => {
+        cb.addEventListener('change', function() {
+          selectedProductTypes = Array.from(document.querySelectorAll('.product-type-filter:checked')).map(cb => cb.value);
           applySortAndRender();
         });
       });

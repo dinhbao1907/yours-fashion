@@ -623,6 +623,75 @@ async function sendUnbanEmail(email, username, adminUsername) {
   }
 }
 
+// Gửi email cho khách hàng khi thiết kế tùy chỉnh được duyệt
+async function sendCustomDesignApprovedEmail(email, customerName, orderCode, customDesign = {}) {
+  try {
+    const mailOptions = {
+      from: {
+        name: "YOURS Fashion Design",
+        address: "official.yours.fashiondesign@gmail.com",
+      },
+      to: email,
+      subject: `Thiết kế tùy chỉnh của bạn đã được duyệt!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #4CAF50;">Chúc mừng ${customerName || ''}!</h2>
+          <p>Thiết kế tùy chỉnh trong đơn hàng <b>${orderCode}</b> của bạn đã được duyệt và sẽ được chuyển sang giai đoạn sản xuất.</p>
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #4CAF50;">
+            <h3 style="color: #4CAF50; margin-top: 0;">Chi tiết thiết kế:</h3>
+            <p><strong>Loại:</strong> ${customDesign.designType || ''}</p>
+            <p><strong>Size:</strong> ${customDesign.size || ''}</p>
+            <p><strong>Số lượng:</strong> ${customDesign.quantity || 1}</p>
+          </div>
+          <p>Cảm ơn bạn đã sử dụng dịch vụ của YOURS!</p>
+          <p>Trân trọng,<br>Đội ngũ YOURS</p>
+        </div>
+      `,
+    };
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Custom design approved email sent to customer:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending custom design approved email to customer:", error);
+    throw new Error(`Failed to send custom design approved email: ${error.message}`);
+  }
+}
+
+// Gửi email cho khách hàng khi thiết kế tùy chỉnh bị từ chối
+async function sendCustomDesignRejectedEmail(email, customerName, orderCode, customDesign = {}, reason = '') {
+  try {
+    const mailOptions = {
+      from: {
+        name: "YOURS Fashion Design",
+        address: "official.yours.fashiondesign@gmail.com",
+      },
+      to: email,
+      subject: `Thiết kế tùy chỉnh của bạn đã bị từ chối!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #e74c3c;">Rất tiếc, ${customerName || ''}!</h2>
+          <p>Thiết kế tùy chỉnh trong đơn hàng <b>${orderCode}</b> của bạn đã bị từ chối.</p>
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+            <h3 style="color: #e74c3c; margin-top: 0;">Chi tiết thiết kế:</h3>
+            <p><strong>Loại:</strong> ${customDesign.designType || ''}</p>
+            <p><strong>Size:</strong> ${customDesign.size || ''}</p>
+            <p><strong>Số lượng:</strong> ${customDesign.quantity || 1}</p>
+            ${reason ? `<p><strong>Lý do từ chối:</strong> ${reason}</p>` : ''}
+          </div>
+          <p>Bạn có thể chỉnh sửa lại thiết kế và gửi lại bất cứ lúc nào.</p>
+          <p>Trân trọng,<br>Đội ngũ YOURS</p>
+        </div>
+      `,
+    };
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Custom design rejected email sent to customer:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending custom design rejected email to customer:", error);
+    throw new Error(`Failed to send custom design rejected email: ${error.message}`);
+  }
+}
+
 module.exports = {
   sendRegistrationEmail,
   sendPasswordResetEmail,
@@ -635,5 +704,7 @@ module.exports = {
   sendOrderDeliveringEmail,
   sendOrderDeliveredEmail,
   sendBanEmail,
-  sendUnbanEmail
+  sendUnbanEmail,
+  sendCustomDesignApprovedEmail,
+  sendCustomDesignRejectedEmail
 };

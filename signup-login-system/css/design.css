@@ -1126,3 +1126,44 @@ body {
   background: #bdbdbd;
   color: #fff;
 }
+
+/* Ensure order table action buttons are in a row and have consistent size */
+.orders-table .order-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.orders-table .action-btn {
+  min-width: 110px;
+  height: 36px;
+  font-size: 15px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Standardize order table action buttons */
+.orders-table .action-btn {
+  background: #f3f4f6;
+  color: #5B22D4;
+  font-weight: 600;
+  border: none;
+  transition: background 0.2s, color 0.2s;
+}
+.orders-table .action-btn.approve {
+  background: #5BFF6A;
+  color: #222;
+}
+.orders-table .action-btn:hover,
+.orders-table .action-btn:focus {
+  background: #e0e7ff;
+  color: #3b0ca3;
+}

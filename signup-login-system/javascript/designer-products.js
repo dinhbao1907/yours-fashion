@@ -14,6 +14,7 @@ function renderProductCard(design) {
     <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
       <img src="${imageSrc}" alt="${design.productType}">
       <span class="new-label">New</span>
+      ${design.isCustomDesign ? '<span class="custom-design-label" style="position:absolute;top:10px;right:10px;background:#7B3FF2;color:white;padding:4px 8px;border-radius:12px;font-size:12px;font-weight:600;">🎨 Thiết kế tùy chỉnh</span>' : ''}
       <h3>${design.name || 'Tên thiết kế'}</h3>
       <p>by <b>${design.username || 'Designer'}</b></p>
       <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>

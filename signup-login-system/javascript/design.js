@@ -560,6 +560,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const notes = notesEl ? notesEl.value : '';
         const designImage = await captureDesignImage();
         const orderItem = {
+          name: 'Áo thiết kế riêng',
           productCode: productCode || '',
           material: material || '',
           price,
@@ -567,6 +568,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           notes: notes || '',
           designImage: designImage || '',
           type: 'custom-design',
+          quantity: 1,
           timestamp: Date.now()
         };
         // Use the same cart key as checkout
@@ -574,7 +576,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
         cart.push(orderItem);
         localStorage.setItem(cartKey, JSON.stringify(cart));
-        window.location.href = 'checkout.html';
+        window.location.href = 'cart.html';
         return;
       }
       console.log('🚀 Submit button clicked'); // Debug log
