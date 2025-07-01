@@ -1999,27 +1999,11 @@ app.post('/api/admin/orders/:id/finish', async (req, res) => {
 });
 
 // --- Handle PayOS payment cancellation redirect ---
-app.get('/signup-login-system/payment-success.html', async (req, res, next) => {
-  if (req.query.cancel === '1' && req.query.orderCode) {
-    // User canceled payment, update order status
-    try {
-      await Order.findOneAndUpdate(
-        { orderCode: String(req.query.orderCode) },
-        { status: 'CANCELED' }
-      );
-      // Optionally, you can render a custom cancellation page or message here
-      return res.sendFile(path.join(__dirname, 'signup-login-system', 'payment-success.html'));
-    } catch (err) {
-      return res.status(500).send('Error updating order status to CANCELED');
-    }
-  } else {
-    // Normal payment success page
-    return res.sendFile(path.join(__dirname, 'signup-login-system', 'payment-success.html'));
-  }
+app.get('/payment-success.html', async (req, res, next) => {
+  return res.sendFile(path.join(__dirname, 'payment-success.html'));
 });
 
-// Serve static files (should be last)
-app.use('/signup-login-system', express.static(path.join(__dirname, 'signup-login-system')));
+app.use(express.static(__dirname));
 
 // API: Mark order as PAID
 app.post('/api/admin/orders/:id/paid', async (req, res) => {

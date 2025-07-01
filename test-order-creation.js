@@ -10,7 +10,7 @@ async function testOrderCreation() {
       shippingFee: 25000,
       description: 'Test order creation',
       orderCode: Date.now(),
-      returnUrl: 'http://localhost:5000/signup-login-system/payment-success.html',
+      returnUrl: 'http://localhost:5000/payment-success.html',
       customer: {
         email: 'test@example.com',
         name: 'Test User',

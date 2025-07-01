@@ -29,7 +29,7 @@ transporter.verify(function (error, success) {
 // Function to convert logo to base64
 function getLogoBase64() {
   try {
-    const logoPath = path.join(__dirname, '..', 'signup-login-system', 'resources', 'logo.png');
+    const logoPath = path.join(__dirname, 'resources', 'logo.png');
     console.log('Attempting to read logo from:', logoPath);
     
     // Check if file exists
