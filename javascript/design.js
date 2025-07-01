@@ -1,3 +1,6 @@
+let currentColor = 'white';
+let currentApparel = 'tshirt';
+
 document.addEventListener('DOMContentLoaded', async () => {
   console.log("JavaScript file loaded successfully!");
   const designCanvas = document.querySelector('.design-canvas');
@@ -36,8 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   let scale = 1;
   let activeElement = null;
   let currentMockup = 'resources/tshirt';
-  let currentColor = 'white';
-  let currentApparel = 'tshirt';
 
   // Generate random product code
   function generateProductCode() {
@@ -698,7 +699,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const method = isEditingDraft ? 'PUT' : 'POST';
 
       try {
-        console.log(`�� Making request to: https://yours-fashion.onrender.com${endpoint} [${method}]`);
+        console.log(`Making request to: https://yours-fashion.onrender.com${endpoint} [${method}]`);
         console.log('🔑 Authorization header:', `Bearer ${token.substring(0, 20)}...`);
         
         const response = await fetch(`https://yours-fashion.onrender.com${endpoint}`, {
@@ -1378,7 +1379,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
           if (descriptionInput) descriptionInput.value = draft.description || '';
           // Set color and update product image
-          currentColor = draft.color || 'white';
+          if (draft.color) {
+            currentColor = draft.color;
+          }
+          if (draft.apparel) {
+            currentApparel = draft.apparel;
+          }
           updateProductImage();
           // Clear only design elements, not the product image
           const existingDesignElements = designCanvas.querySelectorAll('.design-text, .design-image, .design-pattern');
@@ -1394,71 +1400,18 @@ document.addEventListener('DOMContentLoaded', async () => {
               const img = document.createElement('img');
               img.className = el.type === 'image' ? 'design-image' : 'design-pattern';
               img.dataset.type = el.type;
-              console.log(`Restoring ${el.type} element with content:`, el.content ? el.content.substring(0, 50) + '...' : 'no content');
-              // Set position and size first
-              img.style.left = el.x + 'px';
-              img.style.top = el.y + 'px';
-              img.style.width = el.width + 'px';
-              img.style.height = el.height + 'px';
-              img.style.position = 'absolute';
-              img.style.zIndex = '20'; // Ensure it appears on top of the shirt
-              // Handle different content types
-              if (el.content && el.content.startsWith('data:image/')) {
-                img.src = el.content;
-                console.log(`Setting data URL for ${el.type}:`, el.content.substring(0, 50) + '...');
-              } else if (el.content && el.content.startsWith('resources/')) {
-                img.src = el.content;
-                console.log(`Setting resource path for ${el.type}:`, el.content);
-              } else if (el.content) {
-                img.src = 'resources/' + el.content.replace(/^\/?resources\/?/, '');
-                console.log(`Setting relative path for ${el.type}:`, 'resources/' + el.content);
-              } else {
-                img.src = 'resources/pattern1.png'; // fallback to a default pattern
-                console.log(`Setting fallback for ${el.type} (no content)`);
-              }
-              // Only add to canvas once, after load or error
-              let added = false;
-              function addToCanvasOnce() {
-                if (!added) {
-                  // Wrap in container for modern resize/selection
-                  const container = createDesignElementContainer(img, el.type);
-                  container.style.left = el.x + 'px';
-                  container.style.top = el.y + 'px';
-                  container.style.width = el.width + 'px';
-                  container.style.height = el.height + 'px';
-                  addElementToCanvas(container, false);
-                  makeDraggable(container);
-                  // If this is the selected element, update the size input panel
-                  if (container.classList.contains('selected')) {
-                    const widthInput = document.getElementById('widthInput');
-                    const heightInput = document.getElementById('heightInput');
-                    if (widthInput && heightInput) {
-                      widthInput.value = Math.round(container.offsetWidth);
-                      heightInput.value = Math.round(container.offsetHeight);
-                    }
-                  }
-                  added = true;
-                  elementsToLoad--;
-                  if (elementsToLoad === 0) {
-                    setTimeout(() => {
-                      updateLayerPanel();
-                      console.log('Final layer panel update. Total elements in array:', designElementsArr.length);
-                    }, 100);
-                  }
-                }
-              }
-              img.onload = addToCanvasOnce;
-              img.onerror = addToCanvasOnce;
-            } else if (el.type === 'text') {
-              // If you ever re-enable text, handle here
-              console.log('Text element found but not implemented');
-              elementsToLoad--;
-              if (elementsToLoad === 0) {
-                setTimeout(() => {
-                  updateLayerPanel();
-                  console.log('Final layer panel update. Total elements in array:', designElementsArr.length);
-                }, 100);
-              }
+              img.src = el.content;
+              img.style.width = '100%';
+              img.style.height = '100%';
+              // Create container and set position/size
+              const container = createDesignElementContainer(img, el.type);
+              container.style.left = (el.x || 0) + 'px';
+              container.style.top = (el.y || 0) + 'px';
+              container.style.width = (el.width || 100) + 'px';
+              container.style.height = (el.height || 100) + 'px';
+              container.style.zIndex = '20';
+              addElementToCanvas(container);
+              makeDraggable(container);
             }
           });
         } else {
@@ -1632,6 +1585,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           notes,
           designImage,
           designElements,
+          color: currentColor,
+          apparel: currentApparel,
           type: 'custom-design',
           timestamp: Date.now()
         };
@@ -1689,6 +1644,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (draft.size && document.getElementById('sizeInput')) document.getElementById('sizeInput').value = draft.size;
       if (draft.notes && document.getElementById('notesInput')) document.getElementById('notesInput').value = draft.notes;
       if (draft.price && priceInput) priceInput.value = draft.price.toLocaleString('vi-VN') + ' VND';
+      // Restore shirt color and apparel
+      if (draft.color) currentColor = draft.color;
+      if (draft.apparel) currentApparel = draft.apparel;
+      updateProductImage();
       // Restore design elements (images/patterns) using designer logic
       if (draft.designElements && Array.isArray(draft.designElements)) {
         // Remove existing elements
@@ -1722,6 +1681,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   function getCartKey() {
     const username = localStorage.getItem('currentUser');
     return username ? `cart_${username}` : 'cart_guest';
+  }
+
+  // Show/hide form fields based on role
+  const designerFields = document.getElementById('designerFields');
+  const customerFields = document.getElementById('customerFields');
+  if (role === 'designer') {
+    if (designerFields) designerFields.style.display = '';
+    if (customerFields) customerFields.style.display = 'none';
+  } else if (role === 'customer') {
+    if (designerFields) designerFields.style.display = 'none';
+    if (customerFields) customerFields.style.display = '';
+  } else {
+    // Default: show both if role is unknown
+    if (designerFields) designerFields.style.display = '';
+    if (customerFields) customerFields.style.display = '';
   }
 });
 
@@ -1786,11 +1760,10 @@ function captureDesignImage() {
     });
   }
 
-  // Draw the product image (if present)
+  // Draw the product image (if present, else fallback)
   const drawTasks = [];
-  if (productImage && productImage.src) {
-    drawTasks.push(drawImageWithCORSContain(productImage.src, 0, 0, canvas.width, canvas.height));
-  }
+  let productImgSrc = (productImage && productImage.src) ? productImage.src : 'https://via.placeholder.com/300x400?text=No+Image';
+  drawTasks.push(drawImageWithCORSContain(productImgSrc, 0, 0, canvas.width, canvas.height));
 
   // Draw all design elements
   const elements = designCanvas.querySelectorAll('.design-element-container');

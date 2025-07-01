@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thiết Kế - YOURS.vn</title>
+  <title>Thiết Kế - YOURS</title>
   <link rel="stylesheet" href="css/homepage.css">
   <link rel="stylesheet" href="css/design.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
@@ -78,7 +78,7 @@
       </div>
            <div class="center-panel">
         <div class="design-canvas">
-          <img src="resources/tshirt-white.png" alt="Product Image" class="product-image">
+          <img src="resources/tshirt-white.png" alt="Product Image" class="product-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400?text=No+Image';">
           <!-- design elements will be added here -->
         </div>
         <div class="zoom-controls">
@@ -123,50 +123,60 @@
     </div>
        
     <div class="product-description">
-          <h2>Thông tin sản phẩm</h2>
-          <div class="description-form">
-            <div class="form-group" id="productNameGroup">
-              <label>Tên sản phẩm:</label>
-              <input type="text" id="productName" class="form-input" required>
-            </div>
-            <div class="form-group" id="productTypeGroup">
-              <label>Loại sản phẩm:</label>
-              <select id="productType" class="form-input" required>
-                <option value="Áo T-shirt">Áo T-shirt</option>
-              </select>
-            </div>
-            <div class="form-group" id="descriptionGroup">
-              <label>Mô tả:</label>
-              <input type="text" id="descriptionInput" class="form-input">
-            </div>
-            <div class="form-group" id="priceGroup">
-              <label>Giá bán:</label>
-              <input type="text" id="priceInput" class="form-input" value="150,000 VND" readonly style="background:#f9f9f9; cursor:not-allowed;">
-            </div>
-            <div class="form-group" id="productCodeGroup">
-              <label>Mã sản phẩm:</label>
-              <input type="text" id="productCode" class="form-input" readonly required>
-            </div>
-            <div class="form-group" id="materialGroup">
-              <label>Chất liệu:</label>
-              <input type="text" id="material" class="form-input" value="Vải Cotton" readonly>
-            </div>
-            <div class="form-group" id="sizeGroup" style="display:none;">
-              <label>Size:</label>
-              <select id="sizeInput" class="form-input">
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-                <option value="XXL">XXL</option>
-              </select>
-            </div>
-            <div class="form-group" id="notesGroup" style="display:none;">
-              <label>Ghi chú:</label>
-              <input type="text" id="notesInput" class="form-input">
-            </div>
+      <h2>Thông tin sản phẩm</h2>
+      <div class="description-form">
+        <!-- Designer fields -->
+        <div id="designerFields">
+          <div class="form-group" id="productNameGroup">
+            <label>Tên sản phẩm:</label>
+            <input type="text" id="productName" class="form-input" required>
+          </div>
+          <div class="form-group" id="productTypeGroup">
+            <label>Loại sản phẩm:</label>
+            <select id="productType" class="form-input" required>
+              <option value="Áo T-shirt">Áo T-shirt</option>
+            </select>
+          </div>
+          <div class="form-group" id="descriptionGroup">
+            <label>Mô tả:</label>
+            <input type="text" id="descriptionInput" class="form-input">
+          </div>
+          <div class="form-group" id="priceGroup">
+            <label>Giá bán:</label>
+            <input type="text" id="priceInput" class="form-input" value="" readonly style="background:#f9f9f9; cursor:not-allowed;">
+          </div>
+          <div class="form-group" id="productCodeGroup">
+            <label>Mã sản phẩm:</label>
+            <input type="text" id="productCode" class="form-input" readonly required>
+          </div>
+          <div class="form-group" id="materialGroup">
+            <label>Chất liệu:</label>
+            <input type="text" id="material" class="form-input" value="Vải Cotton" readonly>
           </div>
         </div>
+        <!-- Customer fields -->
+        <div id="customerFields">
+          <div class="form-group" id="sizeGroup">
+            <label>Size:</label>
+            <select id="sizeInput" class="form-input">
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="XXL">XXL</option>
+            </select>
+          </div>
+          <div class="form-group" id="notesGroup">
+            <label>Ghi chú:</label>
+            <input type="text" id="notesInput" class="form-input">
+          </div>
+          <div class="form-group" id="materialGroupCustomer">
+            <label>Chất liệu:</label>
+            <input type="text" id="materialCustomer" class="form-input" value="Vải Cotton" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
       </div>
   </main>
 
