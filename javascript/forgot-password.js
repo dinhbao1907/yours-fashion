@@ -39,7 +39,7 @@ document.getElementById('forgot-password-form').addEventListener('submit', async
   }
 
   try {
-    const response = await fetch('http://localhost:5000/api/forgot-password', {
+    const response = await fetch('https://yours-fashion.onrender.com/api/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, role }),
@@ -79,7 +79,7 @@ document.getElementById('reset-password-form').addEventListener('submit', async 
   }
 
   try {
-    const response = await fetch('http://localhost:5000/api/reset-password', {
+    const response = await fetch('https://yours-fashion.onrender.com/api/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, role, code, newPassword }),

@@ -11,7 +11,7 @@ async function loadProductDetails() {
   }
 
   try {
-    const response = await fetch('http://localhost:5000/api/designs');
+    const response = await fetch('https://yours-fashion.onrender.com/api/designs');
     const designs = await response.json();
     const design = designs.find(d => d.designId === designId);
 

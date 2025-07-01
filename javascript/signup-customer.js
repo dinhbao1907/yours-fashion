@@ -7,7 +7,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
   const confirmPassword = document.getElementById('confirm-password').value;
 
   try {
-    const response = await fetch('http://localhost:5000/api/signup-customer', {
+    const response = await fetch('https://yours-fashion.onrender.com/api/signup-customer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password, confirmPassword }),
@@ -49,7 +49,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
         console.log("Sending verification request with body:", requestBody); // Debug log
 
         try {
-          const response = await fetch('http://localhost:5000/api/verify-account', {
+          const response = await fetch('https://yours-fashion.onrender.com/api/verify-account', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
@@ -99,7 +99,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
         console.log("Resending verification code with body:", requestBody); // Debug log
 
         try {
-          const response = await fetch('http://localhost:5000/api/resend-verification', {
+          const response = await fetch('https://yours-fashion.onrender.com/api/resend-verification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),

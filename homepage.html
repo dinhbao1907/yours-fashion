@@ -110,7 +110,7 @@
         const container = document.getElementById('best-seller-products');
         if (!container) return;
         container.innerHTML = '<p class="empty-message">Chưa có sản phẩm bán chạy nào.</p>';
-        fetch('http://localhost:5000/api/designs')
+        fetch('https://yours-fashion.onrender.com/api/designs')
           .then(response => response.json())
           .then(designs => {
             // Filter: more than 1 rating
@@ -187,7 +187,7 @@
           const container = document.getElementById('featured-products');
           if (!container) return;
           container.innerHTML = '<p class="empty-message">Chưa có sản phẩm nổi bật nào.</p>';
-          fetch('http://localhost:5000/api/designs')
+          fetch('https://yours-fashion.onrender.com/api/designs')
             .then(response => response.json())
             .then(designs => {
               // Filter: at least 1 heart (likes/favorites/loveCount >= 1)
@@ -352,7 +352,7 @@
     }
 
     // Gọi API để lấy thông tin người dùng
-    fetch('http://localhost:5000/api/user', {
+    fetch('https://yours-fashion.onrender.com/api/user', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
