@@ -513,6 +513,8 @@
     </div>
   </footer>
   <script>
+    window.API_BASE_URL = "https://yours-fashion.onrender.com";
+
     function toggleDropdown() {
       const dropdown = document.getElementById('userDropdown');
       if (dropdown.classList.contains('show')) {
@@ -657,7 +659,7 @@
         let designerName = '';
         if (item.productId) {
           try {
-            const res = await fetch(`http://localhost:5000/api/designs/${item.productId}/designer`);
+            const res = await fetch(`${window.API_BASE_URL}/api/designs/${item.productId}/designer`);
             if (res.ok) {
               const designer = await res.json();
               designerName = designer.name || designer.username || '';
@@ -875,7 +877,7 @@
           username = email ? email.split('@')[0] : 'Khách';
         }
         try {
-          const res = await fetch('http://localhost:5000/api/create-payos-order', {
+          const res = await fetch(`${window.API_BASE_URL}/api/create-payos-order`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

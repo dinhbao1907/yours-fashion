@@ -253,6 +253,8 @@
   </div>
 
   <script>
+    window.API_BASE_URL = "https://yours-fashion.onrender.com";
+
     document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
@@ -274,7 +276,7 @@
       loading.style.display = 'inline-block';
       
       try {
-        const response = await fetch('http://localhost:5000/api/admin/signin', {
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/signin`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -390,6 +390,7 @@
     </div>
   </footer>
   <script>
+    window.API_BASE_URL = "https://yours-fashion.onrender.com";
     let allDesigns = []; // Store all designs globally
     let filteredDesigns = [];
     let selectedColors = [];
@@ -593,7 +594,7 @@
       if (!container) return;
       container.innerHTML = '<p>Đang tải sản phẩm...</p>';
       
-      fetch('http://localhost:5000/api/designs')
+      fetch(`${window.API_BASE_URL}/api/designs`)
         .then(response => response.json())
         .then(designs => {
           if (Array.isArray(designs) && designs.length > 0) {
