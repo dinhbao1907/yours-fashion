@@ -32,7 +32,7 @@ function loadDesignerProducts() {
   container.innerHTML = '<p>Đang tải sản phẩm...</p>';
 
   // Fetch designs from backend
-  fetch('https://yours-fashion.onrender.com/api/designs')
+  fetch('https://yoursfashion.id.vn/api/designs')
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok');

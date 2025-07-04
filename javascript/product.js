@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const designId = urlParams.get('designId');
   if (designId) {
     try {
-      const response = await fetch('https://yours-fashion.onrender.com/api/designs');
+      const response = await fetch('https://yoursfashion.id.vn/api/designs');
       const designs = await response.json();
       const design = designs.find(d => d.designId === designId);
       if (design) {
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             userLikes[design.designId] = true;
             localStorage.setItem('likedDesigns', JSON.stringify(userLikes));
             // Send like to backend
-            await fetch(`https://yours-fashion.onrender.com/api/designs/${design.designId}/like`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+            await fetch(`https://yoursfashion.id.vn/api/designs/${design.designId}/like`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
             document.getElementById('likeCount').textContent = (parseInt(document.getElementById('likeCount').textContent) + 1);
           } else {
             document.getElementById('likeHeart').classList.remove('liked');
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             delete userLikes[design.designId];
             localStorage.setItem('likedDesigns', JSON.stringify(userLikes));
             // Send unlike to backend
-            await fetch(`https://yours-fashion.onrender.com/api/designs/${design.designId}/unlike`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+            await fetch(`https://yoursfashion.id.vn/api/designs/${design.designId}/unlike`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
             document.getElementById('likeCount').textContent = Math.max(0, parseInt(document.getElementById('likeCount').textContent) - 1);
           }
         });
@@ -261,7 +261,7 @@ function openReviewModal() {
           if (avatar && avatar !== 'resources/user-circle.png') {
             reviewData.avatar = avatar;
           }
-          const response = await fetch('https://yours-fashion.onrender.com/api/reviews', {
+          const response = await fetch('https://yoursfashion.id.vn/api/reviews', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(reviewData)
@@ -312,7 +312,7 @@ async function loadReviews(designId) {
   reviewsList.innerHTML = '';
   try {
     console.log('Fetching reviews for designId:', designId);
-    const response = await fetch(`https://yours-fashion.onrender.com/api/reviews?designId=${encodeURIComponent(designId)}`);
+    const response = await fetch(`https://yoursfashion.id.vn/api/reviews?designId=${encodeURIComponent(designId)}`);
     console.log('Reviews API response status:', response.status);
     const reviews = await response.json();
     console.log('Reviews received:', reviews);
@@ -321,7 +321,7 @@ async function loadReviews(designId) {
     let overallScore = 0;
     let reviewCount = 0;
     try {
-      const statsRes = await fetch(`https://yours-fashion.onrender.com/api/review-stats?designId=${encodeURIComponent(designId)}`);
+      const statsRes = await fetch(`https://yoursfashion.id.vn/api/review-stats?designId=${encodeURIComponent(designId)}`);
       if (statsRes.ok) {
         const stats = await statsRes.json();
         overallScore = stats.average;
@@ -473,7 +473,7 @@ async function updateProductDetails() {
     return;
   }
   try {
-    const response = await fetch(`https://yours-fashion.onrender.com/api/designs/${designId}`);
+    const response = await fetch(`https://yoursfashion.id.vn/api/designs/${designId}`);
     if (!response.ok) {
       throw new Error('Network response was not ok: ' + response.status);
     }

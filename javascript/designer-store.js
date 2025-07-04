@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Fetch designer's products
   function fetchDesigns() {
-    fetch('https://yours-fashion.onrender.com/api/my-designs', {
+          fetch('https://yoursfashion.id.vn/api/my-designs', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!confirm('Bạn có chắc muốn xóa nháp này?')) return;
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`https://yours-fashion.onrender.com/api/designs/${designId}`, {
+      const res = await fetch(`https://yoursfashion.id.vn/api/designs/${designId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -285,14 +285,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load designer stats
   async function loadDesignerStats() {
     try {
-      const res = await fetch('https://yours-fashion.onrender.com/api/designer/stats', {
+      const res = await fetch('https://yoursfashion.id.vn/api/designer/stats', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to load stats');
       const stats = await res.json();
       designerStats = stats;
       // Load recent transactions to get pending withdrawals
-      const txRes = await fetch('https://yours-fashion.onrender.com/api/designer/transactions', {
+      const txRes = await fetch('https://yoursfashion.id.vn/api/designer/transactions', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       let transactions = [];
@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load recent transactions
   async function loadRecentTransactions() {
     try {
-      const res = await fetch('https://yours-fashion.onrender.com/api/designer/transactions', {
+      const res = await fetch('https://yoursfashion.id.vn/api/designer/transactions', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
       withdrawBtn.disabled = true;
       withdrawBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
       
-      const res = await fetch('https://yours-fashion.onrender.com/api/designer/withdraw', {
+      const res = await fetch('https://yoursfashion.id.vn/api/designer/withdraw', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -651,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     try {
-      const res = await fetch(`https://yours-fashion.onrender.com/api/designer/withdrawals/${transactionId}/cancel`, {
+      const res = await fetch(`https://yoursfashion.id.vn/api/designer/withdrawals/${transactionId}/cancel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

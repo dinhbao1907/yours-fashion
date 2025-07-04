@@ -699,10 +699,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const method = isEditingDraft ? 'PUT' : 'POST';
 
       try {
-        console.log(`Making request to: https://yours-fashion.onrender.com${endpoint} [${method}]`);
+        console.log(`Making request to: https://yoursfashion.id.vn${endpoint} [${method}]`);
         console.log('🔑 Authorization header:', `Bearer ${token.substring(0, 20)}...`);
         
-        const response = await fetch(`https://yours-fashion.onrender.com${endpoint}`, {
+        const response = await fetch(`https://yoursfashion.id.vn${endpoint}`, {
           method: method,
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -1326,7 +1326,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       console.log(`Saving draft using ${method} ${endpoint}, isEditingDraft: ${isEditingDraft}`);
       
-      const response = await fetch(`https://yours-fashion.onrender.com${endpoint}`, {
+              const response = await fetch(`https://yoursfashion.id.vn${endpoint}`, {
         method: method,
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -1355,7 +1355,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // --- LOAD DRAFT LOGIC ---
   if (draftDesignId) {
     const token = localStorage.getItem('token');
-    fetch('https://yours-fashion.onrender.com/api/my-designs', {
+    fetch('https://yoursfashion.id.vn/api/my-designs', {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())
