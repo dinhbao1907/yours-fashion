@@ -64,7 +64,7 @@
       // Fetch designer info
       let designer = null;
       try {
-        const res = await fetch(`http://localhost:5000/api/designers/${username}`);
+        const res = await fetch(`https://yours-fashion.vercel.app/api/designers/${username}`);
         if (res.ok) {
           const data = await res.json();
           designer = data.designer || data;
@@ -82,7 +82,7 @@
       // Fetch designer's products
       let products = [];
       try {
-        const res = await fetch(`http://localhost:5000/api/designs?username=${encodeURIComponent(username)}`);
+        const res = await fetch(`https://yours-fashion.vercel.app/api/designs?username=${encodeURIComponent(username)}`);
         if (res.ok) {
           products = await res.json();
         }
