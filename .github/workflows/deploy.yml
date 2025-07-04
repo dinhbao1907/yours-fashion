@@ -29,9 +29,11 @@ jobs:
         publish_branch: gh-pages
         exclude_assets: |
           node_modules/
-          .git/
           server.js
           package.json
           package-lock.json
           models/
-          utils/ 
+          utils/
+          .github/
+          .gitignore
+          .env 
