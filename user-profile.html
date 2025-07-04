@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hồ sơ cá nhân - YOURS</title>
+    <link rel="stylesheet" href="css/user-profile.css" />
+    <!-- Thêm Flatpickr CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <!-- Font Awesome for star icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <div class="logo">
+          <img src="resources/logo.png" alt="YOURS Logo" class="logo">
+        </div>
+        <nav class="nav">
+          <ul>
+            <li><button type="button" class="user-btn" onclick="activateTab('home')">Trang chủ</button></li>
+            <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
+            <li><button type="button" class="user-btn" onclick="activateTab('design')">Thiết kế</button></li>
+            <li><button type="button" class="user-btn" onclick="activateTab('blog')">Blog</button></li>
+            <li><a href="about.html" class="user-btn">Về chúng tôi</a></li>
+          </ul>
+        </nav>
+        <div class="user-menu">
+          <button class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
+          <div id="userDropdown" class="dropdown">
+            <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
+            <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
+            <a href="cart.html" class="dropdown-item">Giỏ hàng</a>
+            <a href="choose-login.html" class="dropdown-item">Đăng xuất</a>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-wrapper">
+        <aside class="sidebar">
+          <ul>
+            <li>
+              <a href="#" class="sidebar-action-btn active" onclick="showEditProfile(); return false;">
+                <span class="icon">📝</span> Thông tin cá nhân
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-action-btn" onclick="showOrderHistory(); return false;">
+                <span class="icon">📦</span> Lịch sử đơn hàng
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-action-btn" onclick="showChangeCredentials(); return false;">
+                <span class="icon">🔑</span> Đổi mật khẩu
+              </a>
+            </li>
+            <li id="draftTabSidebar" style="display:none;">
+              <a href="#" class="sidebar-action-btn" onclick="showDrafts(); return false;">
+                <span class="icon">🎨</span> Thiết Kế Nháp
+              </a>
+            </li>
+          </ul>
+        </aside>
+
+        <main class="main-content">
+
+
+          <!-- Order History Section -->
+          <div style="margin-bottom: 18px; display: none;" id="orderHistoryFilterBar">
+            <label for="orderStatusFilter" style="font-weight:600;color:#5B22D4;margin-right:8px;">Lọc theo trạng thái:</label>
+            <select id="orderStatusFilter" style="padding:6px 14px;border-radius:8px;border:1.5px solid #ddd;font-size:1rem;">
+              <option value="all">Tất cả</option>
+              <option value="PENDING">Chờ thanh toán</option>
+              <option value="PAID">Đã thanh toán</option>
+              <option value="DESIGN_IN_PROGRESS">Đang thiết kế</option>
+              <option value="DESIGN_APPROVED">Thiết kế đã duyệt</option>
+              <option value="DESIGN_REJECTED">Thiết kế bị từ chối</option>
+              <option value="COMPLETED">Đang làm áo</option>
+              <option value="DELIVERED">Đang giao</option>
+              <option value="DELIVERED_FINAL">Đã giao</option>
+              <option value="CANCELED">Đã hủy</option>
+            </select>
+          </div>
+          <div id="orderHistoryContainer" style="display:none;"></div>
+
+          <!-- Reviews Section (for order history) -->
+          <div id="orderReviewsSection" style="display:none; margin-top: 32px;">
+            <h3 style="color:#5B22D4;text-align:center;margin-bottom:16px;">Đánh Giá Sản Phẩm</h3>
+            <div class="reviews-list"></div>
+          </div>
+
+          <div class="profile-container" id="editProfileContainer" style="display:block;">
+            <div class="profile-form">
+              <div class="profile-header">
+                <h2>Thông tin cá nhân</h2>
+                <p>Cập nhật thông tin để bảo vệ tài khoản của bạn</p>
+              </div>
+
+              <form id="profileForm" class="profile-form">
+                <div class="profile-avatar">
+                  <img
+                    id="avatarImage"
+                    src="resources/user-circle.png"
+                    alt="Avatar"
+                    class="avatar"
+                  />
+                  <p id="usernameDisplay">Tên đăng nhập: User 134567</p>
+                  <label for="avatarUpload" class="upload-label"
+                    >Đăng lên file (1M | JPEG, PNG)</label
+                  >
+                  <input
+                    type="file"
+                    id="avatarUpload"
+                    accept="image/jpeg,image/png"
+                    style="display: none"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="name">Tên</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Nguyen Van A"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Thêm"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="phone">Số điện thoại</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    placeholder="Thêm"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Giới tính</label>
+                  <div class="radio-group">
+                    <label
+                      ><input type="radio" name="gender" value="Nữ" /> Nữ</label
+                    >
+                    <label
+                      ><input type="radio" name="gender" value="Nam" />
+                      Nam</label
+                    >
+                    <label
+                      ><input type="radio" name="gender" value="Khác" />
+                      Khác</label
+                    >
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="dob">Ngày sinh</label>
+                  <input
+                    type="text"
+                    id="dob"
+                    name="dob"
+                    class="date-picker"
+                    placeholder="Chọn ngày sinh"
+                    required
+                  />
+                </div>
+
+                <button type="submit" class="save-btn" id="saveBtn">Lưu</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="profile-container" id="changeCredentialsContainer" style="display:none;">
+            <div class="profile-form">
+              <div class="profile-header">
+                <h2>Đổi mật khẩu</h2>
+                <p>Thay đổi mật khẩu của bạn tại đây.</p>
+              </div>
+              <form id="changeCredentialsForm" class="profile-form">
+                <div class="form-group">
+                  <label for="currentPassword">Mật khẩu hiện tại</label>
+                  <input type="password" id="currentPassword" name="currentPassword" placeholder="Nhập mật khẩu hiện tại" required>
+                </div>
+                <div class="form-group">
+                  <label for="newPassword">Mật khẩu mới</label>
+                  <input type="password" id="newPassword" name="newPassword" placeholder="Nhập mật khẩu mới (hoặc để trống nếu không đổi)">
+                </div>
+                <div class="form-group">
+                  <label for="confirmNewPassword">Xác nhận mật khẩu mới</label>
+                  <input type="password" id="confirmNewPassword" name="confirmNewPassword" placeholder="Xác nhận mật khẩu mới">
+                </div>
+                <div id="changeCredentialsMessage" style="color:#e74c3c;margin-bottom:12px;"></div>
+                <button type="submit" class="save-btn">Cập nhật</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="profile-container" id="draftsContainer" style="display:none;">
+            <div class="profile-header">
+              <h2>Thiết Kế Nháp</h2>
+              <p>Danh sách các thiết kế nháp bạn đã lưu.</p>
+            </div>
+            <div id="customerDraftsList"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Thêm Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+    function activateTab(tabName) {
+      event.preventDefault(); // Prevent default button behavior
+      if (tabName === 'home') {
+        window.location.replace('homepage.html');
+      } else if (tabName === 'design') {
+        window.location.replace('design.html');
+      } // 'products' and 'blog' do nothing
+    }
+    function toggleDropdown() {
+      const dropdown = document.getElementById("userDropdown");
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+
+    document.addEventListener("click", function (event) {
+      const userBtn = document.querySelector(".user-btn[onclick*='toggleDropdown']");
+      const dropdown = document.getElementById("userDropdown");
+      if (dropdown && userBtn && !userBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove("show");
+      }
+    });
+
+    // Đặt trạng thái active mặc định dựa trên trang hiện tại
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPage = window.location.pathname.split('/').pop();
+      if (currentPage === 'user-profile.html') {
+        const profileBtn = document.querySelector('button[onclick="activateTab(\'profile\')"]');
+        if (profileBtn) profileBtn.classList.add('active');
+      }
+    });
+
+    // Hide 'Cửa hàng của tôi' for non-designers
+    (function() {
+      function getRoleFromToken() {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.role;
+        } catch (e) { return null; }
+      }
+      if (getRoleFromToken() !== 'designer') {
+        var storeMenu = document.getElementById('designerStoreMenu');
+        if (storeMenu) storeMenu.style.display = 'none';
+      }
+    })();
+
+    // Show/hide tab for customer only
+    (function() {
+      function getRoleFromToken() {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.role;
+        } catch (e) { return null; }
+      }
+      if (getRoleFromToken() === 'customer') {
+        var draftTab = document.getElementById('draftTabSidebar');
+        if (draftTab) draftTab.style.display = '';
+      }
+    })();
+
+    // Tab switching logic
+    function showDrafts() {
+      document.getElementById('editProfileContainer').style.display = 'none';
+      document.getElementById('changeCredentialsContainer').style.display = 'none';
+      document.getElementById('orderHistoryContainer').style.display = 'none';
+      document.getElementById('orderHistoryFilterBar').style.display = 'none';
+      document.getElementById('orderReviewsSection').style.display = 'none';
+      document.getElementById('draftsContainer').style.display = 'block';
+      loadCustomerDrafts();
+    }
+    function loadCustomerDrafts() {
+      var username = localStorage.getItem('currentUser');
+      var drafts = JSON.parse(localStorage.getItem('customerDrafts_' + username)) || [];
+      var list = document.getElementById('customerDraftsList');
+      if (!list) return;
+      if (drafts.length === 0) {
+        list.innerHTML = '<p>Bạn chưa có thiết kế nháp nào.</p>';
+        return;
+      }
+      list.innerHTML = drafts.map(function(draft, idx) {
+        return `<div class='draft-item' style='background:#fff;border-radius:18px;box-shadow:0 2px 12px #e9e9f3;padding:24px 18px 18px 18px;max-width:260px;margin:18px auto 24px auto;text-align:center;display:flex;flex-direction:column;align-items:center;'>
+          <img src='${draft.designImage || ''}' alt='Design' style='max-width:120px;max-height:120px;margin-bottom:16px;border-radius:8px;box-shadow:0 1px 6px #eee;'>
+          <div style='font-weight:700;font-size:1.1rem;color:#7c3aed;margin-bottom:4px;'>${draft.productName || 'Thiết kế của bạn'}</div>
+          <div style='font-weight:600;font-size:1rem;color:#7c3aed;margin-bottom:12px;'>${draft.price ? draft.price.toLocaleString('vi-VN') + ' VND' : '150,000 VND'}</div>
+          <button onclick='editDraft(${idx})' style='background:#7c3aed;color:#fff;border:none;padding:10px 24px;border-radius:24px;font-weight:600;font-size:1rem;cursor:pointer;margin-bottom:8px;'>Xem thiết kế</button>
+          <button onclick='deleteDraft(${idx})' style='background:none;color:#e74c3c;border:none;font-size:0.95rem;cursor:pointer;'>Xóa</button>
+        </div>`;
+      }).join('');
+    }
+    function editDraft(idx) {
+      var username = localStorage.getItem('currentUser');
+      var drafts = JSON.parse(localStorage.getItem('customerDrafts_' + username)) || [];
+      var draft = drafts[idx];
+      if (!draft) return;
+      // Save draft to a temp key and redirect to design page
+      localStorage.setItem('editDraft', JSON.stringify(draft));
+      window.location.href = 'design.html?editDraft=1';
+    }
+    function deleteDraft(idx) {
+      var username = localStorage.getItem('currentUser');
+      var drafts = JSON.parse(localStorage.getItem('customerDrafts_' + username)) || [];
+      drafts.splice(idx, 1);
+      localStorage.setItem('customerDrafts_' + username, JSON.stringify(drafts));
+      loadCustomerDrafts();
+    }
+    </script>
+    <script src="javascript/user-profile.js"></script>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="review-modal">
+      <div class="review-modal-content">
+        <div class="review-modal-header">
+          <h3>Đánh Giá Sản Phẩm</h3>
+          <span class="close-review-modal" onclick="closeReviewModal()">&times;</span>
+        </div>
+        <div class="review-modal-body">
+          <div class="review-user-info">
+            <img id="userAvatar" src="resources/user-circle.png" alt="User Avatar" class="review-avatar">
+            <span id="userName">User</span>
+          </div>
+          
+          <form id="reviewForm" class="review-form">
+            <div class="review-section">
+              <label class="review-label">Đánh giá tổng quan:</label>
+              <div class="star-rating">
+                <i class="fas fa-star" data-value="1"></i>
+                <i class="fas fa-star" data-value="2"></i>
+                <i class="fas fa-star" data-value="3"></i>
+                <i class="fas fa-star" data-value="4"></i>
+                <i class="fas fa-star" data-value="5"></i>
+              </div>
+            </div>
+
+            <div class="review-section">
+              <label class="review-label">Màu sắc:</label>
+              <select id="color" class="review-input" required>
+                <option value="">Chọn màu sắc</option>
+                <option value="Đúng như mô tả">Đúng như mô tả</option>
+                <option value="Sáng hơn mô tả">Sáng hơn mô tả</option>
+                <option value="Tối hơn mô tả">Tối hơn mô tả</option>
+                <option value="Khác biệt nhiều">Khác biệt nhiều</option>
+              </select>
+            </div>
+
+            <div class="review-section">
+              <label class="review-label">Kích thước:</label>
+              <select id="size" class="review-input" required>
+                <option value="">Chọn kích thước</option>
+                <option value="Vừa vặn">Vừa vặn</option>
+                <option value="Rộng hơn">Rộng hơn</option>
+                <option value="Chật hơn">Chật hơn</option>
+                <option value="Dài hơn">Dài hơn</option>
+                <option value="Ngắn hơn">Ngắn hơn</option>
+              </select>
+            </div>
+
+            <div class="review-section">
+              <label class="review-label">Chất liệu:</label>
+              <select id="material" class="review-input" required>
+                <option value="">Chọn chất liệu</option>
+                <option value="Mềm mại, thoải mái">Mềm mại, thoải mái</option>
+                <option value="Cứng, không thoải mái">Cứng, không thoải mái</option>
+                <option value="Chất lượng tốt">Chất lượng tốt</option>
+                <option value="Chất lượng thấp">Chất lượng thấp</option>
+                <option value="Như mong đợi">Như mong đợi</option>
+              </select>
+            </div>
+
+            <div class="review-section">
+              <label class="review-label">Mô tả sản phẩm:</label>
+              <select id="descriptionMatch" class="review-input" required>
+                <option value="">Chọn mức độ phù hợp</option>
+                <option value="Đúng như mô tả">Đúng như mô tả</option>
+                <option value="Gần giống mô tả">Gần giống mô tả</option>
+                <option value="Khác biệt với mô tả">Khác biệt với mô tả</option>
+                <option value="Không giống mô tả">Không giống mô tả</option>
+              </select>
+            </div>
+
+            <div class="review-section">
+              <label class="review-label">Nhận xét chi tiết:</label>
+              <textarea id="feedback" class="review-textarea" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..." required></textarea>
+            </div>
+
+            <div class="review-actions">
+              <button type="button" class="review-cancel-btn" onclick="closeReviewModal()">Hủy</button>
+              <button type="submit" class="review-submit-btn">Gửi đánh giá</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thank You Popup Modal -->
+    <div id="thankYouModal" class="thank-you-modal">
+      <div class="thank-you-modal-content">
+        <div class="thank-you-icon">
+          <i class="fas fa-heart"></i>
+        </div>
+        <h2>Cảm ơn bạn!</h2>
+        <p>Đánh giá của bạn đã được gửi thành công.</p>
+        <p>Chúng tôi rất trân trọng ý kiến đóng góp của bạn!</p>
+        <button class="thank-you-close-btn" onclick="closeThankYouModal()">Đóng</button>
+      </div>
+    </div>
+
+    <style>
+    /* Thank You Modal Styles */
+    .thank-you-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .thank-you-modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .thank-you-modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .thank-you-icon {
+      font-size: 60px;
+      color: #e91e63;
+      margin-bottom: 20px;
+      animation: heartBeat 1s ease-in-out;
+    }
+
+    .thank-you-modal h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 28px;
+    }
+
+    .thank-you-modal p {
+      color: #666;
+      margin-bottom: 10px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .thank-you-close-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .thank-you-close-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { 
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes heartBeat {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thiết Kế - YOURS</title>
+  <link rel="stylesheet" href="css/homepage.css">
+  <link rel="stylesheet" href="css/design.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="logo">
+      <img src="resources/logo.png" alt="YOURS Logo" class="logo">
+    </div>
+    <nav class="nav">
+      <ul>
+        <li><button type="button" class="user-btn" onclick="activateTab('home')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
+        <li><button type="button" class="user-btn" onclick="activateTab('design')">Thiết kế</button></li>
+        <li><button type="button" class="user-btn" onclick="activateTab('blog')">Blog</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('about.html')">Về chúng tôi</button></li>
+      </ul>
+    </nav>
+    <div class="user-menu">
+      <button class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
+      <div id="userDropdown" class="dropdown">
+        <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
+        <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
+        <a href="cart.html" class="dropdown-item">Giỏ hàng</a>
+        <a href="choose-login.html" class="dropdown-item">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+  <main class="container">
+    <h1 class="title">Thiết Kế</h1>
+    <div class="design-area">
+      <div class="left-panel">
+         <div class="design-option">
+          <button class="popup-btn" aria-expanded="false"><img src="resources/shirt-type.svg" alt="Color Icon" class="icon"> Loại áo</button>
+          <div class="mockup-options" style="display:none; padding:0; margin-top:8px; width:100%; background:none; border:none; box-shadow:none;">
+             <img src="resources/tshirt-white.png" alt="T-shirt trắng" class="mockup-img" data-type="tshirt">
+          </div>
+        </div>
+        <div class="design-option" style="position:relative;">
+          <button class="popup-btn" aria-expanded="false"><img src="resources/color.svg" alt="Color Icon" class="icon"> Màu sắc</button>
+          <div class="color-options" style="display:none; padding:0; margin-top:8px; width:100%; background:none; border:none; box-shadow:none;">
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;">
+              <div class="color" style="background-color: #ffffff; border:2px solid #ccc; box-sizing:border-box; width:36px; height:36px; border-radius:50%; margin:auto;" data-color="white"></div>
+              <div class="color" style="background-color: #000000; border:2px solid #ccc; box-sizing:border-box; width:36px; height:36px; border-radius:50%; margin:auto;" data-color="black"></div>
+              <div class="color" style="background-color: #96b5e2; border:2px solid #ccc; box-sizing:border-box; width:36px; height:36px; border-radius:50%; margin:auto;" data-color="blue"></div>
+              <div class="color" style="background-color: #003b33; border:2px solid #ccc; box-sizing:border-box; width:36px; height:36px; border-radius:50%; margin:auto;" data-color="green"></div>
+              <div class="color" style="background-color: #fab40d; border:2px solid #ccc; box-sizing:border-box; width:36px; height:36px; border-radius:50%; margin:auto;" data-color="yellow"></div>
+              <div class="color" style="background-color: #f2b9c7; border:2px solid #ccc; box-sizing:border-box; width:36px; height:36px; border-radius:50%; margin:auto;" data-color="pink"></div>
+            </div>
+          </div>
+        </div>
+        <div class="design-option">
+          <button id="addImageBtn" class="popup-btn"><img src="resources/inbox-in.svg" alt="Color Icon" class="icon"> Thêm ảnh</button>
+          <input type="file" class="file-input" accept="image/*" style="display:none;">
+        </div>
+        <div class="design-option">
+          <button class="popup-btn" aria-expanded="false"><img src="resources/artifact.svg" alt="Color Icon" class="icon"> Họa tiết</button>
+          <div class="pattern-options" style="display:none; padding:0; margin-top:8px; width:100%; background:none; border:none; box-shadow:none;">
+            <img src="resources/pattern1.png" alt="Pattern 1" class="pattern-img">
+            <img src="resources/pattern2.png" alt="Pattern 2" class="pattern-img">
+            <img src="resources/pattern3.png" alt="Pattern 3" class="pattern-img">
+            <img src="resources/pattern4.svg" alt="Pattern 4" class="pattern-img">
+            <img src="resources/pattern5.svg" alt="Pattern 5" class="pattern-img">
+            <img src="resources/pattern6.svg" alt="Pattern 6" class="pattern-img">
+            <img src="resources/pattern7.svg" alt="Pattern 7" class="pattern-img">
+            <img src="resources/pattern8.svg" alt="Pattern 8" class="pattern-img">
+            <img src="resources/pattern9.svg" alt="Pattern 9" class="pattern-img">
+            <img src="resources/pattern10.svg" alt="Pattern 10" class="pattern-img">
+          </div>
+        </div>
+      </div>
+           <div class="center-panel">
+        <div class="design-canvas">
+          <img src="resources/tshirt-white.png" alt="Product Image" class="product-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400?text=No+Image';">
+          <!-- design elements will be added here -->
+        </div>
+        <div class="zoom-controls">
+          <button class="zoom-btn" data-action="zoom-in">
+            <img src="resources/zoom-in.png" alt="Zoom In" class="icon"> Phóng to
+          </button>
+          <button class="zoom-btn" data-action="zoom-out">
+            <img src="resources/zoom-out.png" alt="Zoom Out" class="icon"> Thu nhỏ
+          </button>
+          <button class="zoom-btn" data-action="reset">
+            <img src="resources/reset.svg" alt="Reset" class="icon"> Reset
+          </button>
+        </div>
+      </div>
+      <div class="right-panel">
+        <div class="action-buttons">
+          <button id="submitDesign" class="popup-btn"><img src="resources/new.svg" alt="Color Icon" class="icon"> <span id="mainActionBtnText">Đăng bài</span></button>
+          <button id="saveDraftBtn" class="popup-btn secondary"><img src="resources/save.svg" alt="Color Icon" class="icon"> Lưu nháp</button>
+        </div>
+        <!-- Layer Panel for managing layers (now only in right-panel) -->
+        <div class="layer-panel">
+          <div class="layer-panel-title"><img src="resources/artifact.svg" class="icon" alt="Layers Icon"> Layers</div>
+          <ul class="layer-list" id="layerList">
+            <!-- Layers will be dynamically populated here -->
+          </ul>
+        </div>
+        
+        <!-- Size Input Panel -->
+        <div class="size-input-panel" id="sizeInputPanel" style="display:none;">
+          <div class="size-input-title">Kích thước</div>
+          <div class="size-inputs">
+            <input type="number" id="widthInput" placeholder="Rộng" min="30" max="400">
+            <span>×</span>
+            <input type="number" id="heightInput" placeholder="Cao" min="30" max="400">
+            <span>px</span>
+          </div>
+          <div class="size-button-container">
+            <button id="applySizeBtn">Áp dụng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+       
+    <div class="product-description">
+      <h2>Thông tin sản phẩm</h2>
+      <div class="description-form">
+        <!-- Designer fields -->
+        <div id="designerFields">
+          <div class="form-group" id="productNameGroup">
+            <label>Tên sản phẩm:</label>
+            <input type="text" id="productName" class="form-input" required>
+          </div>
+          <div class="form-group" id="productTypeGroup">
+            <label>Loại sản phẩm:</label>
+            <select id="productType" class="form-input" required>
+              <option value="Áo T-shirt">Áo T-shirt</option>
+            </select>
+          </div>
+          <div class="form-group" id="descriptionGroup">
+            <label>Mô tả:</label>
+            <input type="text" id="descriptionInput" class="form-input">
+          </div>
+          <div class="form-group" id="priceGroup">
+            <label>Giá bán:</label>
+            <input type="text" id="priceInput" class="form-input" value="" readonly style="background:#f9f9f9; cursor:not-allowed;">
+          </div>
+          <div class="form-group" id="productCodeGroup">
+            <label>Mã sản phẩm:</label>
+            <input type="text" id="productCode" class="form-input" readonly required>
+          </div>
+          <div class="form-group" id="materialGroup">
+            <label>Chất liệu:</label>
+            <input type="text" id="material" class="form-input" value="Vải Cotton" readonly>
+          </div>
+        </div>
+        <!-- Customer fields -->
+        <div id="customerFields">
+          <div class="form-group" id="sizeGroup">
+            <label>Size:</label>
+            <select id="sizeInput" class="form-input">
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="XXL">XXL</option>
+            </select>
+          </div>
+          <div class="form-group" id="notesGroup">
+            <label>Ghi chú:</label>
+            <input type="text" id="notesInput" class="form-input">
+          </div>
+          <div class="form-group" id="materialGroupCustomer">
+            <label>Chất liệu:</label>
+            <input type="text" id="materialCustomer" class="form-input" value="Vải Cotton" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
+      </div>
+  </main>
+
+  <!-- Footer -->
+<footer class="footer">
+ <div class="footer-container">
+        <div class="footer-section">
+          <img src="resources/logo-footer.png" alt="Footer Logo" class="footer-logo">
+          <p class="tagline">Nơi sáng tạo những gì bạn muốn</p>
+          <p class="support"><strong>Chăm sóc khách hàng</strong><br>official.yours.fashiondesign@gmail.com</p>
+          <div class="social-icons">
+            <a href="https://www.facebook.com/profile.php?id=61576837198946" target="_blank" rel="noopener noreferrer">
+              <img src="resources/facebook-footer.png" alt="Facebook">
+            </a>
+            <a href="https://www.instagram.com/yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/instagram-footer.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/tiktok-footer.png" alt="TikTok">
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>YOURS.vn</h4>
+          <ul>
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Lời chứng thực</a></li>
+            <li><a href="#">Câu hỏi thường gặp</a></li>
+            <li><a href="#">Hướng dẫn thiết kế</a></li>
+            <li><a href="#">Sản phẩm</a></li>
+            <li><a href="#">Tuyển dụng</a></li>
+            <li><a href="#">Tư vấn</a></li>
+            <li><a href="#">Chính sách hỗ trợ</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Chính sách & hỗ trợ</h4>
+          <ul>
+            <li><a href="#">Chính sách bảo mật và quyền riêng tư</a></li>
+            <li><a href="#">Điều khoản và điều kiện</a></li>
+            <li><a href="#">Chính sách vận chuyển và giao nhận</a></li>
+            <li><a href="#">Quy định và hình thức thanh toán</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Phương thức thanh toán</h4>
+          <div class="payment-methods">
+            <img src="resources/momo.png" alt="Momo">
+            <img src="resources/zalopay.png" alt="Zalopay">
+            <img src="resources/visa.png" alt="Visa">
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
+      </div>
+    </footer>
+    
+    <div class="modal" id="successModal">
+  <div class="modal-content">
+    <h3>Thành công!</h3>
+    <p>Thiết kế của bạn đã được lưu thành công.</p>
+    <button onclick="document.getElementById('successModal').style.display='none'">Đóng</button>
+  </div>
+</div>
+
+<!-- Unsaved changes modal -->
+<div class="modal" id="unsavedModal">
+  <div class="modal-content">
+    <h3>Có vẻ như bạn chưa lưu thiết kế của mình</h3>
+    <div style="margin: 18px 0 24px 0; font-size: 16px; color: #6a0dad;">Bạn có muốn lưu thiết kế này vào nháp trước khi rời đi không?</div>
+    <button id="unsavedSaveBtn" style="background:#6a0dad;color:#fff;margin-right:12px;">Lưu thiết kế</button>
+    <button id="unsavedContinueBtn" style="background:#ede9fe;color:#7c3aed;">Tiếp tục</button>
+  </div>
+</div>
+
+<script src="javascript/design.js"></script>
+  <script src="javascript/homepage.js"></script>
+<script>
+function activateTab(tabName) {
+  event.preventDefault(); // Prevent default button behavior
+  if (tabName === 'home') {
+    window.location.replace('homepage.html');
+  } else if (tabName === 'design') {
+    window.location.replace('design.html');
+  } else if (tabName === 'blog') {
+    window.location.replace('blog.html');
+  } // 'products' and 'about' do nothing
+}
+
+function toggleDropdown() {
+  const dropdown = document.getElementById('userDropdown');
+  if (dropdown.classList.contains('show')) {
+    dropdown.classList.remove('show');
+  } else {
+    dropdown.classList.add('show');
+  }
+}
+
+// Đặt trạng thái active mặc định dựa trên trang hiện tại
+document.addEventListener('DOMContentLoaded', () => {
+  const currentPage = window.location.pathname.split('/').pop();
+  if (currentPage === 'design.html') {
+    const designBtn = document.querySelector('button[onclick="activateTab(\'design\')"]');
+    if (designBtn) designBtn.classList.add('active');
+  }
+});
+
+document.querySelectorAll('.popup-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    // Skip the save draft button and submit button - they have their own handlers
+    if (btn.id === 'saveDraftBtn' || btn.id === 'submitDesign') {
+      return;
+    }
+    const option = btn.nextElementSibling;
+    if (option) {
+      // Hide all other dropdowns
+      document.querySelectorAll('.mockup-options, .color-options, .pattern-options').forEach(panel => {
+        if (panel !== option) panel.classList.remove('dropdown-open');
+      });
+      // Toggle this one
+      option.classList.toggle('dropdown-open');
+    }
+  });
+});
+
+(function() {
+  var avatarUrl = localStorage.getItem('userAvatarUrl');
+  var avatarImg = document.getElementById('userAvatarBtn');
+  if (avatarImg) {
+    if (avatarUrl && avatarUrl.length > 5) {
+      avatarImg.src = avatarUrl;
+    } else {
+      avatarImg.src = 'resources/user-circle.png';
+    }
+  }
+})();
+
+// Hide 'Cửa hàng của tôi' for non-designers
+(function() {
+  function getRoleFromToken() {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role;
+    } catch (e) { return null; }
+  }
+  if (getRoleFromToken() !== 'designer') {
+    var storeMenu = document.getElementById('designerStoreMenu');
+    if (storeMenu) storeMenu.style.display = 'none';
+  }
+})();
+
+// Role-based UI adjustment for design.html
+(function() {
+  function getRoleFromToken() {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role;
+    } catch (e) { return null; }
+  }
+  const role = getRoleFromToken();
+  var priceInput = document.getElementById('priceInput');
+  if (role === 'customer') {
+    // Change main action button text
+    var mainBtnText = document.getElementById('mainActionBtnText');
+    if (mainBtnText) mainBtnText.textContent = 'Đặt In Ngay';
+    // Hide or disable fields not for customers
+    var productNameGroup = document.getElementById('productNameGroup');
+    var productTypeGroup = document.getElementById('productTypeGroup');
+    var descriptionGroup = document.getElementById('descriptionGroup');
+    var productCodeGroup = document.getElementById('productCodeGroup');
+    var materialGroup = document.getElementById('materialGroup');
+    var sizeGroup = document.getElementById('sizeGroup');
+    var notesGroup = document.getElementById('notesGroup');
+    if (productNameGroup) productNameGroup.style.display = 'none';
+    if (productTypeGroup) productTypeGroup.style.display = 'none';
+    if (descriptionGroup) descriptionGroup.style.display = 'none';
+    // Show only allowed fields
+    if (productCodeGroup) productCodeGroup.style.display = '';
+    if (materialGroup) materialGroup.style.display = '';
+    if (sizeGroup) sizeGroup.style.display = '';
+    if (notesGroup) notesGroup.style.display = '';
+    // Set price to 150,000 VND and disable editing
+    if (priceInput) {
+      priceInput.value = '150,000 VND';
+      priceInput.readOnly = true;
+      priceInput.style.background = '#f9f9f9';
+      priceInput.style.cursor = 'not-allowed';
+    }
+    // Remove 'required' attribute from all fields for customers
+    var fields = ['productCode', 'material', 'sizeInput', 'notesInput'];
+    fields.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.removeAttribute('required');
+    });
+  } else if (role === 'designer') {
+    // Designer can edit price
+    if (priceInput) {
+      priceInput.readOnly = false;
+      priceInput.style.background = '';
+      priceInput.style.cursor = '';
+    }
+  }
+})();
+</script>
+<style>
+.avatar-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+  vertical-align: middle;
+  background: #f3eaff;
+  border: 1.5px solid #eee;
+}
+</style>
+</body>
+</html>

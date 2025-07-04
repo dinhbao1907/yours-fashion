@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thanh toán thành công - YOURS</title>
+  <link rel="stylesheet" href="css/homepage.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .success-container {
+      max-width: 500px;
+      margin: 60px auto 60px auto;
+      text-align: center;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(90,34,212,0.07);
+      padding: 40px 24px 32px 24px;
+      flex: 1 0 auto;
+    }
+    .success-title {
+      color: #7B3FF2;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .success-desc {
+      color: #8A4AF3;
+      font-size: 1.1rem;
+      margin-bottom: 32px;
+    }
+    .success-img {
+      width: 180px;
+      margin-bottom: 24px;
+    }
+    .success-btn {
+      background: #8A4AF3;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 38px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      margin-top: 24px;
+    }
+    .success-btn:hover {
+      background: #C5ED51;
+      color: #23222a;
+    }
+    footer.footer {
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header (same as homepage) -->
+  <header class="header">
+    <div class="logo">
+      <img src="resources/logo.png" alt="YOURS Logo" class="logo">
+    </div>
+    <nav class="nav">
+      <ul>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('homepage.html')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('design.html')">Thiết kế</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('blog.html')">Blog</button></li>
+        <li><a href="about.html" class="user-btn" style="display:inline-block;vertical-align:middle;">Về chúng tôi</a></li>
+      </ul>
+    </nav>
+    <div class="user-menu">
+      <button class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
+      <div id="userDropdown" class="dropdown">
+        <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
+        <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
+        <a href="#" class="dropdown-item">Giỏ hàng</a>
+        <a href="choose-login.html" class="dropdown-item">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+  <div class="success-container">
+    <div class="success-title">BẠN ĐÃ THANH TOÁN THÀNH CÔNG ĐƠN HÀNG CỦA MÌNH</div>
+    <div class="success-desc">Cảm ơn bạn đã mua hàng tại YOURS! Đơn hàng của bạn sẽ được xử lý trong thời gian sớm nhất.</div>
+    <img src="resources/flower.png" alt="Success" class="success-img">
+    <br>
+    <button class="success-btn" onclick="window.location.href='homepage.html'">Quay về trang chủ</button>
+  </div>
+  <!-- Footer (same as homepage) -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <img src="resources/logo-footer.png" alt="Footer Logo" class="footer-logo">
+        <p class="tagline">Nơi sáng tạo những gì bạn muốn</p>
+        <p class="support"><strong>Chăm sóc khách hàng</strong><br>official.yours.fashiondesign@gmail.com</p>
+        <div class="social-icons">
+          <a href="https://www.facebook.com/profile.php?id=61576837198946" target="_blank" rel="noopener noreferrer">
+            <img src="resources/facebook-footer.png" alt="Facebook">
+          </a>
+          <a href="https://www.instagram.com/yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+            <img src="resources/instagram-footer.png" alt="Instagram">
+          </a>
+          <a href="https://www.tiktok.com/@yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+            <img src="resources/tiktok-footer.png" alt="TikTok">
+          </a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>YOURS.vn</h4>
+        <ul>
+          <li><a href="#">Về chúng tôi</a></li>
+          <li><a href="#">Lời chứng thực</a></li>
+          <li><a href="#">Câu hỏi thường gặp</a></li>
+          <li><a href="#">Hướng dẫn thiết kế</a></li>
+          <li><a href="#">Sản phẩm</a></li>
+          <li><a href="#">Tuyển dụng</a></li>
+          <li><a href="#">Tư vấn</a></li>
+          <li><a href="#">Chính sách hỗ trợ</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Chính sách & hỗ trợ</h4>
+        <ul>
+          <li><a href="#">Chính sách bảo mật và quyền riêng tư</a></li>
+          <li><a href="#">Điều khoản và điều kiện</a></li>
+          <li><a href="#">Chính sách vận chuyển và giao nhận</a></li>
+          <li><a href="#">Quy định và hình thức thanh toán</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Phương thức thanh toán</h4>
+        <div class="payment-methods">
+          <img src="resources/momo.png" alt="Momo">
+          <img src="resources/zalopay.png" alt="Zalopay">
+          <img src="resources/visa.png" alt="Visa">
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
+    </div>
+  </footer>
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+    document.addEventListener('click', function(event) {
+      const userBtn = document.querySelector('.user-btn[onclick*="toggleDropdown"]');
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown && userBtn && !userBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+    // Hide 'Cửa hàng của tôi' for non-designers
+    (function() {
+      function getRoleFromToken() {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.role;
+        } catch (e) { return null; }
+      }
+      if (getRoleFromToken() !== 'designer') {
+        var storeMenu = document.getElementById('designerStoreMenu');
+        if (storeMenu) storeMenu.style.display = 'none';
+      }
+    })();
+    // Remove only checked (purchased) products from the cart in localStorage on payment success
+    (function() {
+      function getCartKey() {
+        const username = localStorage.getItem('currentUser');
+        return username ? `cart_${username}` : 'cart_guest';
+      }
+      const cartKey = getCartKey();
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      // Keep only unchecked items
+      cart = cart.filter(item => item.checked === false);
+      localStorage.setItem(cartKey, JSON.stringify(cart));
+    })();
+  </script>
+</body>
+</html> 

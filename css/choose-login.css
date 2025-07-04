@@ -1,0 +1,262 @@
+/* Reset & fonts */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: #fff;
+  color: #333;
+}
+
+.header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #eee;
+}
+
+.logo {
+  height: 60px;
+}
+
+.main-content {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.main-content h1 {
+  font-size: 60px;
+  color: #6c3bd0;
+}
+
+.highlight {
+  color: #6c3bd0;
+}
+
+.slogan {
+  color: #94d43d;
+  font-size: 40px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.subtext {
+  margin-top: 5px;
+  color: #777;
+}
+
+.button-group {
+  margin: 20px 0;
+}
+
+.btn {
+  padding: 12px 24px;
+  margin: 10px;
+  background-color: #6c3bd0;
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+  border-radius: 15px;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+  transition: background 0.3s;
+}
+
+.btn:hover {
+  background-color: #582bb2;
+}
+
+.register-text {
+  font-size: 20px;
+  margin-bottom: 30px;
+}
+
+.register-text a {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000;
+  text-decoration: none;
+}
+
+.illustration img {
+  max-width: 400px;
+  width: 100%;
+}
+
+.footer {
+  background-color: #0e1122;
+  color: #fff;
+  padding: 40px 20px 20px;
+  font-size: 14px;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.footer-section {
+  flex: 1 1 200px;
+  min-width: 180px;
+}
+
+.footer-logo {
+  width: 120px;
+  margin-bottom: 5px;
+}
+
+.tagline {
+  margin: 8px 0;
+  margin-top: 3px;
+  margin-bottom: 10px;
+  font-size: 17px;
+  color: #ccc;
+}
+
+.support {
+  margin-top: 60px;
+  margin-bottom: 10px;
+  color: #ddd;
+}
+
+.support a {
+  color: #C5ED51;
+  text-decoration: none;
+}
+
+.support a:hover {
+  text-decoration: underline;
+}
+
+.social-icons a {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.social-icons img {
+  height: 28px;
+  width: 28px;
+}
+
+.footer-section h4 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  color: #ccc;
+}
+
+.footer-section ul li {
+  margin: 6px 0;
+}
+
+.footer-section ul li a {
+  color: #ccc;
+  text-decoration: none;
+}
+
+.footer-section ul li a:hover {
+  text-decoration: underline;
+}
+
+.payment-methods img {
+  height: 30px;
+  margin-right: 8px;
+  margin-top: 10px;
+}
+
+.footer-bottom {
+  text-align: center;
+  color: #888;
+  margin-top: 30px;
+  border-top: 1px solid #444;
+  padding-top: 15px;
+  font-size: 13px;
+}
+
+.footer-bottom a {
+  color: #888;
+  text-decoration: none;
+}
+
+.footer-bottom a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav ul {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .main {
+    padding: 20px;
+  }
+
+  .welcome-section h1 {
+    font-size: 36px;
+  }
+
+  .welcome-section h2 {
+    font-size: 18px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Popup box */
+.popup-box {
+  position: absolute;
+  top: 350px; /* điều chỉnh vị trí theo trang của bạn */
+  right: 380px; /* điều chỉnh theo vị trí chữ "Đăng ký" */
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 15px 20px;
+  border-radius: 16px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+}
+
+/* Nút bên trong popup */
+.role-btn {
+  background-color: #6C4CF1;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Hover effect */
+.role-btn:hover {
+  background-color: #593cc7;
+}
+

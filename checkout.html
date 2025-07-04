@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thanh toán - YOURS</title>
+  <link rel="stylesheet" href="css/homepage.css">
+  <link rel="stylesheet" href="css/product.css">
+  <style>
+    .checkout-container.line-format {
+      max-width: 600px;
+      margin: 48px auto 80px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 2px 16px rgba(90,34,212,0.07);
+      padding: 0 0 24px 0;
+    }
+    .checkout-section {
+      padding: 32px 36px 0 36px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .checkout-divider {
+      border: none;
+      border-bottom: 2px solid #f0eafd;
+      margin: 0 36px;
+    }
+    .checkout-step-title {
+      color: #7B3FF2;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .checkout-step-title span {
+      background: #7B3FF2;
+      color: #fff;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .checkout-form input, .checkout-form select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid #8A4AF3;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      font-size: 1rem;
+      outline: none;
+      color: #23222a;
+      background: #fff;
+    }
+    .checkout-form label {
+      font-weight: 600;
+      color: #8A4AF3;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .checkout-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .checkout-radio {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      color: #23222a;
+      margin-bottom: 6px;
+    }
+    .checkout-radio input[type="radio"] {
+      accent-color: #8A4AF3;
+      width: 18px;
+      height: 18px;
+    }
+    .checkout-summary-product {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .checkout-summary-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #f6f6fa;
+    }
+    .checkout-summary-info {
+      flex: 1;
+    }
+    .checkout-summary-title {
+      font-weight: 700;
+      color: #23222a;
+      font-size: 1rem;
+      margin-bottom: 2px;
+    }
+    .checkout-summary-qty {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .checkout-summary-qty-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 2px solid #C5ED51;
+      background: #fff;
+      color: #8A4AF3;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .checkout-summary-qty-btn:hover {
+      background: #C5ED51;
+      color: #23222a;
+    }
+    .checkout-summary-qty-input {
+      width: 32px;
+      height: 32px;
+      text-align: center;
+      border: 2px solid #C5ED51;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: #23222a;
+      background: #fff;
+      font-weight: 600;
+    }
+    .checkout-summary-price {
+      color: #8A4AF3;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-left: 8px;
+    }
+    .checkout-summary-details {
+      margin-top: 18px;
+      font-size: 0.98rem;
+      color: #23222a;
+      background: #f6f6fa;
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+    .checkout-summary-details-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .checkout-summary-details-row.total {
+      font-weight: 700;
+      color: #8A4AF3;
+      font-size: 1.1rem;
+    }
+    .checkout-btn {
+      width: 100%;
+      background: #8A4AF3;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-top: 18px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .checkout-btn:hover {
+      background: #C5ED51;
+      color: #23222a;
+    }
+    @media (max-width: 900px) {
+      .checkout-container.line-format { max-width: 100%; border-radius: 0; box-shadow: none; }
+      .checkout-section { padding: 18px 8px 0 8px; }
+      .checkout-divider { margin: 0 8px; }
+    }
+    .product-info-form-outer {
+      margin-bottom: 18px;
+    }
+    .shipping-info-col {
+      background: #fff;
+      border-radius: 28px;
+      box-shadow: 0 4px 24px rgba(90,34,212,0.10);
+      padding: 40px 36px 36px 36px;
+    }
+    .shipping-form {
+      width: auto;
+      display: block;
+      margin: 0;
+    }
+    .shipping-form label {
+      font-weight: 700;
+      color: #7B3FF2;
+      font-size: 1.1rem;
+      margin-bottom: 2px;
+      margin-top: 8px;
+    }
+    .shipping-form input {
+      width: 100%;
+      padding: 12px 14px;
+      border: none;
+      border-radius: 18px;
+      background: #f6f6fa;
+      font-size: 1.05rem;
+      color: #23222a;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(90,34,212,0.04);
+      font-weight: 600;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    .shipping-form input:focus {
+      border: 2px solid #7B3FF2;
+      box-shadow: 0 2px 12px rgba(123,63,242,0.08);
+    }
+    .combined-methods-col {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+      justify-content: flex-start;
+    }
+    .checkout-method-box {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 4px 24px rgba(90,34,212,0.10);
+      padding: 32px 32px 24px 32px;
+      margin-bottom: 0;
+    }
+    .checkout-method-box .checkout-step-title {
+      font-size: 1.25rem;
+      margin-bottom: 18px;
+      color: #7B3FF2;
+    }
+    .custom-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .custom-radio {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #23222a;
+      margin-bottom: 0;
+      position: relative;
+      padding: 10px 0;
+    }
+    .custom-radio input[type="radio"] {
+      display: none;
+    }
+    .custom-radio-indicator {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #7B3FF2;
+      border-radius: 50%;
+      display: inline-block;
+      position: relative;
+      margin-right: 4px;
+      background: #fff;
+      transition: border 0.2s;
+    }
+    .custom-radio input[type="radio"]:checked + .custom-radio-indicator {
+      border: 8px solid #7B3FF2;
+      background: #fff;
+    }
+    .custom-radio-label {
+      flex: 1;
+      font-weight: 700;
+      color: #23222a;
+    }
+    .custom-radio-price {
+      color: #7B3FF2;
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-left: auto;
+    }
+    .custom-divider {
+      height: 2px;
+      background: #eee;
+      margin: 0 0 0 32px;
+      border-radius: 2px;
+      width: calc(100% - 32px);
+    }
+    .payment-methods {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    .payment-methods img {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .payment-methods img[alt="Zalopay"],
+    .payment-methods img[alt="PayOS"] {
+      min-width: 80px;
+    }
+    .checkout-summary-size {
+      margin-top: 6px;
+      font-weight: bold;
+      color: #C5ED51;
+      font-size: 1.05rem;
+      letter-spacing: 0.5px;
+    }
+    .avatar-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 8px;
+      vertical-align: middle;
+      background: #f3eaff;
+      border: 1.5px solid #eee;
+    }
+    /* --- HEADER BUTTONS: Override to match homepage header --- */
+    .user-btn, .user-menu .user-btn {
+      background: #fff !important;
+      border: 2px solid #6a0dad !important;
+      border-radius: 25px !important;
+      padding: 8px 24px !important;
+      font-size: 18px !important;
+      font-weight: bold !important;
+      color: #6a0dad !important;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+      outline: none;
+      box-shadow: none;
+      margin: 0 8px !important;
+      letter-spacing: 0.2px;
+    }
+    .user-btn:hover, .user-menu .user-btn:hover, .user-btn:focus {
+      background: #f6f2ff !important;
+      color: #6a0dad !important;
+      box-shadow: 0 2px 8px rgba(106,13,173,0.08);
+    }
+    .user-menu .user-btn:after {
+      content: '\25BC';
+      font-size: 1em;
+      margin-left: 8px;
+      color: #6a0dad;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header (same as homepage) -->
+  <header class="header">
+    <div class="logo">
+      <img src="resources/logo.png" alt="YOURS Logo" class="logo">
+    </div>
+    <nav class="nav">
+      <ul>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('homepage.html')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('design.html')">Thiết kế</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('blog.html')">Blog</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('about.html')">Về chúng tôi</button></li>
+      </ul>
+    </nav>
+    <div class="user-menu">
+      <button class="user-btn" onclick="toggleDropdown()">Tài Khoản <span style="font-size:1.1em;">&#9660;</span></button>
+      <div id="userDropdown" class="dropdown">
+        <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
+        <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
+        <a href="cart.html" class="dropdown-item">Giỏ hàng</a>
+        <a href="choose-login.html" class="dropdown-item">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+  <div class="checkout-container line-format">
+    <!-- 1. Địa chỉ giao hàng -->
+    <section class="checkout-section">
+      <div class="checkout-step-title"><span>1</span> Địa chỉ giao hàng</div>
+      <form class="checkout-form shipping-form">
+        <label for="email">Địa chỉ Email</label>
+        <input type="email" id="email" placeholder="Chọn Email" required>
+        <label for="username">Tên đăng nhập (Username):</label>
+        <input type="text" id="username" name="username" placeholder="Tên đăng nhập" autocomplete="username" readonly style="margin-bottom: 14px; background:#f6f6fa; color:#888;">
+        <label for="name">Họ và tên:</label>
+        <input type="text" id="name" placeholder="Nhập tên khách hàng" required>
+        <label for="address">Địa chỉ giao hàng</label>
+        <input type="text" id="address" placeholder="Nhập địa chỉ giao hàng" required>
+        <label for="phone">Số điện thoại giao hàng</label>
+        <input type="tel" id="phone" placeholder="Nhập số điện thoại" required>
+      </form>
+    </section>
+    <hr class="checkout-divider">
+    <!-- 2. Phương thức vận chuyển -->
+    <section class="checkout-section">
+      <div class="checkout-step-title"><span>2</span> Phương thức vận chuyển</div>
+      <div class="custom-radio-group">
+        <label class="custom-radio">
+          <input type="radio" name="shipping" value="Nhanh" checked>
+          <span class="custom-radio-indicator"></span>
+          <span class="custom-radio-label">Nhanh</span>
+          <span class="custom-radio-price">25.000 VND</span>
+        </label>
+        <label class="custom-radio">
+          <input type="radio" name="shipping" value="Tiết kiệm">
+          <span class="custom-radio-indicator"></span>
+          <span class="custom-radio-label">Tiết kiệm</span>
+          <span class="custom-radio-price">15.000 VND</span>
+        </label>
+      </div>
+    </section>
+    <hr class="checkout-divider">
+    <!-- 3. Phương thức thanh toán -->
+    <section class="checkout-section">
+      <div class="checkout-step-title"><span>3</span> Phương thức thanh toán</div>
+      <div class="custom-radio-group">
+        <label class="custom-radio">
+          <input type="radio" name="payment" value="PayOS" checked>
+          <span class="custom-radio-indicator"></span>
+          <span class="custom-radio-label">PayOS</span>
+        </label>
+      </div>
+    </section>
+    <hr class="checkout-divider">
+    <!-- 4. Sản phẩm (Order summary) -->
+    <section class="checkout-section">
+      <div class="checkout-step-title"><span>4</span> Sản phẩm</div>
+      <div id="checkoutSummaryProducts"></div>
+      <div class="checkout-summary-details">
+        <div class="checkout-summary-details-row">
+          <span>Tổng tiền hàng</span>
+          <span id="summaryProductTotal">0 VND</span>
+        </div>
+        <div class="checkout-summary-details-row">
+          <span>Phí vận chuyển</span>
+          <span id="shippingFee">25.000 VND</span>
+        </div>
+        <div class="checkout-summary-details-row total">
+          <span>Tổng thanh toán</span>
+          <span id="totalPayment">0 VND</span>
+        </div>
+      </div>
+      <button class="checkout-btn">Đặt hàng</button>
+    </section>
+  </div>
+  <!-- Footer (same as homepage) -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <img src="resources/logo-footer.png" alt="Footer Logo" class="footer-logo">
+        <p class="tagline">Nơi sáng tạo những gì bạn muốn</p>
+        <p class="support"><strong>Chăm sóc khách hàng</strong><br>official.yours.fashiondesign@gmail.com</p>
+        <div class="social-icons">
+          <a href="https://www.facebook.com/profile.php?id=61576837198946" target="_blank" rel="noopener noreferrer">
+            <img src="resources/facebook-footer.png" alt="Facebook">
+          </a>
+          <a href="https://www.instagram.com/yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+            <img src="resources/instagram-footer.png" alt="Instagram">
+          </a>
+          <a href="https://www.tiktok.com/@yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+            <img src="resources/tiktok-footer.png" alt="TikTok">
+          </a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>YOURS.vn</h4>
+        <ul>
+          <li><a href="#">Về chúng tôi</a></li>
+          <li><a href="#">Lời chứng thực</a></li>
+          <li><a href="#">Câu hỏi thường gặp</a></li>
+          <li><a href="#">Hướng dẫn thiết kế</a></li>
+          <li><a href="#">Sản phẩm</a></li>
+          <li><a href="#">Tuyển dụng</a></li>
+          <li><a href="#">Tư vấn</a></li>
+          <li><a href="#">Chính sách hỗ trợ</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Chính sách & hỗ trợ</h4>
+        <ul>
+          <li><a href="#">Chính sách bảo mật và quyền riêng tư</a></li>
+          <li><a href="#">Điều khoản và điều kiện</a></li>
+          <li><a href="#">Chính sách vận chuyển và giao nhận</a></li>
+          <li><a href="#">Quy định và hình thức thanh toán</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Phương thức thanh toán</h4>
+        <div class="payment-methods">
+          <img src="resources/momo.png" alt="Momo">
+          <img src="resources/zalopay.png" alt="Zalopay">
+          <img src="resources/payos.png" alt="PayOS">
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
+    </div>
+  </footer>
+  <script>
+    window.API_BASE_URL = "https://yoursfashion.id.vn";
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+    document.addEventListener('click', function(event) {
+      const userBtn = document.querySelector('.user-btn[onclick*="toggleDropdown"]');
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown && userBtn && !userBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    function getCartKey() {
+      const username = localStorage.getItem('currentUser');
+      return username ? `cart_${username}` : 'cart_guest';
+    }
+    
+    // Utility function to clean up old custom design items
+    function cleanupOldCustomDesigns(cart) {
+      const now = Date.now();
+      const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      
+      const originalLength = cart.length;
+      const filteredCart = cart.filter(item => {
+        if (item.type === 'custom-design' && item.timestamp) {
+          const age = now - item.timestamp;
+          if (age > twentyFourHours) {
+            console.log('Removing old custom design item:', item);
+            return false; // Remove old custom design items
+          }
+        }
+        return true;
+      });
+      
+      if (filteredCart.length !== originalLength) {
+        console.log(`Cleaned up ${originalLength - filteredCart.length} old custom design items`);
+      }
+      
+      return filteredCart;
+    }
+    // --- DYNAMIC PRODUCT INFO FORM ---
+    function renderProductInfoForm() {
+      const section = document.getElementById('product-info-section');
+      const cartKey = getCartKey();
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      // Get the first checked item, or first item if none checked
+      let item = cart.find(i => i.checked !== false) || cart[0];
+      if (!item) return;
+      // Example fallback values
+      const productTypes = ['Áo T-shirt', 'Áo Hoodie', 'Áo Polo', 'Áo Sweater', 'Áo Tanktop'];
+      const productType = item.type || productTypes[0];
+      const material = item.material || 'Vải Cotton';
+      const code = item.productCode || item.productId || 'A95181';
+      section.innerHTML = `
+      <div class="product-info-form-outer">
+        <form class="product-info-form">
+          <div class="product-info-title">Thông tin sản phẩm</div>
+          <label for="productName">Tên sản phẩm:</label>
+          <input type="text" id="productName" value="${item.name || ''}" readonly>
+          <label for="productType">Loại sản phẩm:</label>
+          <select id="productType" disabled>
+            ${productTypes.map(type => `<option${type===productType?' selected':''}>${type}</option>`).join('')}
+          </select>
+          <label for="productDesc">Mô tả:</label>
+          <input type="text" id="productDesc" value="${item.description || ''}" readonly>
+          <label for="productPrice">Giá bán:</label>
+          <input type="text" id="productPrice" value="${item.price ? item.price.toLocaleString() + ' VND' : ''}" readonly>
+          <label for="productCode">Mã sản phẩm:</label>
+          <input type="text" id="productCode" value="${code}" readonly class="readonly-bold">
+          <label for="productMaterial">Chất liệu:</label>
+          <input type="text" id="productMaterial" value="${material}" readonly class="readonly-bold">
+        </form>
+      </div>
+      `;
+    }
+    document.addEventListener('DOMContentLoaded', renderProductInfoForm);
+
+    // --- DYNAMIC SUMMARY PRODUCT INFO (MULTI-PRODUCT) ---
+    async function renderSummaryProducts() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isBuyNow = urlParams.get('buynow') === '1';
+      const container = document.getElementById('checkoutSummaryProducts');
+      const checkoutBtn = document.querySelector('.checkout-btn');
+      let backToCartBtn = document.getElementById('backToCartBtn');
+      container.innerHTML = '';
+      let items = [];
+      if (isBuyNow && localStorage.getItem('buyNowItem')) {
+        const item = JSON.parse(localStorage.getItem('buyNowItem'));
+        items = [item];
+      } else {
+        const cartKey = getCartKey();
+        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        // Clean up old custom design items
+        cart = cleanupOldCustomDesigns(cart);
+        localStorage.setItem(cartKey, JSON.stringify(cart));
+        items = cart.filter(i => i.checked !== false);
+      }
+      if (items.length === 0) {
+        container.innerHTML = '<p style="color:#8A4AF3;font-size:1.1rem;text-align:center;margin:32px 0;">Không có sản phẩm nào được chọn để thanh toán.<br>Vui lòng chọn sản phẩm trong giỏ hàng.</p>';
+        if (checkoutBtn) checkoutBtn.disabled = true;
+        // Add back to cart button if not present
+        if (!backToCartBtn) {
+          backToCartBtn = document.createElement('button');
+          backToCartBtn.id = 'backToCartBtn';
+          backToCartBtn.textContent = 'Quay lại giỏ hàng';
+          backToCartBtn.className = 'btn btn-secondary';
+          backToCartBtn.style = 'display:block;margin:24px auto 0 auto;padding:12px 32px;font-size:1.1rem;background:#8A4AF3;color:#fff;border:none;border-radius:8px;cursor:pointer;';
+          backToCartBtn.onclick = function() { window.location.href = 'cart.html'; };
+          container.appendChild(backToCartBtn);
+        }
+        return;
+      } else {
+        if (checkoutBtn) checkoutBtn.disabled = false;
+        if (backToCartBtn) backToCartBtn.remove();
+      }
+      for (const [idx, item] of items.entries()) {
+        const id = item.productId || 'p' + idx;
+        // Custom design logic
+        if (item.type === 'custom-design') {
+          let html = `<div class="checkout-summary-product" data-id="${id}">
+            <img src="${item.designImage || 'resources/tshirt-model.png'}" alt="Thiết kế của bạn" class="checkout-summary-img">
+            <div class="checkout-summary-info">
+              <div class="checkout-summary-title">Áo thiết kế riêng</div>
+              <div class='checkout-summary-size'>Size: <b>${item.size || ''}</b></div>
+              <div style='margin-top:6px;font-size:0.98rem;'><b>Ghi chú:</b> ${item.notes || ''}</div>
+              <div class="checkout-summary-qty">
+                <button class="checkout-summary-qty-btn" data-action="minus" data-id="${id}">-</button>
+                <input type="number" min="1" class="checkout-summary-qty-input" value="${item.quantity || 1}" data-id="${id}">
+                <button class="checkout-summary-qty-btn" data-action="plus" data-id="${id}">+</button>
+              </div>
+            </div>
+            <div class="checkout-summary-price">${(item.price || 0).toLocaleString()} VND</div>
+          </div>`;
+          container.innerHTML += html;
+          continue;
+        }
+        // Fetch designer info
+        let designerName = '';
+        if (item.productId) {
+          try {
+            const res = await fetch(`${window.API_BASE_URL}/api/designs/${item.productId}/designer`);
+            if (res.ok) {
+              const designer = await res.json();
+              designerName = designer.name || designer.username || '';
+            }
+          } catch (e) { designerName = ''; }
+        }
+        // Build product HTML
+        let html = `<div class="checkout-summary-product" data-id="${id}">
+          <img src="${item.image || 'resources/tshirt-model.png'}" alt="Sản phẩm" class="checkout-summary-img">
+          <div class="checkout-summary-info">
+            <div class="checkout-summary-title">${item.name || 'Sản phẩm'}</div>
+            ${designerName ? `<div class='checkout-summary-designer'>Designer: <b>${designerName}</b></div>` : ''}
+            <div class="checkout-summary-qty">
+              <button class="checkout-summary-qty-btn" data-action="minus" data-id="${id}">-</button>
+              <input type="number" min="1" class="checkout-summary-qty-input" value="${item.quantity || 1}" data-id="${id}">
+              <button class="checkout-summary-qty-btn" data-action="plus" data-id="${id}">+</button>
+            </div>
+            ${item.size ? `<div class='checkout-summary-size'>Size: <b>${item.size}</b></div>` : ''}
+          </div>
+          <div class="checkout-summary-price">${(item.price || 0).toLocaleString()} VND</div>
+        </div>`;
+        container.innerHTML += html;
+      }
+    }
+
+    // Quantity controls for multiple products
+    function attachSummaryQtyEvents() {
+      // Disable quantity controls for buyNow
+      const urlParams = new URLSearchParams(window.location.search);
+      const isBuyNow = urlParams.get('buynow') === '1';
+      if (isBuyNow) return;
+      const container = document.getElementById('checkoutSummaryProducts');
+      if (!container) return;
+      // Plus/minus buttons
+      container.querySelectorAll('.checkout-summary-qty-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          const action = this.getAttribute('data-action');
+          const cartKey = getCartKey();
+          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+          // Clean up old custom design items
+          cart = cleanupOldCustomDesigns(cart);
+          let item = cart.find(i => (i.productId || 'p'+cart.indexOf(i)) === id);
+          if (!item) return;
+          if (action === 'minus' && item.quantity > 1) item.quantity--;
+          if (action === 'plus') item.quantity++;
+          localStorage.setItem(cartKey, JSON.stringify(cart));
+          renderSummaryProducts();
+          attachSummaryQtyEvents();
+          updateShippingFeeAndTotal();
+        });
+      });
+      // Direct input
+      container.querySelectorAll('.checkout-summary-qty-input').forEach(input => {
+        input.addEventListener('change', function() {
+          const id = this.getAttribute('data-id');
+          let value = parseInt(this.value, 10);
+          if (isNaN(value) || value < 1) value = 1;
+          this.value = value;
+          const cartKey = getCartKey();
+          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+          // Clean up old custom design items
+          cart = cleanupOldCustomDesigns(cart);
+          let item = cart.find(i => (i.productId || 'p'+cart.indexOf(i)) === id);
+          if (!item) return;
+          item.quantity = value;
+          localStorage.setItem(cartKey, JSON.stringify(cart));
+          renderSummaryProducts();
+          attachSummaryQtyEvents();
+          updateShippingFeeAndTotal();
+        });
+      });
+    }
+
+    // Update summary totals for all checked products
+    function updateSummaryTotals() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isBuyNow = urlParams.get('buynow') === '1';
+      let items = [];
+      if (isBuyNow && localStorage.getItem('buyNowItem')) {
+        items = [JSON.parse(localStorage.getItem('buyNowItem'))];
+      } else {
+        const cartKey = getCartKey();
+        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        // Clean up old custom design items
+        cart = cleanupOldCustomDesigns(cart);
+        items = cart.filter(i => i.checked !== false);
+      }
+      let total = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+      const prodTotal = document.getElementById('summaryProductTotal');
+      if (prodTotal) prodTotal.textContent = total.toLocaleString() + ' VND';
+      return total;
+    }
+    // Update shipping fee and total to use all checked products
+    function updateShippingFeeAndTotal() {
+      // Get selected shipping method
+      const shipping = document.querySelector('input[name="shipping"]:checked');
+      const shippingFee = shipping && shipping.value === 'Nhanh' ? 25000 : 15000;
+      // Get all checked products
+      const urlParams = new URLSearchParams(window.location.search);
+      const isBuyNow = urlParams.get('buynow') === '1';
+      let items = [];
+      if (isBuyNow && localStorage.getItem('buyNowItem')) {
+        items = [JSON.parse(localStorage.getItem('buyNowItem'))];
+      } else {
+        const cartKey = getCartKey();
+        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        // Clean up old custom design items
+        cart = cleanupOldCustomDesigns(cart);
+        items = cart.filter(i => i.checked !== false);
+      }
+      let total = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+      // Update shipping fee
+      const feeEl = document.getElementById('shippingFee');
+      if (feeEl) feeEl.textContent = shippingFee.toLocaleString() + ' VND';
+      // Update total
+      const totalEl = document.getElementById('totalPayment');
+      if (totalEl) totalEl.textContent = (total + shippingFee).toLocaleString() + ' VND';
+      // Update product total
+      const prodTotal = document.getElementById('summaryProductTotal');
+      if (prodTotal) prodTotal.textContent = total.toLocaleString() + ' VND';
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      // Pre-fill name, email, and username if available
+      const storedName = localStorage.getItem('currentUserName') || '';
+      const storedEmail = localStorage.getItem('currentUserEmail') || '';
+      const storedUsername = localStorage.getItem('currentUser') || '';
+      if (!storedUsername) {
+        alert('Vui lòng đăng nhập để tiếp tục thanh toán.');
+        window.location.href = 'signin-customer.html';
+        return;
+      }
+      const usernameInput = document.getElementById('username');
+      if (usernameInput) usernameInput.value = storedUsername;
+      if (storedName) {
+        const nameInput = document.getElementById('name');
+        if (nameInput) nameInput.value = storedName;
+      }
+      if (storedEmail) {
+        const emailInput = document.getElementById('email');
+        if (emailInput) emailInput.value = storedEmail;
+      }
+      renderSummaryProducts();
+      attachSummaryQtyEvents();
+      updateShippingFeeAndTotal();
+      // Listen for shipping method change
+      document.querySelectorAll('input[name="shipping"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          updateShippingFeeAndTotal();
+        });
+      });
+      // --- PAYOS CHECKOUT INTEGRATION ---
+      document.querySelector('.checkout-btn').addEventListener('click', async function(e) {
+        e.preventDefault();
+        // Validate required fields
+        const emailInput = document.getElementById('email').value.trim();
+        const nameInput = document.getElementById('name').value.trim();
+        const addressInput = document.getElementById('address').value.trim();
+        const phoneInput = document.getElementById('phone').value.trim();
+        if (!emailInput || !nameInput || !addressInput || !phoneInput) {
+          alert('Vui lòng điền đầy đủ thông tin: Email, Họ tên, Địa chỉ, Số điện thoại.');
+          return;
+        }
+        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+        if (paymentMethod !== 'PayOS') {
+          alert('Chỉ hỗ trợ thanh toán qua PayOS trong demo này.');
+          return;
+        }
+        // Gather order info
+        const urlParams = new URLSearchParams(window.location.search);
+        const isBuyNow = urlParams.get('buynow') === '1';
+        let items = [];
+        if (isBuyNow && localStorage.getItem('buyNowItem')) {
+          items = [JSON.parse(localStorage.getItem('buyNowItem'))];
+        } else {
+          const cartKey = getCartKey();
+          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+          
+          // Filter out old custom design items (older than 24 hours)
+          const now = Date.now();
+          const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+          
+          cart = cart.filter(item => {
+            if (item.type === 'custom-design' && item.timestamp) {
+              const age = now - item.timestamp;
+              if (age > twentyFourHours) {
+                console.log('Removing old custom design item during checkout:', item);
+                return false; // Remove old custom design items
+              }
+            }
+            return true;
+          });
+          
+          // Update cart in localStorage after filtering
+          localStorage.setItem(cartKey, JSON.stringify(cart));
+          
+          items = cart.filter(i => i.checked !== false);
+        }
+        let total = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+        const shipping = document.querySelector('input[name="shipping"]:checked').value;
+        const shippingFee = shipping === 'Nhanh' ? 25000 : 15000;
+        const amount = total + shippingFee;
+        const orderCode = 'YOURS' + Date.now();
+        // Get customer info
+        const email = document.getElementById('email').value;
+        let name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const address = document.getElementById('address').value;
+        let username = document.getElementById('username').value.trim();
+        // Ensure name and username are always present and valid
+        if (!name && username && username !== 'undefined') name = username;
+        if (!username && name) username = name;
+        if (!name && !username) { name = 'Khách'; username = 'Khách'; }
+        if (username === 'undefined' || username === 'null' || !username) {
+          username = email ? email.split('@')[0] : 'Khách';
+        }
+        try {
+          const res = await fetch(`${window.API_BASE_URL}/api/create-payos-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              amount,
+              productTotal: total,
+              shippingFee: shippingFee,
+              description: 'Thanh toán đơn hàng YOURS',
+              orderCode,
+              returnUrl: window.location.origin + '/payment-success.html',
+              customer: { email, name, phone, address, username },
+              items
+            })
+          });
+          const data = await res.json();
+          if (data.payUrl) {
+            window.location.href = data.payUrl;
+          } else {
+            alert('Không thể tạo đơn hàng PayOS.');
+          }
+        } catch (err) {
+          alert('Lỗi khi kết nối PayOS: ' + err.message);
+        }
+      });
+    });
+    window.addEventListener('storage', function(event) {
+      if (event.key && event.key.startsWith('cart_')) {
+        renderSummaryProducts();
+        attachSummaryQtyEvents();
+        updateShippingFeeAndTotal();
+      }
+    });
+    (function() {
+      var avatarUrl = localStorage.getItem('userAvatarUrl');
+      var avatarImg = document.getElementById('userAvatarBtn');
+      if (avatarImg) {
+        if (avatarUrl && avatarUrl.length > 5) {
+          avatarImg.src = avatarUrl;
+        } else {
+          avatarImg.src = 'resources/user-circle.png';
+        }
+      }
+    })();
+    // Hide 'Cửa hàng của tôi' for non-designers
+    (function() {
+      function getRoleFromToken() {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return payload.role;
+        } catch (e) { return null; }
+      }
+      if (getRoleFromToken() !== 'designer') {
+        var storeMenu = document.getElementById('designerStoreMenu');
+        if (storeMenu) storeMenu.style.display = 'none';
+      }
+    })();
+    // After successful PayOS payment, check for custom design in cart and redirect
+    function handlePaymentSuccess() {
+      var cart = JSON.parse(localStorage.getItem('cart')) || [];
+      var customOrder = cart.find(item => item.type === 'custom-design');
+      if (customOrder) {
+        // Remove the custom order from cart after payment
+        cart = cart.filter(item => item !== customOrder);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        // Save order details to temp storage for confirmation page
+        localStorage.setItem('customOrderSuccess', JSON.stringify(customOrder));
+        window.location.href = 'custom-order-success.html';
+        return;
+      }
+      // ... existing logic for normal orders ...
+    }
+  </script>
+</body>
+</html> 
