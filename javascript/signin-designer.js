@@ -5,7 +5,7 @@ document.getElementById('signin-form').addEventListener('submit', async (e) => {
   const password = document.getElementById('password').value;
 
   try {
-    const response = await fetch('https://yoursfashion.id.vn/api/signin-designer', {
+    const response = await fetch('https://yours-fashion.vercel.app/api/signin-designer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ usernameOrEmail, password }),
@@ -27,7 +27,7 @@ document.getElementById('signin-form').addEventListener('submit', async (e) => {
       localStorage.setItem("currentUserEmail", data.email || "");
       // Chuyển hướng sau 1.5 giây (thời gian fadeOut)
       setTimeout(() => {
-        window.location.href = 'homepage.html';
+        window.location.href = 'index.html';
       }, 1500);
     } else {
       setTimeout(() => notificationBox.remove(), 1500);

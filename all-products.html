@@ -6,6 +6,7 @@
   <title>Tất cả sản phẩm - YOURS</title>
   <link rel="stylesheet" href="css/homepage.css">
   <link rel="stylesheet" href="css/product.css">
+  <link rel="icon" type="image/x-icon" href="resources/web-logo.ico">
   <style>
     .all-products-container {
       display: flex;
@@ -280,7 +281,7 @@
     </div>
     <nav class="nav">
       <ul>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('homepage.html')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('index.html')">Trang chủ</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('design.html')">Thiết kế</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('blog.html')">Blog</button></li>
@@ -390,7 +391,7 @@
     </div>
   </footer>
   <script>
-    window.API_BASE_URL = "https://yoursfashion.id.vn";
+    window.API_BASE_URL = "https://yours-fashion.vercel.app";
     let allDesigns = []; // Store all designs globally
     let filteredDesigns = [];
     let selectedColors = [];

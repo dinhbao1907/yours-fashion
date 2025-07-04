@@ -7,7 +7,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
   const confirmPassword = document.getElementById('confirm-password').value;
 
   try {
-    const response = await fetch('https://yoursfashion.id.vn/api/signup-designer', {
+    const response = await fetch('https://yours-fashion.vercel.app/api/signup-designer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password, confirmPassword }),
@@ -48,7 +48,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
         console.log("Sending verification request with body:", requestBody);
 
         try {
-          const response = await fetch('https://yoursfashion.id.vn/api/verify-designer-account', {
+          const response = await fetch('https://yours-fashion.vercel.app/api/verify-designer-account', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
@@ -97,7 +97,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
         console.log("Resending verification code with body:", requestBody);
 
         try {
-          const response = await fetch('https://yoursfashion.id.vn/api/resend-designer-verification', {
+          const response = await fetch('https://yours-fashion.vercel.app/api/resend-designer-verification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),

@@ -11,7 +11,7 @@ async function loadProductDetails() {
   }
 
   try {
-    const response = await fetch('https://yoursfashion.id.vn/api/designs');
+    const response = await fetch('https://yours-fashion.vercel.app/api/designs');
     const designs = await response.json();
     const design = designs.find(d => d.designId === designId);
 

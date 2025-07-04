@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/homepage.css">
   <link rel="stylesheet" href="css/product.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="resources/web-logo.ico">
 </head>
 <body>
 <header class="header">
@@ -16,7 +17,7 @@
     </div>
     <nav class="nav">
       <ul>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('homepage.html')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="window.location.replace('index.html')">Trang chủ</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('design.html')">Thiết kế</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('blog.html')">Blog</button></li>
@@ -205,7 +206,7 @@
   function activateTab(tabName) {
     event.preventDefault(); // Prevent default button behavior
     if (tabName === 'home') {
-      window.location.replace('homepage.html');
+      window.location.replace('index.html');
     } else if (tabName === 'design') {
       window.location.replace('design.html');
     } // 'products' and 'blog' do nothing
