@@ -32,7 +32,7 @@ function loadDesignerProducts() {
   container.innerHTML = '<p>Đang tải sản phẩm...</p>';
 
   // Fetch designs from backend
-  fetch('https://yoursfashion.id.vn/api/designs')
+  fetch('https://yours-fashion.vercel.app/api/designs')
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok');

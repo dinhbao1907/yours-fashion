@@ -19,7 +19,7 @@ flatpickr("#dob", {
 // Lấy thông tin người dùng khi trang được tải
 window.onload = async () => {
   try {
-    const response = await fetch("https://yoursfashion.id.vn/api/user", {
+    const response = await fetch("https://yours-fashion.vercel.app/api/user", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -66,7 +66,7 @@ window.onload = async () => {
 // Hàm cập nhật thông tin người dùng
 async function updateProfile(data) {
   try {
-    const response = await fetch("https://yoursfashion.id.vn/api/update-profile", {
+    const response = await fetch("https://yours-fashion.vercel.app/api/update-profile", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -173,7 +173,7 @@ async function loadOrderHistory() {
   if (!orderHistoryContainer) return;
   orderHistoryContainer.innerHTML = '<p>Đang tải đơn hàng...</p>';
   try {
-    const res = await fetch('https://yoursfashion.id.vn/api/my-orders', {
+    const res = await fetch('https://yours-fashion.vercel.app/api/my-orders', {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
@@ -415,7 +415,7 @@ function openReviewModal(designId) {
           if (avatar && avatar !== 'resources/user-circle.png') {
             reviewData.avatar = avatar;
           }
-          const response = await fetch('https://yoursfashion.id.vn/api/reviews', {
+          const response = await fetch('https://yours-fashion.vercel.app/api/reviews', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(reviewData)
@@ -581,7 +581,7 @@ if (changeCredentialsForm) {
       return;
     }
     try {
-      const res = await fetch('https://yoursfashion.id.vn/api/change-credentials', {
+      const res = await fetch('https://yours-fashion.vercel.app/api/change-credentials', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
