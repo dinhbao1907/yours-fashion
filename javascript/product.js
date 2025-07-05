@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Check if user is authenticated
       const token = localStorage.getItem('token');
       if (!token) {
-        showLoginModal();
+        showLoginModal('Bạn cần đăng nhập hoặc đăng ký để sử dụng tính năng thêm sản phẩm vào giỏ hàng.');
         return; // Stop here for unauthenticated users
       }
       // Get product info
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Check if user is authenticated
       const token = localStorage.getItem('token');
       if (!token) {
-        showLoginModal();
+        showLoginModal('Bạn cần đăng nhập hoặc đăng ký để sử dụng tính năng mua sản phẩm.');
         return; // Stop here for unauthenticated users
       }
       // Get product info
@@ -486,37 +486,13 @@ async function updateProductDetails() {
 }
 
 // Modal functions for login required popup
-function showLoginModal() {
+function showLoginModal(message) {
   const modal = document.getElementById('loginRequiredModal');
-  if (!modal) return;
-  modal.style.display = 'flex';
-  // Prevent background scroll
-  document.body.style.overflow = 'hidden';
-  // Focus trap
-  const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-  const focusableEls = modal.querySelectorAll(focusableSelectors);
-  if (focusableEls.length) focusableEls[0].focus();
-  function trapFocus(e) {
-    const firstEl = focusableEls[0];
-    const lastEl = focusableEls[focusableEls.length - 1];
-    if (e.key === 'Tab') {
-      if (e.shiftKey) {
-        if (document.activeElement === firstEl) {
-          e.preventDefault();
-          lastEl.focus();
-        }
-      } else {
-        if (document.activeElement === lastEl) {
-          e.preventDefault();
-          firstEl.focus();
-        }
-      }
-    } else if (e.key === 'Escape') {
-      closeLoginModal();
-    }
+  if (modal) {
+    modal.style.display = 'flex';
+    const msgElem = document.getElementById('loginModalMessage');
+    if (msgElem) msgElem.textContent = message || '';
   }
-  modal._trapFocusHandler = trapFocus;
-  modal.addEventListener('keydown', trapFocus);
 }
 
 function closeLoginModal() {

@@ -281,15 +281,14 @@
     </div>
     <nav class="nav">
       <ul>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('index.html')">Trang chủ</button></li>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('design.html')">Thiết kế</button></li>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('blog.html')">Blog</button></li>
+        <li><button type="button" class="user-btn" onclick="activateTab('home')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="console.log('Sản phẩm button clicked'); window.location.replace('all-products.html'); return false;">Sản phẩm</button></li>
+        <li><button type="button" class="user-btn" onclick="activateTab('design')">Thiết kế</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('about.html')">Về chúng tôi</button></li>
       </ul>
     </nav>
     <div class="user-menu">
-      <button class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
+      <button id="accountBtn" class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
       <div id="userDropdown" class="dropdown">
         <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
         <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
@@ -390,6 +389,30 @@
       <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
     </div>
   </footer>
+  <!-- Login Required Popup Modal -->
+  <div id="loginRequiredModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Đăng nhập để tiếp tục</h2>
+        <span class="close" onclick="closeLoginModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="modal-icon">
+          <svg width="64" height="64" fill="none" stroke="#7B3FF2" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10,17 15,12 10,7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+        </div>
+        <p>Bạn cần đăng nhập hoặc đăng ký để sử dụng tính năng thiết kế.</p>
+        <p>Hãy tạo tài khoản để bắt đầu thiết kế sản phẩm của riêng bạn!</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="goToLogin()">Đăng nhập / Đăng ký</button>
+        <button class="btn-secondary" onclick="closeLoginModal()">Để sau</button>
+      </div>
+    </div>
+  </div>
   <script>
     window.API_BASE_URL = "https://yours-fashion.vercel.app";
     let allDesigns = []; // Store all designs globally
@@ -697,6 +720,94 @@
         if (storeMenu) storeMenu.style.display = 'none';
       }
     })();
+
+    // Function to activate tab
+    function activateTab(tabName) {
+      console.log('activateTab called with tabName:', tabName);
+      event.preventDefault();
+      if (tabName === 'home') {
+        console.log('Navigating to home');
+        window.location.replace('index.html');
+      } else if (tabName === 'design') {
+        console.log('Design tab clicked - checking authentication');
+        // Only show login modal for 'Thiết kế' if not authenticated
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.log('No token found - showing login modal');
+          showLoginModal();
+        } else {
+          console.log('Token found - navigating to design page');
+          window.location.replace('design.html');
+        }
+      }
+    }
+
+    // Modal functions
+    function showLoginModal() {
+      console.log('showLoginModal called - this should only happen when clicking "Thiết kế" without login');
+      const modal = document.getElementById('loginRequiredModal');
+      modal.style.display = 'block';
+    }
+
+    function closeLoginModal() {
+      const modal = document.getElementById('loginRequiredModal');
+      modal.style.display = 'none';
+    }
+
+    function goToLogin() {
+      window.location.href = 'choose-login.html';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('loginRequiredModal');
+      if (event.target === modal) {
+        closeLoginModal();
+      }
+    }
+
+    // Set active state based on current page
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPage = window.location.pathname.split('/').pop();
+      if (currentPage === 'all-products.html') {
+        const productsBtn = document.querySelector('button[onclick="window.location.replace(\'all-products.html\')"]');
+        if (productsBtn) productsBtn.classList.add('active');
+      }
+    });
+  </script>
+  <script>
+  // Hide 'Cửa hàng của tôi' for non-designers
+  (function() {
+    function getRoleFromToken() {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.role;
+      } catch (e) { return null; }
+    }
+    if (getRoleFromToken() !== 'designer') {
+      var storeMenu = document.getElementById('designerStoreMenu');
+      if (storeMenu) storeMenu.style.display = 'none';
+    }
+  })();
+  </script>
+  <script>
+  // Swap account button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const accountBtn = document.getElementById('accountBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    if (!token && accountBtn) {
+      // Replace button with a link
+      const link = document.createElement('a');
+      link.href = 'choose-login.html';
+      link.className = 'user-btn';
+      link.textContent = 'Tài Khoản';
+      accountBtn.parentNode.replaceChild(link, accountBtn);
+      if (userDropdown) userDropdown.style.display = 'none';
+    }
+  })();
   </script>
 </body>
-</html> 
+</html>
