@@ -372,15 +372,14 @@
     </div>
     <nav class="nav">
       <ul>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('index.html')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="activateTab('home')">Trang chủ</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('design.html')">Thiết kế</button></li>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('blog.html')">Blog</button></li>
+        <li><button type="button" class="user-btn" onclick="activateTab('design')">Thiết kế</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('about.html')">Về chúng tôi</button></li>
       </ul>
     </nav>
     <div class="user-menu">
-      <button class="user-btn" onclick="toggleDropdown()">Tài Khoản <span style="font-size:1.1em;">&#9660;</span></button>
+      <button id="accountBtn" class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
       <div id="userDropdown" class="dropdown">
         <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
         <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
@@ -513,414 +512,22 @@
       <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
     </div>
   </footer>
+  
+
+  
+
+  
+  
+  
+  
+  
+  <script src="javascript/homepage.js"></script>
+  <script src="javascript/designer-products.js"></script>
+  
+  
+  <script src="javascript/homepage.js"></script>
+  <script src="javascript/designer-products.js"></script>
   <script>
-    window.API_BASE_URL = "https://yours-fashion.vercel.app";
-
-    function toggleDropdown() {
-      const dropdown = document.getElementById('userDropdown');
-      if (dropdown.classList.contains('show')) {
-        dropdown.classList.remove('show');
-      } else {
-        dropdown.classList.add('show');
-      }
-    }
-    document.addEventListener('click', function(event) {
-      const userBtn = document.querySelector('.user-btn[onclick*="toggleDropdown"]');
-      const dropdown = document.getElementById('userDropdown');
-      if (dropdown && userBtn && !userBtn.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.classList.remove('show');
-      }
-    });
-
-    function getCartKey() {
-      const username = localStorage.getItem('currentUser');
-      return username ? `cart_${username}` : 'cart_guest';
-    }
-    
-    // Utility function to clean up old custom design items
-    function cleanupOldCustomDesigns(cart) {
-      const now = Date.now();
-      const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-      
-      const originalLength = cart.length;
-      const filteredCart = cart.filter(item => {
-        if (item.type === 'custom-design' && item.timestamp) {
-          const age = now - item.timestamp;
-          if (age > twentyFourHours) {
-            console.log('Removing old custom design item:', item);
-            return false; // Remove old custom design items
-          }
-        }
-        return true;
-      });
-      
-      if (filteredCart.length !== originalLength) {
-        console.log(`Cleaned up ${originalLength - filteredCart.length} old custom design items`);
-      }
-      
-      return filteredCart;
-    }
-    // --- DYNAMIC PRODUCT INFO FORM ---
-    function renderProductInfoForm() {
-      const section = document.getElementById('product-info-section');
-      const cartKey = getCartKey();
-      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-      // Get the first checked item, or first item if none checked
-      let item = cart.find(i => i.checked !== false) || cart[0];
-      if (!item) return;
-      // Example fallback values
-      const productTypes = ['Áo T-shirt', 'Áo Hoodie', 'Áo Polo', 'Áo Sweater', 'Áo Tanktop'];
-      const productType = item.type || productTypes[0];
-      const material = item.material || 'Vải Cotton';
-      const code = item.productCode || item.productId || 'A95181';
-      section.innerHTML = `
-      <div class="product-info-form-outer">
-        <form class="product-info-form">
-          <div class="product-info-title">Thông tin sản phẩm</div>
-          <label for="productName">Tên sản phẩm:</label>
-          <input type="text" id="productName" value="${item.name || ''}" readonly>
-          <label for="productType">Loại sản phẩm:</label>
-          <select id="productType" disabled>
-            ${productTypes.map(type => `<option${type===productType?' selected':''}>${type}</option>`).join('')}
-          </select>
-          <label for="productDesc">Mô tả:</label>
-          <input type="text" id="productDesc" value="${item.description || ''}" readonly>
-          <label for="productPrice">Giá bán:</label>
-          <input type="text" id="productPrice" value="${item.price ? item.price.toLocaleString() + ' VND' : ''}" readonly>
-          <label for="productCode">Mã sản phẩm:</label>
-          <input type="text" id="productCode" value="${code}" readonly class="readonly-bold">
-          <label for="productMaterial">Chất liệu:</label>
-          <input type="text" id="productMaterial" value="${material}" readonly class="readonly-bold">
-        </form>
-      </div>
-      `;
-    }
-    document.addEventListener('DOMContentLoaded', renderProductInfoForm);
-
-    // --- DYNAMIC SUMMARY PRODUCT INFO (MULTI-PRODUCT) ---
-    async function renderSummaryProducts() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const isBuyNow = urlParams.get('buynow') === '1';
-      const container = document.getElementById('checkoutSummaryProducts');
-      const checkoutBtn = document.querySelector('.checkout-btn');
-      let backToCartBtn = document.getElementById('backToCartBtn');
-      container.innerHTML = '';
-      let items = [];
-      if (isBuyNow && localStorage.getItem('buyNowItem')) {
-        const item = JSON.parse(localStorage.getItem('buyNowItem'));
-        items = [item];
-      } else {
-        const cartKey = getCartKey();
-        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        // Clean up old custom design items
-        cart = cleanupOldCustomDesigns(cart);
-        localStorage.setItem(cartKey, JSON.stringify(cart));
-        items = cart.filter(i => i.checked !== false);
-      }
-      if (items.length === 0) {
-        container.innerHTML = '<p style="color:#8A4AF3;font-size:1.1rem;text-align:center;margin:32px 0;">Không có sản phẩm nào được chọn để thanh toán.<br>Vui lòng chọn sản phẩm trong giỏ hàng.</p>';
-        if (checkoutBtn) checkoutBtn.disabled = true;
-        // Add back to cart button if not present
-        if (!backToCartBtn) {
-          backToCartBtn = document.createElement('button');
-          backToCartBtn.id = 'backToCartBtn';
-          backToCartBtn.textContent = 'Quay lại giỏ hàng';
-          backToCartBtn.className = 'btn btn-secondary';
-          backToCartBtn.style = 'display:block;margin:24px auto 0 auto;padding:12px 32px;font-size:1.1rem;background:#8A4AF3;color:#fff;border:none;border-radius:8px;cursor:pointer;';
-          backToCartBtn.onclick = function() { window.location.href = 'cart.html'; };
-          container.appendChild(backToCartBtn);
-        }
-        return;
-      } else {
-        if (checkoutBtn) checkoutBtn.disabled = false;
-        if (backToCartBtn) backToCartBtn.remove();
-      }
-      for (const [idx, item] of items.entries()) {
-        const id = item.productId || 'p' + idx;
-        // Custom design logic
-        if (item.type === 'custom-design') {
-          let html = `<div class="checkout-summary-product" data-id="${id}">
-            <img src="${item.designImage || 'resources/tshirt-model.png'}" alt="Thiết kế của bạn" class="checkout-summary-img">
-            <div class="checkout-summary-info">
-              <div class="checkout-summary-title">Áo thiết kế riêng</div>
-              <div class='checkout-summary-size'>Size: <b>${item.size || ''}</b></div>
-              <div style='margin-top:6px;font-size:0.98rem;'><b>Ghi chú:</b> ${item.notes || ''}</div>
-              <div class="checkout-summary-qty">
-                <button class="checkout-summary-qty-btn" data-action="minus" data-id="${id}">-</button>
-                <input type="number" min="1" class="checkout-summary-qty-input" value="${item.quantity || 1}" data-id="${id}">
-                <button class="checkout-summary-qty-btn" data-action="plus" data-id="${id}">+</button>
-              </div>
-            </div>
-            <div class="checkout-summary-price">${(item.price || 0).toLocaleString()} VND</div>
-          </div>`;
-          container.innerHTML += html;
-          continue;
-        }
-        // Fetch designer info
-        let designerName = '';
-        if (item.productId) {
-          try {
-            const res = await fetch(`${window.API_BASE_URL}/api/designs/${item.productId}/designer`);
-            if (res.ok) {
-              const designer = await res.json();
-              designerName = designer.name || designer.username || '';
-            }
-          } catch (e) { designerName = ''; }
-        }
-        // Build product HTML
-        let html = `<div class="checkout-summary-product" data-id="${id}">
-          <img src="${item.image || 'resources/tshirt-model.png'}" alt="Sản phẩm" class="checkout-summary-img">
-          <div class="checkout-summary-info">
-            <div class="checkout-summary-title">${item.name || 'Sản phẩm'}</div>
-            ${designerName ? `<div class='checkout-summary-designer'>Designer: <b>${designerName}</b></div>` : ''}
-            <div class="checkout-summary-qty">
-              <button class="checkout-summary-qty-btn" data-action="minus" data-id="${id}">-</button>
-              <input type="number" min="1" class="checkout-summary-qty-input" value="${item.quantity || 1}" data-id="${id}">
-              <button class="checkout-summary-qty-btn" data-action="plus" data-id="${id}">+</button>
-            </div>
-            ${item.size ? `<div class='checkout-summary-size'>Size: <b>${item.size}</b></div>` : ''}
-          </div>
-          <div class="checkout-summary-price">${(item.price || 0).toLocaleString()} VND</div>
-        </div>`;
-        container.innerHTML += html;
-      }
-    }
-
-    // Quantity controls for multiple products
-    function attachSummaryQtyEvents() {
-      // Disable quantity controls for buyNow
-      const urlParams = new URLSearchParams(window.location.search);
-      const isBuyNow = urlParams.get('buynow') === '1';
-      if (isBuyNow) return;
-      const container = document.getElementById('checkoutSummaryProducts');
-      if (!container) return;
-      // Plus/minus buttons
-      container.querySelectorAll('.checkout-summary-qty-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const id = this.getAttribute('data-id');
-          const action = this.getAttribute('data-action');
-          const cartKey = getCartKey();
-          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-          // Clean up old custom design items
-          cart = cleanupOldCustomDesigns(cart);
-          let item = cart.find(i => (i.productId || 'p'+cart.indexOf(i)) === id);
-          if (!item) return;
-          if (action === 'minus' && item.quantity > 1) item.quantity--;
-          if (action === 'plus') item.quantity++;
-          localStorage.setItem(cartKey, JSON.stringify(cart));
-          renderSummaryProducts();
-          attachSummaryQtyEvents();
-          updateShippingFeeAndTotal();
-        });
-      });
-      // Direct input
-      container.querySelectorAll('.checkout-summary-qty-input').forEach(input => {
-        input.addEventListener('change', function() {
-          const id = this.getAttribute('data-id');
-          let value = parseInt(this.value, 10);
-          if (isNaN(value) || value < 1) value = 1;
-          this.value = value;
-          const cartKey = getCartKey();
-          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-          // Clean up old custom design items
-          cart = cleanupOldCustomDesigns(cart);
-          let item = cart.find(i => (i.productId || 'p'+cart.indexOf(i)) === id);
-          if (!item) return;
-          item.quantity = value;
-          localStorage.setItem(cartKey, JSON.stringify(cart));
-          renderSummaryProducts();
-          attachSummaryQtyEvents();
-          updateShippingFeeAndTotal();
-        });
-      });
-    }
-
-    // Update summary totals for all checked products
-    function updateSummaryTotals() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const isBuyNow = urlParams.get('buynow') === '1';
-      let items = [];
-      if (isBuyNow && localStorage.getItem('buyNowItem')) {
-        items = [JSON.parse(localStorage.getItem('buyNowItem'))];
-      } else {
-        const cartKey = getCartKey();
-        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        // Clean up old custom design items
-        cart = cleanupOldCustomDesigns(cart);
-        items = cart.filter(i => i.checked !== false);
-      }
-      let total = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
-      const prodTotal = document.getElementById('summaryProductTotal');
-      if (prodTotal) prodTotal.textContent = total.toLocaleString() + ' VND';
-      return total;
-    }
-    // Update shipping fee and total to use all checked products
-    function updateShippingFeeAndTotal() {
-      // Get selected shipping method
-      const shipping = document.querySelector('input[name="shipping"]:checked');
-      const shippingFee = shipping && shipping.value === 'Nhanh' ? 25000 : 15000;
-      // Get all checked products
-      const urlParams = new URLSearchParams(window.location.search);
-      const isBuyNow = urlParams.get('buynow') === '1';
-      let items = [];
-      if (isBuyNow && localStorage.getItem('buyNowItem')) {
-        items = [JSON.parse(localStorage.getItem('buyNowItem'))];
-      } else {
-        const cartKey = getCartKey();
-        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        // Clean up old custom design items
-        cart = cleanupOldCustomDesigns(cart);
-        items = cart.filter(i => i.checked !== false);
-      }
-      let total = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
-      // Update shipping fee
-      const feeEl = document.getElementById('shippingFee');
-      if (feeEl) feeEl.textContent = shippingFee.toLocaleString() + ' VND';
-      // Update total
-      const totalEl = document.getElementById('totalPayment');
-      if (totalEl) totalEl.textContent = (total + shippingFee).toLocaleString() + ' VND';
-      // Update product total
-      const prodTotal = document.getElementById('summaryProductTotal');
-      if (prodTotal) prodTotal.textContent = total.toLocaleString() + ' VND';
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-      // Pre-fill name, email, and username if available
-      const storedName = localStorage.getItem('currentUserName') || '';
-      const storedEmail = localStorage.getItem('currentUserEmail') || '';
-      const storedUsername = localStorage.getItem('currentUser') || '';
-      if (!storedUsername) {
-        alert('Vui lòng đăng nhập để tiếp tục thanh toán.');
-        window.location.href = 'signin-customer.html';
-        return;
-      }
-      const usernameInput = document.getElementById('username');
-      if (usernameInput) usernameInput.value = storedUsername;
-      if (storedName) {
-        const nameInput = document.getElementById('name');
-        if (nameInput) nameInput.value = storedName;
-      }
-      if (storedEmail) {
-        const emailInput = document.getElementById('email');
-        if (emailInput) emailInput.value = storedEmail;
-      }
-      renderSummaryProducts();
-      attachSummaryQtyEvents();
-      updateShippingFeeAndTotal();
-      // Listen for shipping method change
-      document.querySelectorAll('input[name="shipping"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-          updateShippingFeeAndTotal();
-        });
-      });
-      // --- PAYOS CHECKOUT INTEGRATION ---
-      document.querySelector('.checkout-btn').addEventListener('click', async function(e) {
-        e.preventDefault();
-        // Validate required fields
-        const emailInput = document.getElementById('email').value.trim();
-        const nameInput = document.getElementById('name').value.trim();
-        const addressInput = document.getElementById('address').value.trim();
-        const phoneInput = document.getElementById('phone').value.trim();
-        if (!emailInput || !nameInput || !addressInput || !phoneInput) {
-          alert('Vui lòng điền đầy đủ thông tin: Email, Họ tên, Địa chỉ, Số điện thoại.');
-          return;
-        }
-        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-        if (paymentMethod !== 'PayOS') {
-          alert('Chỉ hỗ trợ thanh toán qua PayOS trong demo này.');
-          return;
-        }
-        // Gather order info
-        const urlParams = new URLSearchParams(window.location.search);
-        const isBuyNow = urlParams.get('buynow') === '1';
-        let items = [];
-        if (isBuyNow && localStorage.getItem('buyNowItem')) {
-          items = [JSON.parse(localStorage.getItem('buyNowItem'))];
-        } else {
-          const cartKey = getCartKey();
-          let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-          
-          // Filter out old custom design items (older than 24 hours)
-          const now = Date.now();
-          const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-          
-          cart = cart.filter(item => {
-            if (item.type === 'custom-design' && item.timestamp) {
-              const age = now - item.timestamp;
-              if (age > twentyFourHours) {
-                console.log('Removing old custom design item during checkout:', item);
-                return false; // Remove old custom design items
-              }
-            }
-            return true;
-          });
-          
-          // Update cart in localStorage after filtering
-          localStorage.setItem(cartKey, JSON.stringify(cart));
-          
-          items = cart.filter(i => i.checked !== false);
-        }
-        let total = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
-        const shipping = document.querySelector('input[name="shipping"]:checked').value;
-        const shippingFee = shipping === 'Nhanh' ? 25000 : 15000;
-        const amount = total + shippingFee;
-        const orderCode = 'YOURS' + Date.now();
-        // Get customer info
-        const email = document.getElementById('email').value;
-        let name = document.getElementById('name').value;
-        const phone = document.getElementById('phone').value;
-        const address = document.getElementById('address').value;
-        let username = document.getElementById('username').value.trim();
-        // Ensure name and username are always present and valid
-        if (!name && username && username !== 'undefined') name = username;
-        if (!username && name) username = name;
-        if (!name && !username) { name = 'Khách'; username = 'Khách'; }
-        if (username === 'undefined' || username === 'null' || !username) {
-          username = email ? email.split('@')[0] : 'Khách';
-        }
-        try {
-          const res = await fetch(`${window.API_BASE_URL}/api/create-payos-order`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              amount,
-              productTotal: total,
-              shippingFee: shippingFee,
-              description: 'Thanh toán đơn hàng YOURS',
-              orderCode,
-              returnUrl: window.location.origin + '/payment-success.html',
-              customer: { email, name, phone, address, username },
-              items
-            })
-          });
-          const data = await res.json();
-          if (data.payUrl) {
-            window.location.href = data.payUrl;
-          } else {
-            alert('Không thể tạo đơn hàng PayOS.');
-          }
-        } catch (err) {
-          alert('Lỗi khi kết nối PayOS: ' + err.message);
-        }
-      });
-    });
-    window.addEventListener('storage', function(event) {
-      if (event.key && event.key.startsWith('cart_')) {
-        renderSummaryProducts();
-        attachSummaryQtyEvents();
-        updateShippingFeeAndTotal();
-      }
-    });
-    (function() {
-      var avatarUrl = localStorage.getItem('userAvatarUrl');
-      var avatarImg = document.getElementById('userAvatarBtn');
-      if (avatarImg) {
-        if (avatarUrl && avatarUrl.length > 5) {
-          avatarImg.src = avatarUrl;
-        } else {
-          avatarImg.src = 'resources/user-circle.png';
-        }
-      }
-    })();
     // Hide 'Cửa hàng của tôi' for non-designers
     (function() {
       function getRoleFromToken() {
@@ -936,21 +543,930 @@
         if (storeMenu) storeMenu.style.display = 'none';
       }
     })();
-    // After successful PayOS payment, check for custom design in cart and redirect
-    function handlePaymentSuccess() {
-      var cart = JSON.parse(localStorage.getItem('cart')) || [];
-      var customOrder = cart.find(item => item.type === 'custom-design');
-      if (customOrder) {
-        // Remove the custom order from cart after payment
-        cart = cart.filter(item => item !== customOrder);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        // Save order details to temp storage for confirmation page
-        localStorage.setItem('customOrderSuccess', JSON.stringify(customOrder));
-        window.location.href = 'custom-order-success.html';
-        return;
-      }
-      // ... existing logic for normal orders ...
-    }
   </script>
-</body>
+  <script>
+  // Swap CTA button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const ctaBtn = document.getElementById('main-cta-btn');
+    const ctaText = document.getElementById('main-cta-text');
+    if (!token && ctaBtn && ctaText) {
+      ctaBtn.href = 'choose-login.html';
+      ctaText.textContent = 'Đăng ký ngay';
+    } else if (ctaBtn && ctaText) {
+      ctaBtn.href = 'design.html';
+      ctaText.textContent = 'Thiết Kế Ngay';
+    }
+  })();
+  </script>
+  <script>
+  // Swap account button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const accountBtn = document.getElementById('accountBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    if (!token && accountBtn) {
+      // Replace button with a link
+      const link = document.createElement('a');
+      link.href = 'choose-login.html';
+      link.className = 'user-btn';
+      link.textContent = 'Tài Khoản';
+      accountBtn.parentNode.replaceChild(link, accountBtn);
+      if (userDropdown) userDropdown.style.display = 'none';
+    }
+  })();
+  </script>
+
+  
+  <script>
+    // Function to toggle dropdown
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+
+    // Function to activate tab (without login modal)
+    function activateTab(tabName) {
+      event.preventDefault(); // Prevent default button behavior
+      if (tabName === 'home') {
+        window.location.replace('index.html');
+      } else if (tabName === 'design') {
+        // Just redirect to design.html without login check
+        window.location.replace('design.html');
+      }
+    }
+
+    // Modal functions (kept for compatibility but not used)
+    function showLoginModal() {
+      const modal = document.getElementById('loginRequiredModal');
+      modal.style.display = 'block';
+    }
+
+    function closeLoginModal() {
+      const modal = document.getElementById('loginRequiredModal');
+      modal.style.display = 'none';
+    }
+
+    function goToLogin() {
+      window.location.href = 'choose-login.html';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('loginRequiredModal');
+      if (event.target === modal) {
+        closeLoginModal();
+      }
+    }
+
+    // Set active state based on current page
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPage = window.location.pathname.split('/').pop();
+      if (currentPage === 'checkout.html') {
+        const currentBtn = document.querySelector('button[onclick*="checkout.html"]');
+        if (currentBtn) currentBtn.classList.add('active');
+      }
+    });
+  </script>
+  <script>
+      // Function to render a single product card (reuse from designer-products.js)
+      function renderProductCard(design) {
+        let imageSrc = '';
+        if (design.designImage && design.designImage.startsWith('data:image/')) {
+          imageSrc = design.designImage;
+        } else if (design.productType && design.productType.toLowerCase().includes('hoodie')) {
+          imageSrc = 'resources/hoodie-demo.png';
+        } else {
+          imageSrc = 'resources/tshirt-model.png';
+        }
+        // Show "New" label if uploaded in last 24h
+        const isNew = (() => {
+          const uploadDate = new Date(design.createdAt || design.uploadDate || 0);
+          const now = new Date();
+          const timeDifference = now - uploadDate;
+          const hoursDifference = timeDifference / (1000 * 60 * 60);
+          return hoursDifference <= 24;
+        })();
+        return `
+          <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
+            <img src="${imageSrc}" alt="${design.productType || 'Product'}">
+            ${isNew ? '<span class="new-label">New</span>' : ''}
+            <h3>${design.name || 'Tên thiết kế'}</h3>
+            <p>by <b>${design.username || 'Designer'}</b></p>
+            <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
+            <button class="btn btn-secondary" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'; event.stopPropagation();">Xem sản phẩm</button>
+          </div>
+        `;
+      }
+      // Load best seller products
+      function loadBestSellerProducts() {
+        const container = document.getElementById('best-seller-products');
+        if (!container) return;
+        container.innerHTML = '<p class="empty-message">Chưa có sản phẩm bán chạy nào.</p>';
+        fetch('https://yours-fashion.vercel.app/api/designs')
+          .then(response => response.json())
+          .then(designs => {
+            // Filter: more than 1 rating
+            const filtered = (Array.isArray(designs) ? designs : []).filter(d => (d.ratingCount || d.ratingsCount || d.numRatings || 0) > 1);
+            // Sort by rating (highest first)
+            filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            // Show up to 5 best sellers
+            const bestSellers = filtered.slice(0, 5);
+            if (bestSellers.length > 0) {
+              container.innerHTML = bestSellers.map(renderProductCard).join('');
+              // Animate product cards with staggered delay
+              const cards = container.querySelectorAll('.product-card');
+              cards.forEach((card, idx) => {
+                setTimeout(() => {
+                  card.classList.add('animated');
+                }, idx * 100);
+              });
+            } else {
+              container.innerHTML = '<p class="empty-message">Chưa có sản phẩm bán chạy nào.</p>';
+            }
+          })
+          .catch(error => {
+            console.error('Error loading best sellers:', error);
+            container.innerHTML = '<p class="empty-message">Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+          });
+      }
+      document.addEventListener('DOMContentLoaded', loadBestSellerProducts);
+      </script>
+
+      
+
+      
+        <section class="product-section animated-fade-up">
+          <h2>Sản phẩm nổi bật</h2>
+          <a href="all-products.html?sort=most-loved" class="see-all">Xem thêm</a>
+          <div id="featured-products" class="product-grid">
+            <!-- Featured products will be loaded here dynamically -->
+          </div>
+        </section>
+
+        <script>
+        // Function to render a single product card (reuse from designer-products.js)
+        function renderProductCard(design) {
+          let imageSrc = '';
+          if (design.designImage && design.designImage.startsWith('data:image/')) {
+            imageSrc = design.designImage;
+          } else if (design.productType && design.productType.toLowerCase().includes('hoodie')) {
+            imageSrc = 'resources/hoodie-demo.png';
+          } else {
+            imageSrc = 'resources/tshirt-model.png';
+          }
+          // Show "New" label if uploaded in last 24h
+          const isNew = (() => {
+            const uploadDate = new Date(design.createdAt || design.uploadDate || 0);
+            const now = new Date();
+            const timeDifference = now - uploadDate;
+            const hoursDifference = timeDifference / (1000 * 60 * 60);
+            return hoursDifference <= 24;
+          })();
+          return `
+            <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
+              <img src="${imageSrc}" alt="${design.productType || 'Product'}">
+              ${isNew ? '<span class="new-label">New</span>' : ''}
+              ${design.isCustomDesign ? '<span class="custom-design-label" style="position:absolute;top:10px;right:10px;background:#7B3FF2;color:white;padding:4px 8px;border-radius:12px;font-size:12px;font-weight:600;">🎨 Thiết kế tùy chỉnh</span>' : ''}
+              <h3>${design.name || 'Tên thiết kế'}</h3>
+              <p>by <b>${design.username || 'Designer'}</b></p>
+              <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
+              <button class="btn btn-secondary" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'; event.stopPropagation();">Xem sản phẩm</button>
+            </div>
+          `;
+        }
+        // Load featured products
+        function loadFeaturedProducts() {
+          const container = document.getElementById('featured-products');
+          if (!container) return;
+          container.innerHTML = '<p class="empty-message">Chưa có sản phẩm nổi bật nào.</p>';
+          fetch('https://yours-fashion.vercel.app/api/designs')
+            .then(response => response.json())
+            .then(designs => {
+              // Filter: at least 1 heart (likes/favorites/loveCount >= 1)
+              const filtered = (Array.isArray(designs) ? designs : []).filter(d => (d.likes || d.favorites || d.loveCount || 0) >= 1);
+              // Sort by most loved
+              filtered.sort((a, b) => ((b.likes || b.favorites || b.loveCount || 0) - (a.likes || a.favorites || a.loveCount || 0)));
+              // Show up to 5 featured products
+              const featured = filtered.slice(0, 5);
+              if (featured.length > 0) {
+                container.innerHTML = featured.map(renderProductCard).join('');
+                // Animate product cards with staggered delay
+                const cards = container.querySelectorAll('.product-card');
+                cards.forEach((card, idx) => {
+                  setTimeout(() => {
+                    card.classList.add('animated');
+                  }, idx * 100);
+                });
+              } else {
+                container.innerHTML = '<p class="empty-message">Chưa có sản phẩm nổi bật nào.</p>';
+              }
+            })
+            .catch(error => {
+              console.error('Error loading featured products:', error);
+              container.innerHTML = '<p class="empty-message">Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+            });
+        }
+        document.addEventListener('DOMContentLoaded', loadFeaturedProducts);
+        </script>
+
+        <!-- New section for designer products -->
+        <section class="product-section animated-fade-up">
+          <h2>Thiết kế mới nhất</h2>
+          <a href="all-products.html?sort=newest" class="see-all">Xem thêm</a>
+          <div id="designer-products" class="product-grid">
+            <!-- Products will be loaded here dynamically -->
+          </div>
+        </section>
+
+        <section class="banner-section">
+          <div class="banner-container">
+            <img src="resources/banner2.png" alt="In theo yêu cầu" class="banner-image">
+            <img src="resources/banner1.png" alt="Sản phẩm in ấn độc đáo" class="banner-image">
+          </div>
+        </section>
+
+        <section class="commitment-section">
+          <h2>Cam kết</h2>
+          <div class="commitment-container">
+            <div class="commitment-card">
+              <h3>Chất lượng</h3>
+              <ul>
+                <li>Cam kết sử dụng vật liệu chất lượng cao.</li>
+                <li>In chuẩn màu, đảm bảo độ bền màu.</li>
+                <li>Hình ảnh in sắc nét, chuẩn xác.</li>
+              </ul>
+            </div>
+            <div class="commitment-card">
+              <h3>Bảo hành & đổi trả</h3>
+              <ul>
+                <li>Cam kết bảo hành sản phẩm nếu lỗi do nhà sản xuất.</li>
+                <li>Chính sách đổi trả linh hoạt.</li>
+                <li>Hỗ trợ khách hàng 24/7.</li>
+              </ul>
+            </div>
+            <div class="commitment-card">
+              <h3>Minh bạch</h3>
+              <ul>
+                <li>Báo giá rõ ràng, không có phụ phí.</li>
+                <li>Cung cấp hình ảnh thực tế sản phẩm trước khi giao.</li>
+                <li>Cam kết hoàn tiền nếu không hài lòng với sản phẩm.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+    </main>
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <img src="resources/logo-footer.png" alt="Footer Logo" class="footer-logo">
+          <p class="tagline">Nơi sáng tạo những gì bạn muốn</p>
+          <p class="support"><strong>Chăm sóc khách hàng</strong><br>official.yours.fashiondesign@gmail.com</p>
+          <div class="social-icons">
+            <a href="https://www.facebook.com/profile.php?id=61576837198946" target="_blank" rel="noopener noreferrer">
+              <img src="resources/facebook-footer.png" alt="Facebook">
+            </a>
+            <a href="https://www.instagram.com/yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/instagram-footer.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/tiktok-footer.png" alt="TikTok">
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>YOURS.vn</h4>
+          <ul>
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Lời chứng thực</a></li>
+            <li><a href="#">Câu hỏi thường gặp</a></li>
+            <li><a href="#">Hướng dẫn thiết kế</a></li>
+            <li><a href="#">Sản phẩm</a></li>
+            <li><a href="#">Tuyển dụng</a></li>
+            <li><a href="#">Tư vấn</a></li>
+            <li><a href="#">Chính sách hỗ trợ</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Chính sách & hỗ trợ</h4>
+          <ul>
+            <li><a href="#">Chính sách bảo mật và quyền riêng tư</a></li>
+            <li><a href="#">Điều khoản và điều kiện</a></li>
+            <li><a href="#">Chính sách vận chuyển và giao nhận</a></li>
+            <li><a href="#">Quy định và hình thức thanh toán</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Phương thức thanh toán</h4>
+          <div class="payment-methods">
+            <img src="resources/momo.png" alt="Momo">
+            <img src="resources/zalopay.png" alt="Zalopay">
+            <img src="resources/visa.png" alt="Visa">
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
+      </div>
+    </footer>
+  </div>
+  
+  <!-- Login Required Popup Modal -->
+  <div id="loginRequiredModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Đăng nhập để tiếp tục</h2>
+        <span class="close" onclick="closeLoginModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="modal-icon">
+          <svg width="64" height="64" fill="none" stroke="#7B3FF2" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10,17 15,12 10,7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+        </div>
+        <p>Bạn cần đăng nhập hoặc đăng ký để sử dụng tính năng thiết kế.</p>
+        <p>Hãy tạo tài khoản để bắt đầu thiết kế sản phẩm của riêng bạn!</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="goToLogin()">Đăng nhập / Đăng ký</button>
+        <button class="btn-secondary" onclick="closeLoginModal()">Để sau</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+       // Kiểm tra token khi trang tải
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'homepage-unauthenticated.html';
+      return;
+    }
+
+    // Gọi API để lấy thông tin người dùng
+    fetch('https://yours-fashion.vercel.app/api/user', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => {
+      if (!response.ok) {
+        console.log('API error - Status:', response.status, 'Message:', response.statusText);
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('API response:', data);
+      if (data.user && data.user.username) {
+        document.getElementById('username').textContent = data.user.username;
+      } else {
+        console.log('Username not found in response');
+        document.getElementById('username').textContent = 'Khách hàng';
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching user:', error.message);
+      localStorage.removeItem('token');
+      window.location.href = 'homepage-unauthenticated.html';
+    });
+
+
+    // Đóng dropdown khi nhấp ra ngoài
+    document.addEventListener('click', function(event) {
+      const userBtn = document.querySelector('.user-btn');
+      const dropdown = document.getElementById('userDropdown');
+      if (!userBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+      // Handle logout
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userName');
+        alert('Đã đăng xuất thành công!');
+        window.location.href = 'index.html';
+      });
+  </script>
+  <script>
+    // Function to toggle dropdown
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+
+    // Function to activate tab
+    function activateTab(tabName) {
+      event.preventDefault(); // Prevent default button behavior
+      if (tabName === 'home') {
+        window.location.replace('index.html');
+      } else if (tabName === 'design') {
+        // Check if user is authenticated
+        const token = localStorage.getItem('token');
+        if (!token) {
+          showLoginModal();
+        } else {
+          window.location.replace('design.html');
+        }
+      } // 'products' and 'blog' do nothing
+    }
+
+    // Modal functions
+    function showLoginModal() {
+      const modal = document.getElementById('loginRequiredModal');
+      modal.style.display = 'block';
+    }
+
+    function closeLoginModal() {
+      const modal = document.getElementById('loginRequiredModal');
+      modal.style.display = 'none';
+    }
+
+    function goToLogin() {
+      window.location.href = 'choose-login.html';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('loginRequiredModal');
+      if (event.target === modal) {
+        closeLoginModal();
+      }
+    }
+
+    // Đặt trạng thái active mặc định dựa trên trang hiện tại
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPage = window.location.pathname.split('/').pop();
+      if (currentPage === 'index.html') {
+        const homeBtn = document.querySelector('button[onclick="activateTab(\'home\')"]');
+        if (homeBtn) homeBtn.classList.add('active');
+      }
+    });
+  </script>
+  <script src="javascript/homepage.js"></script>
+  <script src="javascript/designer-products.js"></script>
+  <script>
+  // Hide 'Cửa hàng của tôi' for non-designers
+  (function() {
+    function getRoleFromToken() {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.role;
+      } catch (e) { return null; }
+    }
+    if (getRoleFromToken() !== 'designer') {
+      var storeMenu = document.getElementById('designerStoreMenu');
+      if (storeMenu) storeMenu.style.display = 'none';
+    }
+  })();
+  </script>
+  <script>
+      // Function to render a single product card (reuse from designer-products.js)
+      function renderProductCard(design) {
+        let imageSrc = '';
+        if (design.designImage && design.designImage.startsWith('data:image/')) {
+          imageSrc = design.designImage;
+        } else if (design.productType && design.productType.toLowerCase().includes('hoodie')) {
+          imageSrc = 'resources/hoodie-demo.png';
+        } else {
+          imageSrc = 'resources/tshirt-model.png';
+        }
+        // Show "New" label if uploaded in last 24h
+        const isNew = (() => {
+          const uploadDate = new Date(design.createdAt || design.uploadDate || 0);
+          const now = new Date();
+          const timeDifference = now - uploadDate;
+          const hoursDifference = timeDifference / (1000 * 60 * 60);
+          return hoursDifference <= 24;
+        })();
+        return `
+          <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
+            <img src="${imageSrc}" alt="${design.productType || 'Product'}">
+            ${isNew ? '<span class="new-label">New</span>' : ''}
+            <h3>${design.name || 'Tên thiết kế'}</h3>
+            <p>by <b>${design.username || 'Designer'}</b></p>
+            <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
+            <button class="btn btn-secondary" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'; event.stopPropagation();">Xem sản phẩm</button>
+          </div>
+        `;
+      }
+      // Load best seller products
+      function loadBestSellerProducts() {
+        const container = document.getElementById('best-seller-products');
+        if (!container) return;
+        container.innerHTML = '<p class="empty-message">Chưa có sản phẩm bán chạy nào.</p>';
+        fetch('https://yours-fashion.vercel.app/api/designs')
+          .then(response => response.json())
+          .then(designs => {
+            // Filter: more than 1 rating
+            const filtered = (Array.isArray(designs) ? designs : []).filter(d => (d.ratingCount || d.ratingsCount || d.numRatings || 0) > 1);
+            // Sort by rating (highest first)
+            filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            // Show up to 5 best sellers
+            const bestSellers = filtered.slice(0, 5);
+            if (bestSellers.length > 0) {
+              container.innerHTML = bestSellers.map(renderProductCard).join('');
+              // Animate product cards with staggered delay
+              const cards = container.querySelectorAll('.product-card');
+              cards.forEach((card, idx) => {
+                setTimeout(() => {
+                  card.classList.add('animated');
+                }, idx * 100);
+              });
+            } else {
+              container.innerHTML = '<p class="empty-message">Chưa có sản phẩm bán chạy nào.</p>';
+            }
+          })
+          .catch(error => {
+            console.error('Error loading best sellers:', error);
+            container.innerHTML = '<p class="empty-message">Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+          });
+      }
+      document.addEventListener('DOMContentLoaded', loadBestSellerProducts);
+      </script>
+
+      
+
+      
+        <section class="product-section animated-fade-up">
+          <h2>Sản phẩm nổi bật</h2>
+          <a href="all-products.html?sort=most-loved" class="see-all">Xem thêm</a>
+          <div id="featured-products" class="product-grid">
+            <!-- Featured products will be loaded here dynamically -->
+          </div>
+        </section>
+
+        <script>
+        // Function to render a single product card (reuse from designer-products.js)
+        function renderProductCard(design) {
+          let imageSrc = '';
+          if (design.designImage && design.designImage.startsWith('data:image/')) {
+            imageSrc = design.designImage;
+          } else if (design.productType && design.productType.toLowerCase().includes('hoodie')) {
+            imageSrc = 'resources/hoodie-demo.png';
+          } else {
+            imageSrc = 'resources/tshirt-model.png';
+          }
+          // Show "New" label if uploaded in last 24h
+          const isNew = (() => {
+            const uploadDate = new Date(design.createdAt || design.uploadDate || 0);
+            const now = new Date();
+            const timeDifference = now - uploadDate;
+            const hoursDifference = timeDifference / (1000 * 60 * 60);
+            return hoursDifference <= 24;
+          })();
+          return `
+            <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
+              <img src="${imageSrc}" alt="${design.productType || 'Product'}">
+              ${isNew ? '<span class="new-label">New</span>' : ''}
+              ${design.isCustomDesign ? '<span class="custom-design-label" style="position:absolute;top:10px;right:10px;background:#7B3FF2;color:white;padding:4px 8px;border-radius:12px;font-size:12px;font-weight:600;">🎨 Thiết kế tùy chỉnh</span>' : ''}
+              <h3>${design.name || 'Tên thiết kế'}</h3>
+              <p>by <b>${design.username || 'Designer'}</b></p>
+              <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
+              <button class="btn btn-secondary" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'; event.stopPropagation();">Xem sản phẩm</button>
+            </div>
+          `;
+        }
+        // Load featured products
+        function loadFeaturedProducts() {
+          const container = document.getElementById('featured-products');
+          if (!container) return;
+          container.innerHTML = '<p class="empty-message">Chưa có sản phẩm nổi bật nào.</p>';
+          fetch('https://yours-fashion.vercel.app/api/designs')
+            .then(response => response.json())
+            .then(designs => {
+              // Filter: at least 1 heart (likes/favorites/loveCount >= 1)
+              const filtered = (Array.isArray(designs) ? designs : []).filter(d => (d.likes || d.favorites || d.loveCount || 0) >= 1);
+              // Sort by most loved
+              filtered.sort((a, b) => ((b.likes || b.favorites || b.loveCount || 0) - (a.likes || a.favorites || a.loveCount || 0)));
+              // Show up to 5 featured products
+              const featured = filtered.slice(0, 5);
+              if (featured.length > 0) {
+                container.innerHTML = featured.map(renderProductCard).join('');
+                // Animate product cards with staggered delay
+                const cards = container.querySelectorAll('.product-card');
+                cards.forEach((card, idx) => {
+                  setTimeout(() => {
+                    card.classList.add('animated');
+                  }, idx * 100);
+                });
+              } else {
+                container.innerHTML = '<p class="empty-message">Chưa có sản phẩm nổi bật nào.</p>';
+              }
+            })
+            .catch(error => {
+              console.error('Error loading featured products:', error);
+              container.innerHTML = '<p class="empty-message">Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+            });
+        }
+        document.addEventListener('DOMContentLoaded', loadFeaturedProducts);
+        </script>
+
+        <!-- New section for designer products -->
+        <section class="product-section animated-fade-up">
+          <h2>Thiết kế mới nhất</h2>
+          <a href="all-products.html?sort=newest" class="see-all">Xem thêm</a>
+          <div id="designer-products" class="product-grid">
+            <!-- Products will be loaded here dynamically -->
+          </div>
+        </section>
+
+        <section class="banner-section">
+          <div class="banner-container">
+            <img src="resources/banner2.png" alt="In theo yêu cầu" class="banner-image">
+            <img src="resources/banner1.png" alt="Sản phẩm in ấn độc đáo" class="banner-image">
+          </div>
+        </section>
+
+        <section class="commitment-section">
+          <h2>Cam kết</h2>
+          <div class="commitment-container">
+            <div class="commitment-card">
+              <h3>Chất lượng</h3>
+              <ul>
+                <li>Cam kết sử dụng vật liệu chất lượng cao.</li>
+                <li>In chuẩn màu, đảm bảo độ bền màu.</li>
+                <li>Hình ảnh in sắc nét, chuẩn xác.</li>
+              </ul>
+            </div>
+            <div class="commitment-card">
+              <h3>Bảo hành & đổi trả</h3>
+              <ul>
+                <li>Cam kết bảo hành sản phẩm nếu lỗi do nhà sản xuất.</li>
+                <li>Chính sách đổi trả linh hoạt.</li>
+                <li>Hỗ trợ khách hàng 24/7.</li>
+              </ul>
+            </div>
+            <div class="commitment-card">
+              <h3>Minh bạch</h3>
+              <ul>
+                <li>Báo giá rõ ràng, không có phụ phí.</li>
+                <li>Cung cấp hình ảnh thực tế sản phẩm trước khi giao.</li>
+                <li>Cam kết hoàn tiền nếu không hài lòng với sản phẩm.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+    </main>
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <img src="resources/logo-footer.png" alt="Footer Logo" class="footer-logo">
+          <p class="tagline">Nơi sáng tạo những gì bạn muốn</p>
+          <p class="support"><strong>Chăm sóc khách hàng</strong><br>official.yours.fashiondesign@gmail.com</p>
+          <div class="social-icons">
+            <a href="https://www.facebook.com/profile.php?id=61576837198946" target="_blank" rel="noopener noreferrer">
+              <img src="resources/facebook-footer.png" alt="Facebook">
+            </a>
+            <a href="https://www.instagram.com/yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/instagram-footer.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/tiktok-footer.png" alt="TikTok">
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>YOURS.vn</h4>
+          <ul>
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Lời chứng thực</a></li>
+            <li><a href="#">Câu hỏi thường gặp</a></li>
+            <li><a href="#">Hướng dẫn thiết kế</a></li>
+            <li><a href="#">Sản phẩm</a></li>
+            <li><a href="#">Tuyển dụng</a></li>
+            <li><a href="#">Tư vấn</a></li>
+            <li><a href="#">Chính sách hỗ trợ</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Chính sách & hỗ trợ</h4>
+          <ul>
+            <li><a href="#">Chính sách bảo mật và quyền riêng tư</a></li>
+            <li><a href="#">Điều khoản và điều kiện</a></li>
+            <li><a href="#">Chính sách vận chuyển và giao nhận</a></li>
+            <li><a href="#">Quy định và hình thức thanh toán</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Phương thức thanh toán</h4>
+          <div class="payment-methods">
+            <img src="resources/momo.png" alt="Momo">
+            <img src="resources/zalopay.png" alt="Zalopay">
+            <img src="resources/visa.png" alt="Visa">
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
+      </div>
+    </footer>
+  </div>
+  
+  <!-- Login Required Popup Modal -->
+  <div id="loginRequiredModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Đăng nhập để tiếp tục</h2>
+        <span class="close" onclick="closeLoginModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="modal-icon">
+          <svg width="64" height="64" fill="none" stroke="#7B3FF2" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10,17 15,12 10,7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+        </div>
+        <p>Bạn cần đăng nhập hoặc đăng ký để sử dụng tính năng thiết kế.</p>
+        <p>Hãy tạo tài khoản để bắt đầu thiết kế sản phẩm của riêng bạn!</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="goToLogin()">Đăng nhập / Đăng ký</button>
+        <button class="btn-secondary" onclick="closeLoginModal()">Để sau</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+       // Kiểm tra token khi trang tải
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'homepage-unauthenticated.html';
+      return;
+    }
+
+    // Gọi API để lấy thông tin người dùng
+    fetch('https://yours-fashion.vercel.app/api/user', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => {
+      if (!response.ok) {
+        console.log('API error - Status:', response.status, 'Message:', response.statusText);
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('API response:', data);
+      if (data.user && data.user.username) {
+        document.getElementById('username').textContent = data.user.username;
+      } else {
+        console.log('Username not found in response');
+        document.getElementById('username').textContent = 'Khách hàng';
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching user:', error.message);
+      localStorage.removeItem('token');
+      window.location.href = 'homepage-unauthenticated.html';
+    });
+
+
+    // Đóng dropdown khi nhấp ra ngoài
+    document.addEventListener('click', function(event) {
+      const userBtn = document.querySelector('.user-btn');
+      const dropdown = document.getElementById('userDropdown');
+      if (!userBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+      // Handle logout
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userName');
+        alert('Đã đăng xuất thành công!');
+        window.location.href = 'index.html';
+      });
+  </script>
+  <script>
+    // Function to toggle dropdown
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+
+    // Function to activate tab
+    function activateTab(tabName) {
+      event.preventDefault(); // Prevent default button behavior
+      if (tabName === 'home') {
+        window.location.replace('index.html');
+      } else if (tabName === 'design') {
+        // Check if user is authenticated
+        const token = localStorage.getItem('token');
+        if (!token) {
+          showLoginModal();
+        } else {
+          window.location.replace('design.html');
+        }
+      } // 'products' and 'blog' do nothing
+    }
+
+    // Modal functions
+    function showLoginModal() {
+      const modal = document.getElementById('loginRequiredModal');
+      modal.style.display = 'block';
+    }
+
+    function closeLoginModal() {
+      const modal = document.getElementById('loginRequiredModal');
+      modal.style.display = 'none';
+    }
+
+    function goToLogin() {
+      window.location.href = 'choose-login.html';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('loginRequiredModal');
+      if (event.target === modal) {
+        closeLoginModal();
+      }
+    }
+
+    // Đặt trạng thái active mặc định dựa trên trang hiện tại
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPage = window.location.pathname.split('/').pop();
+      if (currentPage === 'index.html') {
+        const homeBtn = document.querySelector('button[onclick="activateTab(\'home\')"]');
+        if (homeBtn) homeBtn.classList.add('active');
+      }
+    });
+  </script>
+  <script src="javascript/homepage.js"></script>
+  <script src="javascript/designer-products.js"></script>
+  <script>
+  // Hide 'Cửa hàng của tôi' for non-designers
+  (function() {
+    function getRoleFromToken() {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.role;
+      } catch (e) { return null; }
+    }
+    if (getRoleFromToken() !== 'designer') {
+      var storeMenu = document.getElementById('designerStoreMenu');
+      if (storeMenu) storeMenu.style.display = 'none';
+    }
+  })();
+  </script>
+  <script>
+  // Swap CTA button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const ctaBtn = document.getElementById('main-cta-btn');
+    const ctaText = document.getElementById('main-cta-text');
+    if (!token && ctaBtn && ctaText) {
+      ctaBtn.href = 'choose-login.html';
+      ctaText.textContent = 'Đăng ký ngay';
+    } else if (ctaBtn && ctaText) {
+      ctaBtn.href = 'design.html';
+      ctaText.textContent = 'Thiết Kế Ngay';
+    }
+  })();
+  </script>
+  <script>
+  // Swap account button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const accountBtn = document.getElementById('accountBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    if (!token && accountBtn) {
+      // Replace button with a link
+      const link = document.createElement('a');
+      link.href = 'choose-login.html';
+      link.className = 'user-btn';
+      link.textContent = 'Tài Khoản';
+      accountBtn.parentNode.replaceChild(link, accountBtn);
+      if (userDropdown) userDropdown.style.display = 'none';
+    }
+  })();
+  </script>
+  </body>
 </html> 

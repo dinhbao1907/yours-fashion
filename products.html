@@ -17,15 +17,14 @@
     </div>
     <nav class="nav">
       <ul>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('index.html')">Trang chủ</button></li>
+        <li><button type="button" class="user-btn" onclick="activateTab('home')">Trang chủ</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('all-products.html')">Sản phẩm</button></li>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('design.html')">Thiết kế</button></li>
-        <li><button type="button" class="user-btn" onclick="window.location.replace('blog.html')">Blog</button></li>
+        <li><button type="button" class="user-btn" onclick="activateTab('design')">Thiết kế</button></li>
         <li><button type="button" class="user-btn" onclick="window.location.replace('about.html')">Về chúng tôi</button></li>
       </ul>
     </nav>
     <div class="user-menu">
-      <button class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
+      <button id="accountBtn" class="user-btn" onclick="toggleDropdown()">Tài Khoản</button>
       <div id="userDropdown" class="dropdown">
         <a href="user-profile.html" class="dropdown-item">Thông tin cá nhân</a>
         <a href="designer-store.html" class="dropdown-item" id="designerStoreMenu">Cửa hàng của tôi</a>
@@ -38,7 +37,7 @@
   <div class="product-container">
     <!-- Hình ảnh sản phẩm -->
     <div class="product-image">
-      <img src="resources/tshirt-model.png" alt="Sản phẩm" id="productImage">
+      <img src="resources/tshirt-white.png" alt="Sản phẩm" id="productImage">
     </div>
     <!-- Thông tin sản phẩm -->
     <div class="product-details">
@@ -202,146 +201,7 @@
   <!-- JavaScript -->
   <script src="javascript/product.js"></script>
     <script src="javascript/homepage.js"></script>
-  <script>
-  function activateTab(tabName) {
-    event.preventDefault(); // Prevent default button behavior
-    if (tabName === 'home') {
-      window.location.replace('index.html');
-    } else if (tabName === 'design') {
-      window.location.replace('design.html');
-    } // 'products' and 'blog' do nothing
-  }
-  function toggleDropdown() {
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdown.classList.contains('show')) {
-      dropdown.classList.remove('show');
-    } else {
-      dropdown.classList.add('show');
-    }
-  }
-
-  // Đặt trạng thái active mặc định dựa trên trang hiện tại
-  document.addEventListener('DOMContentLoaded', () => {
-    const currentPage = window.location.pathname.split('/').pop();
-    if (currentPage === 'products.html') {
-      const productsBtn = document.querySelector('button[onclick="activateTab(\'products\')"]');
-      if (productsBtn) productsBtn.classList.add('active');
-    }
-  });
-
-  // Function to get URL parameters
-  function getUrlParameter(name) {
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-  }
-
-  // Function to update product details
-  async function updateProductDetails() {
-    const designId = getUrlParameter('designId');
-    if (!designId) {
-      console.error('No design ID provided');
-      return;
-    }
-
-    try {
-      const response = await fetch(`https://yours-fashion.vercel.app/api/designs/${designId}`);
-      const design = await response.json();
-
-      // Update product details
-      document.getElementById('productName').textContent = design.productName || 'Unnamed Product';
-      document.getElementById('productPrice').textContent = `${design.price || 0} VND`;
-      
-      // Update product image if available
-      const productImage = document.querySelector('.product-image img');
-      if (design.designImage) {
-        productImage.src = design.designImage;
-      }
-
-      // Update rating if available
-      if (design.rating) {
-        const stars = document.getElementById('productStars');
-        stars.innerHTML = '';
-        for (let i = 0; i < 5; i++) {
-          const star = document.createElement('i');
-          star.className = i < Math.floor(design.rating) ? 'fas fa-star' : 
-                          i < Math.ceil(design.rating) ? 'fas fa-star-half-alt' : 'far fa-star';
-          stars.appendChild(star);
-        }
-        document.getElementById('ratingScore').textContent = `${design.rating} ★ (${design.reviewCount || 0} đánh giá)`;
-      }
-
-      // Update likes count
-      document.getElementById('likeCount').textContent = design.likes || 0;
-
-      // Update designer name
-      document.getElementById('designerName').textContent = design.designerName || 'Designer';
-
-      // Update product code
-      document.getElementById('productCode').textContent = design.productCode || '-';
-
-      // Update product material
-      document.getElementById('productMaterial').textContent = design.material || '-';
-
-      // Update product color
-      document.getElementById('productColor').textContent = design.color || '-';
-
-      // Update product description
-      document.getElementById('productDescription').textContent = design.description || 'Đang tải...';
-
-    } catch (error) {
-      console.error('Error fetching product details:', error);
-    }
-  }
-
-  // Call the function when the page loads
-  document.addEventListener('DOMContentLoaded', updateProductDetails);
-
-  (function() {
-    var avatarUrl = localStorage.getItem('userAvatarUrl');
-    var avatarImg = document.getElementById('userAvatarBtn');
-    if (avatarImg) {
-      if (avatarUrl && avatarUrl.length > 5) {
-        avatarImg.src = avatarUrl;
-      } else {
-        avatarImg.src = 'resources/user-circle.png';
-      }
-    }
-  })();
-
-  // Make designer name clickable to go to their shop
-  document.addEventListener('DOMContentLoaded', function() {
-    const designerNameElem = document.getElementById('designerName');
-    const designerNameLink = document.getElementById('designerNameLink');
-    if (designerNameElem && designerNameLink) {
-      // Wait for product.js to set the designer username
-      const observer = new MutationObserver(() => {
-        const username = window.currentDesignerUsername || designerNameElem.textContent;
-        if (username) {
-          designerNameLink.href = `designer-shop.html?username=${encodeURIComponent(username)}`;
-        }
-      });
-      observer.observe(designerNameElem, { childList: true });
-    }
-  });
-
-  // Hide 'Cửa hàng của tôi' for non-designers
-  (function() {
-    function getRoleFromToken() {
-      const token = localStorage.getItem('token');
-      if (!token) return null;
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return payload.role;
-      } catch (e) { return null; }
-    }
-    if (getRoleFromToken() !== 'designer') {
-      var storeMenu = document.getElementById('designerStoreMenu');
-      if (storeMenu) storeMenu.style.display = 'none';
-    }
-  })();
-  </script>
+  
 
   <!-- Review Modal -->
   <div id="reviewModal" class="review-modal">
@@ -443,31 +303,6 @@
 
   <!-- Toast Notification -->
   <div id="toast" class="toast"></div>
-
-  <!-- Login Required Popup Modal -->
-  <div id="loginRequiredModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Đăng nhập để tiếp tục</h2>
-        <span class="close" onclick="closeLoginModal()">&times;</span>
-      </div>
-      <div class="modal-body">
-        <div class="modal-icon">
-          <svg width="64" height="64" fill="none" stroke="#7B3FF2" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-            <polyline points="10,17 15,12 10,7"/>
-            <line x1="15" y1="12" x2="3" y2="12"/>
-          </svg>
-        </div>
-        <p>Bạn cần đăng nhập hoặc đăng ký để mua sản phẩm.</p>
-        <p>Hãy tạo tài khoản để thêm sản phẩm vào giỏ hàng và thanh toán!</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-primary" onclick="goToLogin()">Đăng nhập / Đăng ký</button>
-        <button class="btn-secondary" onclick="closeLoginModal()">Để sau</button>
-      </div>
-    </div>
-  </div>
 
   <style>
   body {
@@ -598,124 +433,525 @@
     bottom: 60px;
     pointer-events: auto;
   }
-
-  /* Modal styles for login required popup (no space under buttons) */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-content {
-    background-color: #fff;
-    margin: 0;
-    padding: 0;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 450px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    animation: modalSlideIn 0.3s ease-out;
-    display: flex;
-    flex-direction: column;
-  }
-  @keyframes modalSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-50px) scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-  .modal-header {
-    padding: 24px 24px 16px 24px;
-    border-bottom: 1px solid #f0f0f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .modal-header h2 {
-    margin: 0;
-    color: #333;
-    font-size: 20px;
-    font-weight: 600;
-  }
-  .close {
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    line-height: 1;
-    transition: color 0.2s;
-  }
-  .close:hover {
-    color: #333;
-  }
-  .modal-body {
-    padding: 24px;
-    text-align: center;
-  }
-  .modal-icon {
-    margin-bottom: 20px;
-  }
-  .modal-body p {
-    margin: 8px 0;
-    color: #666;
-    line-height: 1.5;
-    font-size: 16px;
-  }
-  .modal-body p:first-of-type {
-    font-weight: 500;
-    color: #333;
-  }
-  .modal-footer {
-    padding: 16px 24px 0 24px;
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    padding-bottom: 0 !important;
-  }
-  .modal-footer .btn-primary,
-  .modal-footer .btn-secondary {
-    margin-bottom: 0 !important;
-  }
-  .modal-footer .btn-primary {
-    background: #7B3FF2;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    min-width: 140px;
-  }
-  .modal-footer .btn-primary:hover {
-    background: #6B2FE2;
-  }
-  .modal-footer .btn-secondary {
-    background: #f5f5f5;
-    color: #666;
-    border: 1px solid #ddd;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    min-width: 100px;
-  }
-  .modal-footer .btn-secondary:hover {
-    background: #eee;
-  }
   </style>
-</body>
+
+  
+
+  
+  
+  
+  
+  
+  
+  <script src="javascript/homepage.js"></script>
+  <script src="javascript/designer-products.js"></script>
+  
+  
+  <script src="javascript/homepage.js"></script>
+  <script src="javascript/designer-products.js"></script>
+  <script>
+  // Hide 'Cửa hàng của tôi' for non-designers
+  (function() {
+    function getRoleFromToken() {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.role;
+      } catch (e) { return null; }
+    }
+    if (getRoleFromToken() !== 'designer') {
+      var storeMenu = document.getElementById('designerStoreMenu');
+      if (storeMenu) storeMenu.style.display = 'none';
+    }
+  })();
+  </script>
+  <script>
+  // Swap CTA button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const ctaBtn = document.getElementById('main-cta-btn');
+    const ctaText = document.getElementById('main-cta-text');
+    if (!token && ctaBtn && ctaText) {
+      ctaBtn.href = 'choose-login.html';
+      ctaText.textContent = 'Đăng ký ngay';
+    } else if (ctaBtn && ctaText) {
+      ctaBtn.href = 'design.html';
+      ctaText.textContent = 'Thiết Kế Ngay';
+    }
+  })();
+  </script>
+  <script>
+  // Swap account button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const accountBtn = document.getElementById('accountBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    if (!token && accountBtn) {
+      // Replace button with a link
+      const link = document.createElement('a');
+      link.href = 'choose-login.html';
+      link.className = 'user-btn';
+      link.textContent = 'Tài Khoản';
+      accountBtn.parentNode.replaceChild(link, accountBtn);
+      if (userDropdown) userDropdown.style.display = 'none';
+    }
+  })();
+  </script>
+  
+  
+  <script>
+    // Function to toggle dropdown
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+
+    // Function to activate tab
+    function activateTab(tabName) {
+      event.preventDefault();
+      if (tabName === 'home') {
+        window.location.replace('index.html');
+      } else if (tabName === 'design') {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          showLoginModal();
+        } else {
+          window.location.replace('design.html');
+        }
+      }
+    }
+
+    // Đặt trạng thái active mặc định dựa trên trang hiện tại
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPage = window.location.pathname.split('/').pop();
+      if (currentPage === 'index.html') {
+        const homeBtn = document.querySelector('button[onclick="activateTab(\'home\')"]');
+        if (homeBtn) homeBtn.classList.add('active');
+      }
+    });
+  </script>
+  <script>
+      // Function to render a single product card (reuse from designer-products.js)
+      function renderProductCard(design) {
+        let imageSrc = '';
+        if (design.designImage && design.designImage.startsWith('data:image/')) {
+          imageSrc = design.designImage;
+        } else if (design.productType && design.productType.toLowerCase().includes('hoodie')) {
+          imageSrc = 'resources/hoodie-demo.png';
+        } else {
+          imageSrc = 'resources/tshirt-model.png';
+        }
+        // Show "New" label if uploaded in last 24h
+        const isNew = (() => {
+          const uploadDate = new Date(design.createdAt || design.uploadDate || 0);
+          const now = new Date();
+          const timeDifference = now - uploadDate;
+          const hoursDifference = timeDifference / (1000 * 60 * 60);
+          return hoursDifference <= 24;
+        })();
+        return `
+          <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
+            <img src="${imageSrc}" alt="${design.productType || 'Product'}">
+            ${isNew ? '<span class="new-label">New</span>' : ''}
+            <h3>${design.name || 'Tên thiết kế'}</h3>
+            <p>by <b>${design.username || 'Designer'}</b></p>
+            <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
+            <button class="btn btn-secondary" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'; event.stopPropagation();">Xem sản phẩm</button>
+          </div>
+        `;
+      }
+      // Load best seller products
+      function loadBestSellerProducts() {
+        const container = document.getElementById('best-seller-products');
+        if (!container) return;
+        container.innerHTML = '<p class="empty-message">Chưa có sản phẩm bán chạy nào.</p>';
+        fetch('https://yours-fashion.vercel.app/api/designs')
+          .then(response => response.json())
+          .then(designs => {
+            // Filter: more than 1 rating
+            const filtered = (Array.isArray(designs) ? designs : []).filter(d => (d.ratingCount || d.ratingsCount || d.numRatings || 0) > 1);
+            // Sort by rating (highest first)
+            filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            // Show up to 5 best sellers
+            const bestSellers = filtered.slice(0, 5);
+            if (bestSellers.length > 0) {
+              container.innerHTML = bestSellers.map(renderProductCard).join('');
+              // Animate product cards with staggered delay
+              const cards = container.querySelectorAll('.product-card');
+              cards.forEach((card, idx) => {
+                setTimeout(() => {
+                  card.classList.add('animated');
+                }, idx * 100);
+              });
+            } else {
+              container.innerHTML = '<p class="empty-message">Chưa có sản phẩm bán chạy nào.</p>';
+            }
+          })
+          .catch(error => {
+            console.error('Error loading best sellers:', error);
+            container.innerHTML = '<p class="empty-message">Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+          });
+      }
+      document.addEventListener('DOMContentLoaded', loadBestSellerProducts);
+      </script>
+
+      
+
+      
+        <section class="product-section animated-fade-up">
+          <h2>Sản phẩm nổi bật</h2>
+          <a href="all-products.html?sort=most-loved" class="see-all">Xem thêm</a>
+          <div id="featured-products" class="product-grid">
+            <!-- Featured products will be loaded here dynamically -->
+          </div>
+        </section>
+
+        <script>
+        // Function to render a single product card (reuse from designer-products.js)
+        function renderProductCard(design) {
+          let imageSrc = '';
+          if (design.designImage && design.designImage.startsWith('data:image/')) {
+            imageSrc = design.designImage;
+          } else if (design.productType && design.productType.toLowerCase().includes('hoodie')) {
+            imageSrc = 'resources/hoodie-demo.png';
+          } else {
+            imageSrc = 'resources/tshirt-model.png';
+          }
+          // Show "New" label if uploaded in last 24h
+          const isNew = (() => {
+            const uploadDate = new Date(design.createdAt || design.uploadDate || 0);
+            const now = new Date();
+            const timeDifference = now - uploadDate;
+            const hoursDifference = timeDifference / (1000 * 60 * 60);
+            return hoursDifference <= 24;
+          })();
+          return `
+            <div class="product-card" style="cursor:pointer" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'">
+              <img src="${imageSrc}" alt="${design.productType || 'Product'}">
+              ${isNew ? '<span class="new-label">New</span>' : ''}
+              ${design.isCustomDesign ? '<span class="custom-design-label" style="position:absolute;top:10px;right:10px;background:#7B3FF2;color:white;padding:4px 8px;border-radius:12px;font-size:12px;font-weight:600;">🎨 Thiết kế tùy chỉnh</span>' : ''}
+              <h3>${design.name || 'Tên thiết kế'}</h3>
+              <p>by <b>${design.username || 'Designer'}</b></p>
+              <p class="price">${design.price ? design.price.toLocaleString() : ''} VND</p>
+              <button class="btn btn-secondary" onclick="window.location.href='products.html?designId=${encodeURIComponent(design.designId)}'; event.stopPropagation();">Xem sản phẩm</button>
+            </div>
+          `;
+        }
+        // Load featured products
+        function loadFeaturedProducts() {
+          const container = document.getElementById('featured-products');
+          if (!container) return;
+          container.innerHTML = '<p class="empty-message">Chưa có sản phẩm nổi bật nào.</p>';
+          fetch('https://yours-fashion.vercel.app/api/designs')
+            .then(response => response.json())
+            .then(designs => {
+              // Filter: at least 1 heart (likes/favorites/loveCount >= 1)
+              const filtered = (Array.isArray(designs) ? designs : []).filter(d => (d.likes || d.favorites || d.loveCount || 0) >= 1);
+              // Sort by most loved
+              filtered.sort((a, b) => ((b.likes || b.favorites || b.loveCount || 0) - (a.likes || a.favorites || a.loveCount || 0)));
+              // Show up to 5 featured products
+              const featured = filtered.slice(0, 5);
+              if (featured.length > 0) {
+                container.innerHTML = featured.map(renderProductCard).join('');
+                // Animate product cards with staggered delay
+                const cards = container.querySelectorAll('.product-card');
+                cards.forEach((card, idx) => {
+                  setTimeout(() => {
+                    card.classList.add('animated');
+                  }, idx * 100);
+                });
+              } else {
+                container.innerHTML = '<p class="empty-message">Chưa có sản phẩm nổi bật nào.</p>';
+              }
+            })
+            .catch(error => {
+              console.error('Error loading featured products:', error);
+              container.innerHTML = '<p class="empty-message">Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+            });
+        }
+        document.addEventListener('DOMContentLoaded', loadFeaturedProducts);
+        </script>
+
+        <!-- New section for designer products -->
+        <section class="product-section animated-fade-up">
+          <h2>Thiết kế mới nhất</h2>
+          <a href="all-products.html?sort=newest" class="see-all">Xem thêm</a>
+          <div id="designer-products" class="product-grid">
+            <!-- Products will be loaded here dynamically -->
+          </div>
+        </section>
+
+        <section class="banner-section">
+          <div class="banner-container">
+            <img src="resources/banner2.png" alt="In theo yêu cầu" class="banner-image">
+            <img src="resources/banner1.png" alt="Sản phẩm in ấn độc đáo" class="banner-image">
+          </div>
+        </section>
+
+        <section class="commitment-section">
+          <h2>Cam kết</h2>
+          <div class="commitment-container">
+            <div class="commitment-card">
+              <h3>Chất lượng</h3>
+              <ul>
+                <li>Cam kết sử dụng vật liệu chất lượng cao.</li>
+                <li>In chuẩn màu, đảm bảo độ bền màu.</li>
+                <li>Hình ảnh in sắc nét, chuẩn xác.</li>
+              </ul>
+            </div>
+            <div class="commitment-card">
+              <h3>Bảo hành & đổi trả</h3>
+              <ul>
+                <li>Cam kết bảo hành sản phẩm nếu lỗi do nhà sản xuất.</li>
+                <li>Chính sách đổi trả linh hoạt.</li>
+                <li>Hỗ trợ khách hàng 24/7.</li>
+              </ul>
+            </div>
+            <div class="commitment-card">
+              <h3>Minh bạch</h3>
+              <ul>
+                <li>Báo giá rõ ràng, không có phụ phí.</li>
+                <li>Cung cấp hình ảnh thực tế sản phẩm trước khi giao.</li>
+                <li>Cam kết hoàn tiền nếu không hài lòng với sản phẩm.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+    </main>
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <img src="resources/logo-footer.png" alt="Footer Logo" class="footer-logo">
+          <p class="tagline">Nơi sáng tạo những gì bạn muốn</p>
+          <p class="support"><strong>Chăm sóc khách hàng</strong><br>official.yours.fashiondesign@gmail.com</p>
+          <div class="social-icons">
+            <a href="https://www.facebook.com/profile.php?id=61576837198946" target="_blank" rel="noopener noreferrer">
+              <img src="resources/facebook-footer.png" alt="Facebook">
+            </a>
+            <a href="https://www.instagram.com/yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/instagram-footer.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@yours.fashiondesign" target="_blank" rel="noopener noreferrer">
+              <img src="resources/tiktok-footer.png" alt="TikTok">
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>YOURS.vn</h4>
+          <ul>
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Lời chứng thực</a></li>
+            <li><a href="#">Câu hỏi thường gặp</a></li>
+            <li><a href="#">Hướng dẫn thiết kế</a></li>
+            <li><a href="#">Sản phẩm</a></li>
+            <li><a href="#">Tuyển dụng</a></li>
+            <li><a href="#">Tư vấn</a></li>
+            <li><a href="#">Chính sách hỗ trợ</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Chính sách & hỗ trợ</h4>
+          <ul>
+            <li><a href="#">Chính sách bảo mật và quyền riêng tư</a></li>
+            <li><a href="#">Điều khoản và điều kiện</a></li>
+            <li><a href="#">Chính sách vận chuyển và giao nhận</a></li>
+            <li><a href="#">Quy định và hình thức thanh toán</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Phương thức thanh toán</h4>
+          <div class="payment-methods">
+            <img src="resources/momo.png" alt="Momo">
+            <img src="resources/zalopay.png" alt="Zalopay">
+            <img src="resources/visa.png" alt="Visa">
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Bản quyền © 2025 | Bảo lưu mọi quyền | <a href="#">Điều khoản và Điều kiện</a> | <a href="#">Chính sách bảo mật</a></p>
+      </div>
+    </footer>
+  </div>
+  
+  <script>
+       // Kiểm tra token khi trang tải
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'homepage-unauthenticated.html';
+      return;
+    }
+
+    // Gọi API để lấy thông tin người dùng
+    fetch('https://yours-fashion.vercel.app/api/user', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => {
+      if (!response.ok) {
+        console.log('API error - Status:', response.status, 'Message:', response.statusText);
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('API response:', data);
+      if (data.user && data.user.username) {
+        document.getElementById('username').textContent = data.user.username;
+      } else {
+        console.log('Username not found in response');
+        document.getElementById('username').textContent = 'Khách hàng';
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching user:', error.message);
+      localStorage.removeItem('token');
+      window.location.href = 'homepage-unauthenticated.html';
+    });
+
+
+    // Đóng dropdown khi nhấp ra ngoài
+    document.addEventListener('click', function(event) {
+      const userBtn = document.querySelector('.user-btn');
+      const dropdown = document.getElementById('userDropdown');
+      if (!userBtn.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+      // Handle logout
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userName');
+        alert('Đã đăng xuất thành công!');
+        window.location.href = 'index.html';
+      });
+  </script>
+  <script>
+    // Function to toggle dropdown
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+      }
+    }
+
+    // Function to activate tab
+    function activateTab(tabName) {
+      event.preventDefault();
+      if (tabName === 'home') {
+        window.location.replace('index.html');
+      } else if (tabName === 'design') {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          showLoginModal();
+        } else {
+          window.location.replace('design.html');
+        }
+      }
+    }
+
+    // Đặt trạng thái active mặc định dựa trên trang hiện tại
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPage = window.location.pathname.split('/').pop();
+      if (currentPage === 'index.html') {
+        const homeBtn = document.querySelector('button[onclick="activateTab(\'home\')"]');
+        if (homeBtn) homeBtn.classList.add('active');
+      }
+    });
+  </script>
+  <script src="javascript/homepage.js"></script>
+  <script src="javascript/designer-products.js"></script>
+  <script>
+  // Hide 'Cửa hàng của tôi' for non-designers
+  (function() {
+    function getRoleFromToken() {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.role;
+      } catch (e) { return null; }
+    }
+    if (getRoleFromToken() !== 'designer') {
+      var storeMenu = document.getElementById('designerStoreMenu');
+      if (storeMenu) storeMenu.style.display = 'none';
+    }
+  })();
+  </script>
+  <script>
+  // Swap CTA button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const ctaBtn = document.getElementById('main-cta-btn');
+    const ctaText = document.getElementById('main-cta-text');
+    if (!token && ctaBtn && ctaText) {
+      ctaBtn.href = 'choose-login.html';
+      ctaText.textContent = 'Đăng ký ngay';
+    } else if (ctaBtn && ctaText) {
+      ctaBtn.href = 'design.html';
+      ctaText.textContent = 'Thiết Kế Ngay';
+    }
+  })();
+  </script>
+  <script>
+  // Swap account button for unauthenticated users
+  (function() {
+    const token = localStorage.getItem('token');
+    const accountBtn = document.getElementById('accountBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    if (!token && accountBtn) {
+      // Replace button with a link
+      const link = document.createElement('a');
+      link.href = 'choose-login.html';
+      link.className = 'user-btn';
+      link.textContent = 'Tài Khoản';
+      accountBtn.parentNode.replaceChild(link, accountBtn);
+      if (userDropdown) userDropdown.style.display = 'none';
+    }
+  })();
+  </script>
+  </body>
 </html>
+
+<!-- Login Required Popup Modal -->
+<div id="loginRequiredModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Đăng nhập để tiếp tục</h2>
+      <span class="close" onclick="closeLoginModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="modal-icon">
+        <svg width="64" height="64" fill="none" stroke="#7B3FF2" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10,17 15,12 10,7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+      </div>
+      <p id="loginModalMessage"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="goToLogin()">Đăng nhập / Đăng ký</button>
+      <button class="btn-secondary" onclick="closeLoginModal()">Để sau</button>
+    </div>
+  </div>
+</div>
+<script>
+function closeLoginModal() {
+  const modal = document.getElementById('loginRequiredModal');
+  if (modal) modal.style.display = 'none';
+}
+function goToLogin() {
+  window.location.href = 'choose-login.html';
+}
+</script>
